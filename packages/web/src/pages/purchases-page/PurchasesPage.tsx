@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 import {
   Status,
@@ -8,6 +8,7 @@ import {
   useAllPaginatedQuery,
   useGetPurchases
 } from '@audius/common'
+import { full } from '@audius/sdk'
 import {
   HarmonyButton,
   HarmonyButtonSize,
@@ -27,7 +28,11 @@ import { useSelector } from 'utils/reducer'
 import { FEED_PAGE } from 'utils/route'
 
 import styles from './PurchasesPage.module.css'
-import { PurchasesTable } from './PurchasesTable'
+import {
+  PurchasesTable,
+  PurchasesTableSortDirection,
+  PurchasesTableSortMethod
+} from './PurchasesTable'
 
 const { getUserId } = accountSelectors
 
@@ -41,9 +46,23 @@ const messages = {
 }
 
 // TODO: Use higher value after testing
-const TRANSACTIONS_BATCH_SIZE = 5
+const TRANSACTIONS_BATCH_SIZE = 50
 
-// TODO: Match mock, button goes to
+const sortMethods: {
+  [k in PurchasesTableSortMethod]: full.GetPurchasesSortMethodEnum
+} = {
+  contentName: full.GetPurchasesSortMethodEnum.ContentTitle,
+  date: full.GetPurchasesSortMethodEnum.Date,
+  artist: full.GetPurchasesSortMethodEnum.ArtistName
+}
+
+const sortDirections: {
+  [k in PurchasesTableSortDirection]: full.GetPurchasesSortDirectionEnum
+} = {
+  asc: full.GetPurchasesSortDirectionEnum.Asc,
+  desc: full.GetPurchasesSortDirectionEnum.Desc
+}
+
 const NoPurchases = () => {
   const dispatch = useDispatch()
   const handleClickFindSongs = useCallback(() => {
@@ -71,16 +90,22 @@ const NoPurchases = () => {
   )
 }
 
+// TODO: Move this into a helper hook and/or down into the table.
+const empty = Array.from({ length: TRANSACTIONS_BATCH_SIZE }).map(() => ({}))
+
+/**
+ * Fetches and renders a table of purchases for the currently logged in user
+ * */
 export const PurchasesPage = () => {
   const userId = useSelector(getUserId)
-  // const [sortMethod, setSortMethod] =
-  //   useState<full.GetAudioTransactionHistorySortMethodEnum>(
-  //     full.GetAudioTransactionHistorySortMethodEnum.Date
-  //   )
-  // const [sortDirection, setSortDirection] =
-  //   useState<full.GetAudioTransactionHistorySortDirectionEnum>(
-  //     full.GetAudioTransactionHistorySortDirectionEnum.Desc
-  //   )
+  // Defaults: sort method = date, sort direction = desc
+  const [sortMethod, setSortMethod] = useState<full.GetPurchasesSortMethodEnum>(
+    full.GetPurchasesSortMethodEnum.Date
+  )
+  const [sortDirection, setSortDirection] =
+    useState<full.GetPurchasesSortDirectionEnum>(
+      full.GetPurchasesSortDirectionEnum.Desc
+    )
   const { mainContentRef } = useContext(MainContentContext)
 
   const {
@@ -90,36 +115,32 @@ export const PurchasesPage = () => {
     loadMore
   } = useAllPaginatedQuery(
     useGetPurchases,
-    { userId },
+    { userId, sortMethod, sortDirection },
     { disabled: !userId, pageSize: TRANSACTIONS_BATCH_SIZE }
   )
-  // const dispatch = useDispatch()
-  // const setVisibility = useSetVisibility()
 
-  // TODO: Fetch total count?
+  const [rows, setRows] = useState<any[]>([...empty])
 
-  // useEffect(() => {
-  //   dispatch(fetchAudioTransactionsCount())
-  // }, [dispatch])
+  useEffect(() => {
+    if (hasMore) {
+      setRows([...transactions, ...empty] as any)
+    } else {
+      setRows(transactions)
+    }
+  }, [transactions, hasMore])
 
-  // Defaults: sort method = date, sort direction = desc
+  // TODO: This doesn't seem to work?
   const onSort = useCallback(
-    (sortMethodInner: string, sortDirectionInner: string) => {
-      // const sortMethodRes =
-      //   sortMethodInner === 'type'
-      //     ? full.GetAudioTransactionHistorySortMethodEnum.TransactionType
-      //     : full.GetAudioTransactionHistorySortMethodEnum.Date
-      // setSortMethod(sortMethodRes)
-      // const sortDirectionRes =
-      //   sortDirectionInner === 'asc'
-      //     ? full.GetAudioTransactionHistorySortDirectionEnum.Asc
-      //     : full.GetAudioTransactionHistorySortDirectionEnum.Desc
-      // setSortDirection(sortDirectionRes)
+    (
+      method: PurchasesTableSortMethod,
+      direction: PurchasesTableSortDirection
+    ) => {
+      setSortMethod(sortMethods[method])
+      setSortDirection(sortDirections[direction])
     },
     []
   )
 
-  // TODO: Do we actually need this or is loadMore() safe to call directly?
   const fetchMore = useCallback(() => {
     if (hasMore) {
       loadMore()
@@ -127,20 +148,7 @@ export const PurchasesPage = () => {
   }, [hasMore, loadMore])
 
   const onClickRow = useCallback((txDetails: USDCPurchaseDetails) => {
-    // dispatch(
-    //   fetchTransactionDetailsSucceeded({
-    //     transactionId: txDetails.signature,
-    //     transactionDetails: txDetails
-    //   })
-    // )
-    // if (txDetails.transactionType === TransactionType.PURCHASE) {
-    //   dispatch(
-    //     fetchAudioTransactionMetadata({
-    //       txDetails
-    //     })
-    //   )
-    // }
-    // setVisibility('TransactionDetails')(true)
+    // TODO: Show details modal on row click
   }, [])
 
   const isEmpty = transactions && transactions.length === 0
@@ -158,14 +166,14 @@ export const PurchasesPage = () => {
         ) : (
           <PurchasesTable
             key='purchases'
-            data={status === Status.SUCCESS ? transactions : []}
+            data={status === Status.SUCCESS ? (rows as any) : []}
             loading={isLoading}
             onSort={onSort}
             onClickRow={onClickRow}
             fetchMore={fetchMore}
             isVirtualized={true}
-            // totalRowCount={audioTransactionsCount}
             scrollRef={mainContentRef}
+            totalRowCount={rows?.length}
             fetchBatchSize={TRANSACTIONS_BATCH_SIZE}
           />
         )}

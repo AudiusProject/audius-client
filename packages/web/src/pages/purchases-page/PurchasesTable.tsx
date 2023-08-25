@@ -18,6 +18,7 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { Table } from 'components/table'
 import { Tile } from 'components/tile'
 import { Text } from 'components/typography'
+import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
 import { useSelector } from 'utils/reducer'
 
@@ -36,13 +37,19 @@ export type PurchasesTableColumn =
   | 'spacerLeft'
   | 'spacerRight'
 
+export type PurchasesTableSortMethod = 'contentName' | 'artist' | 'date'
+export type PurchasesTableSortDirection = 'asc' | 'desc'
+
 type PurchasesTableProps = {
   columns?: PurchasesTableColumn[]
   data: USDCPurchaseDetails[]
   isVirtualized?: boolean
   loading?: boolean
   onClickRow?: (txDetails: USDCPurchaseDetails, index: number) => void
-  onSort: (sortMethod: string, sortDirection: string) => void
+  onSort: (
+    sortMethod: PurchasesTableSortMethod,
+    sortDirection: PurchasesTableSortDirection
+  ) => void
   fetchMore: (offset: number, limit: number) => void
   totalRowCount?: number
   scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
@@ -83,7 +90,16 @@ const UserNameAndBadge = ({ userId }: { userId: number }) => {
   const loading = statusIsNotFinalized(status) || !user
   return loading ? null : (
     <div className={styles.artistName}>
-      <Text variant='body' size='small' strength='strong'></Text>
+      <Text variant='body' size='small' strength='strong'>
+        {user.name}
+      </Text>
+      <UserBadges
+        userId={userId}
+        className={styles.badgeIcon}
+        noContentClassName={styles.noContentBadgeIcon}
+        badgeSize={12}
+        useSVGTiers
+      />
     </div>
   )
 }
@@ -111,6 +127,10 @@ const renderDateCell = (cellInfo: PurchaseCell) => {
 const renderValueCell = (cellInfo: PurchaseCell) => {
   const transaction = cellInfo.row.original
   return `$${formatUSDCWeiToUSDString(transaction.amount)}`
+}
+
+const isEmptyRow = (row?: PurchaseRow) => {
+  return !row?.original.signature
 }
 
 // Columns
@@ -173,6 +193,7 @@ const LoadingTile = () => (
   </Tile>
 )
 
+/** Renders a table of `USDCPurchaseDetails` records */
 export const PurchasesTable = ({
   columns = defaultColumns,
   data,
@@ -207,6 +228,7 @@ export const PurchasesTable = ({
     <Table
       columns={tableColumns}
       data={data}
+      isEmptyRow={isEmptyRow}
       onClickRow={handleClickRow}
       onSort={onSort}
       fetchMore={fetchMore}

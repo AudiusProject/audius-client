@@ -36,7 +36,13 @@ const transactionsApi = createApi({
   endpoints: {
     getPurchases: {
       fetch: async (
-        { offset, limit, userId }: GetTransactionsArgs,
+        {
+          offset,
+          limit,
+          userId,
+          sortDirection,
+          sortMethod
+        }: GetTransactionsArgs,
         { audiusSdk, audiusBackend }
       ) => {
         const { data: encodedDataMessage, signature: encodedDataSignature } =
@@ -45,6 +51,8 @@ const transactionsApi = createApi({
         const { data: purchases = [] } = await sdk.full.users.getPurchases({
           limit,
           offset,
+          sortDirection,
+          sortMethod,
           id: encodeHashId(userId!),
           userId: encodeHashId(userId!),
           encodedDataMessage,

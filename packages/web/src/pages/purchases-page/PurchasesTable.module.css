@@ -25,6 +25,7 @@
   width: var(--unit-10);
   border-radius: var(--unit-1);
   border: 1px solid var(--border-default);
+  overflow: hidden;
 }
 
 .artistName {
