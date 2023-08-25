@@ -1,5 +1,8 @@
 // @ts-nocheck
 // TODO(nkang) - convert to TS
+
+import { LibraryCategory, LibraryCategoryType } from './types'
+
 export const FETCH_SAVES = 'SAVED/FETCH_SAVES'
 export const FETCH_SAVES_REQUESTED = 'SAVED/FETCH_SAVES_REQUESTED'
 export const FETCH_SAVES_SUCCEEDED = 'SAVED/FETCH_SAVES_SUCCEEDED'
@@ -15,10 +18,12 @@ export const END_FETCHING = 'SAVED/END_FETCHING'
 
 export const ADD_LOCAL_SAVE = 'SAVED/ADD_LOCAL_SAVE'
 export const REMOVE_LOCAL_SAVE = 'SAVED/REMOVE_LOCAL_SAVE'
+export const SET_SELECTED_CATEGORY = 'SAVED/SET_SELECTED_CATEGORY'
 
 export const fetchSaves = (
   // the filter query for the "get tracks" query
   query = '',
+  category: LibraryCategoryType = LibraryCategory.Favorite,
   // the sort method for the "get tracks" query
   sortMethod = '',
   // the sort direction for the "get tracks" query
@@ -29,6 +34,7 @@ export const fetchSaves = (
   limit = 50
 ) => ({
   type: FETCH_SAVES,
+  category,
   offset,
   limit,
   query,
@@ -39,6 +45,7 @@ export const fetchSaves = (
 export const fetchMoreSaves = (
   // the filter query for the "get tracks" query
   query = '',
+  category: LibraryCategoryType = LibraryCategory.Favorite,
   // the sort method for the "get tracks" query
   sortMethod = '',
   // the sort direction for the "get tracks" query
@@ -49,6 +56,7 @@ export const fetchMoreSaves = (
   limit = 50
 ) => ({
   type: FETCH_MORE_SAVES,
+  category,
   offset,
   limit,
   query,
@@ -93,4 +101,9 @@ export const addLocalSave = (trackId, uid) => ({
 export const removeLocalSave = (trackId) => ({
   type: REMOVE_LOCAL_SAVE,
   trackId
+})
+
+export const setSelectedCategory = (category: LibraryCategoryType) => ({
+  type: SET_SELECTED_CATEGORY,
+  category
 })

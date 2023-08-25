@@ -3,15 +3,15 @@ import { useContext } from 'react'
 import {
   ID,
   Lineup,
-  SavedPageTabs as ProfileTabs,
   QueueItem,
   SavedPageCollection,
+  savedPageSelectors,
+  SavedPageTabs as ProfileTabs,
   SavedPageTrack,
   Status,
   TrackRecord,
   UID,
-  User,
-  savedPageSelectors
+  User
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import { useSelector } from 'react-redux'
@@ -29,6 +29,7 @@ import useTabs from 'hooks/useTabs/useTabs'
 import { MainContentContext } from 'pages/MainContentContext'
 
 import { AlbumsTabPage } from './AlbumsTabPage'
+import { LibraryCategorySelectionMenu } from './LibraryCategorySelectionMenu'
 import { PlaylistsTabPage } from './PlaylistsTabPage'
 import styles from './SavedPage.module.css'
 
@@ -235,13 +236,20 @@ const SavedPage = ({
     ]
   })
 
+  const headerBottomBar = (
+    <div className={styles.headerBottomBarContainer}>
+      {tabs}
+      {filter}
+    </div>
+  )
+
   const header = (
     <Header
       primary={messages.libraryHeader}
       secondary={isEmpty ? null : playAllButton}
-      rightDecorator={filter}
+      rightDecorator={<LibraryCategorySelectionMenu />}
       containerStyles={styles.savedPageHeader}
-      bottomBar={tabs}
+      bottomBar={headerBottomBar}
     />
   )
 

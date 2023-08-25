@@ -8,10 +8,15 @@ import {
   responseAdapter,
   savedPageActions as actions,
   savedPageSelectors,
+  signOutActions,
   savedPageTracksLineupActions as tracksActions,
   User,
   UserTrackMetadata,
-  waitForValue
+  waitForValue,
+  LIBRARY_SELECTED_CATEGORY_LS_KEY,
+  isLibraryCategory,
+  LibraryCategoryType,
+  Nullable
 } from '@audius/common'
 import { call, fork, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -19,6 +24,8 @@ import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { waitForRead } from 'utils/sagaHelpers'
 
 import tracksSagas from './lineups/sagas'
+const { signOut: signOutAction } = signOutActions
+
 const { getSaves } = savedPageSelectors
 const { getAccountUser } = accountSelectors
 
@@ -41,6 +48,7 @@ type LibraryParams = {
   query: string
   sortMethod: string
   sortDirection: string
+  category: LibraryCategoryType
 }
 
 function* sendLibraryRequest({
@@ -49,7 +57,8 @@ function* sendLibraryRequest({
   limit,
   query,
   sortMethod,
-  sortDirection
+  sortDirection,
+  category
 }: LibraryParams) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const { data, signature } = yield* call([
@@ -69,7 +78,7 @@ function* sendLibraryRequest({
       query,
       sortMethod,
       sortDirection,
-      type: 'all',
+      type: category,
       encodedDataMessage: data,
       encodedDataSignature: signature
     }
@@ -108,7 +117,8 @@ function prepareParams({
     limit: params.limit ?? account.track_save_count,
     query: params.query ?? '',
     sortMethod: params.sortMethod || 'added_date',
-    sortDirection: params.sortDirection || 'desc'
+    sortDirection: params.sortDirection || 'desc',
+    category: params.category
   }
 }
 
@@ -116,6 +126,7 @@ function* watchFetchSaves() {
   let currentQuery = ''
   let currentSortMethod = ''
   let currentSortDirection = ''
+  let currentCategory = null as Nullable<LibraryCategoryType>
 
   yield* takeLatest(
     actions.FETCH_SAVES,
@@ -124,11 +135,13 @@ function* watchFetchSaves() {
       const account: User = yield* call(waitForValue, getAccountUser)
       const saves = yield* select(getSaves)
       const params = prepareParams({ account, params: rawParams })
-      const { query, sortDirection, sortMethod, offset, limit } = params
+      const { query, sortDirection, sortMethod, offset, limit, category } =
+        params
       const isSameParams =
         query === currentQuery &&
         currentSortDirection === sortDirection &&
-        currentSortMethod === sortMethod
+        currentSortMethod === sortMethod &&
+        currentCategory === category
 
       // Don't refetch saves in the same session
       if (saves && saves.length && isSameParams) {
@@ -138,6 +151,7 @@ function* watchFetchSaves() {
           currentQuery = query
           currentSortDirection = sortDirection
           currentSortMethod = sortMethod
+          currentCategory = category
           yield* put(actions.fetchSavesRequested())
           const { saves, tracks } = yield* call(sendLibraryRequest, params)
 
@@ -186,6 +200,55 @@ function* watchFetchMoreSaves() {
   )
 }
 
+/**
+ * Sets the selected category from local storage when the app loads
+ */
+function* setInitialSelectedCategory() {
+  const getLocalStorageItem = yield* getContext('getLocalStorageItem')
+
+  const categoryFromLocalStorage = yield* call(
+    getLocalStorageItem,
+    LIBRARY_SELECTED_CATEGORY_LS_KEY
+  )
+
+  if (
+    categoryFromLocalStorage != null &&
+    isLibraryCategory(categoryFromLocalStorage)
+  ) {
+    yield* put(actions.setSelectedCategory(categoryFromLocalStorage))
+  }
+}
+
+function* setLocalStorageSelectedCategory(
+  rawParams: ReturnType<typeof actions.setSelectedCategory>
+) {
+  const setLocalStorageItem = yield* getContext('setLocalStorageItem')
+  setLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY, rawParams.category)
+}
+
+function* watchSetSelectedCategory() {
+  yield* takeLatest(
+    actions.SET_SELECTED_CATEGORY,
+    setLocalStorageSelectedCategory
+  )
+}
+
+function* clearLocalStorageSelectedCategory() {
+  const removeLocalStorageItem = yield* getContext('removeLocalStorageItem')
+  removeLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY)
+}
+
+function* watchSignOut() {
+  yield* takeLatest(signOutAction.type, clearLocalStorageSelectedCategory)
+}
+
 export default function sagas() {
-  return [...tracksSagas(), watchFetchSaves, watchFetchMoreSaves]
+  return [
+    ...tracksSagas(),
+    watchFetchSaves,
+    watchFetchMoreSaves,
+    watchSetSelectedCategory,
+    setInitialSelectedCategory,
+    watchSignOut
+  ]
 }
