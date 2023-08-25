@@ -74,7 +74,7 @@ mobile-build-staging-ios:
     - mobile-halt-if-no-native-changes # Don't need to test building if there's no native changes
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
@@ -115,7 +115,7 @@ mobile-build-production-ios:
   steps:
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -137,7 +137,7 @@ mobile-build-upload-production-ios-if-full-release:
   steps:
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -160,7 +160,7 @@ mobile-deploy-codepush-production-ios-if-ota-release:
   steps:
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -182,7 +182,7 @@ mobile-build-upload-releasecandidate-ios:
   steps:
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.releasecandidate'
@@ -204,7 +204,7 @@ mobile-build-upload-staging-releasecandidate-ios:
   steps:
     - run:
         name: Set Ruby Version
-        command: rbenv global 2.7.7 && rbenv rehash
+        command: rbenv global 2.7.8 && rbenv rehash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.staging.releasecandidate'
