@@ -218,7 +218,7 @@ mobile-build-staging-android:
   working_directory: ~/audius-client
   resource_class: xlarge
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-staging'
@@ -233,7 +233,7 @@ mobile-build-upload-staging-android:
   working_directory: ~/audius-client
   resource_class: xlarge
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-staging'
@@ -246,7 +246,7 @@ mobile-build-upload-staging-releasecandidate-android:
   working_directory: ~/audius-client
   resource_class: large
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-staging-releasecandidate'
@@ -259,7 +259,7 @@ mobile-build-upload-releasecandidate-android:
   working_directory: ~/audius-client
   resource_class: large
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-releasecandidate'
@@ -272,7 +272,7 @@ mobile-build-production-android:
   working_directory: ~/audius-client
   resource_class: xlarge
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
@@ -287,7 +287,7 @@ mobile-build-upload-production-android-if-full-release:
   working_directory: ~/audius-client
   resource_class: xlarge
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
@@ -301,7 +301,7 @@ mobile-deploy-codepush-production-android-if-ota-release:
   working_directory: ~/audius-client
   resource_class: large
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
@@ -314,7 +314,7 @@ mobile-deploy-saga-dapp-store:
   working_directory: ~/audius-client
   resource_class: xlarge
   docker:
-    - image: circleci/android:api-30-node
+    - image: cimg/android:2023.08-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
