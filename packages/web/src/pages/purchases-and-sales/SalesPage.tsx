@@ -46,9 +46,7 @@ const sortMethods: {
   [k in SalesTableSortMethod]: full.GetSalesSortMethodEnum
 } = {
   contentId: full.GetSalesSortMethodEnum.ContentTitle,
-  createdAt: full.GetSalesSortMethodEnum.Date,
-  // TODO: Should this not be buyer?
-  buyerUserId: full.GetSalesSortMethodEnum.ArtistName
+  createdAt: full.GetSalesSortMethodEnum.Date
 }
 
 const sortDirections: {
