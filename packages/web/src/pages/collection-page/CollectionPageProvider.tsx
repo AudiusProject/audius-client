@@ -485,30 +485,12 @@ class CollectionPage extends Component<
     }
   }
 
-  onClickDescriptionExternalLink = (event: any) => {
-    const { record } = this.props
-    record(
-      make(Name.LINK_CLICKING, {
-        url: event.target.href,
-        source: 'collection page'
-      })
-    )
-  }
-
   onClickSave = (record: CollectionPageTrackRecord) => {
     if (!record.has_current_user_saved) {
       this.props.saveTrack(record.track_id)
     } else {
       this.props.unsaveTrack(record.track_id)
     }
-  }
-
-  onClickTrackName = (record: CollectionPageTrackRecord) => {
-    this.props.goToRoute(record.permalink)
-  }
-
-  onClickArtistName = (record: CollectionPageTrackRecord) => {
-    this.props.goToRoute(profilePage(record.handle))
   }
 
   onClickRepostTrack = (record: CollectionPageTrackRecord) => {
@@ -653,12 +635,6 @@ class CollectionPage extends Component<
     this.props.shareCollection(playlistId)
   }
 
-  onHeroTrackClickArtistName = () => {
-    const { goToRoute, user } = this.props
-    const playlistOwnerHandle = user ? user.handle : ''
-    goToRoute(profilePage(playlistOwnerHandle))
-  }
-
   onHeroTrackEdit = () => {
     if (this.props.playlistId)
       this.props.onEditCollection(this.props.playlistId)
@@ -750,8 +726,7 @@ class CollectionPage extends Component<
       tracks,
       userId,
       userPlaylists,
-      smartCollection,
-      onClickDescriptionInternalLink
+      smartCollection
     } = this.props
     const { allowReordering } = this.state
     const { playlistId } = this.props
@@ -788,7 +763,6 @@ class CollectionPage extends Component<
       getPlayingUid: this.getPlayingUid,
       getFilteredData: this.getFilteredData,
       isQueued: this.isQueued,
-      onHeroTrackClickArtistName: this.onHeroTrackClickArtistName,
       onFilterChange: this.onFilterChange,
       onPlay: this.onPlay,
       onHeroTrackEdit: this.onHeroTrackEdit,
@@ -798,11 +772,7 @@ class CollectionPage extends Component<
       onHeroTrackRepost: this.onHeroTrackRepost,
       onClickRow: this.onClickRow,
       onClickSave: this.onClickSave,
-      onClickTrackName: this.onClickTrackName,
-      onClickArtistName: this.onClickArtistName,
       onClickRepostTrack: this.onClickRepostTrack,
-      onClickDescriptionExternalLink: this.onClickDescriptionExternalLink,
-      onClickDescriptionInternalLink,
       onSortTracks: this.onSortTracks,
       onReorderTracks: this.onReorderTracks,
       onClickRemove: this.onClickRemove,
@@ -1031,8 +1001,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
         openEditCollectionModal({ collectionId, isCollectionViewed: true })
       ),
     updatePlaylistLastViewedAt: (playlistId: ID) =>
-      dispatch(updatedPlaylistViewed({ playlistId })),
-    onClickDescriptionInternalLink: (path: string) => dispatch(pushRoute(path))
+      dispatch(updatedPlaylistViewed({ playlistId }))
   }
 }
 

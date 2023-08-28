@@ -1,17 +1,15 @@
 {
   "name": "embed",
-  "version": "1.5.38",
+  "version": "1.5.39",
   "scripts": {
     "dev": "preact watch --no-sw --template src/template.html",
     "start:dev": "env-cmd -f .env.dev env-cmd -f .env.local npm run -s dev",
     "start:stage": "env-cmd -f .env.stage env-cmd -f .env.local npm run -s dev",
     "start:prod": "env-cmd -f .env.prod env-cmd -f .env.local npm run -s dev",
-    "build:stage": "env-cmd -f .env.stage preact --max-old-space-size=8192 build --no-prerender --no-sw --template src/template.html && npm run build-api",
-    "build:prod": "env-cmd -f .env.prod preact --max-old-space-size=8192 build --no-prerender --no-sw --template src/template.html && npm run build-api",
+    "build:stage": "env-cmd -f .env.stage preact --max-old-space-size=8192 build --no-prerender --no-sw --template src/template.html && npm run build-api && mv build build-staging",
+    "build:prod": "env-cmd -f .env.prod preact --max-old-space-size=8192 build --no-prerender --no-sw --template src/template.html && npm run build-api && mv build build-production",
     "build-api": "webpack --config src/api/webpack.config.js -o build/api.js",
     "serve": "preact --max-old-space-size=8192 build --no-prerender --no-sw --template src/template.html && preact serve",
-    "deploy:prod": "aws s3 sync build s3://bedtime.audius.co --delete && aws s3 cp s3://bedtime.audius.co/index.html s3://bedtime.audius.co/index.html  --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html --metadata-directive REPLACE --acl public-read && aws cloudfront create-invalidation --distribution-id E33HWSH5ZFFGR1 --paths \"/*\"",
-    "deploy:stage": "aws s3 sync build s3://bedtime.staging.audius.co --delete && aws s3 cp s3://bedtime.staging.audius.co/index.html s3://bedtime.staging.audius.co/index.html  --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html --metadata-directive REPLACE --acl public-read && aws cloudfront create-invalidation --distribution-id E2FVSCZAVXZNSY --paths \"/*\"",
     "lint": "eslint src",
     "lint:fix": "eslint --cache --fix --ext=js,jsx,ts,tsx src"
   },
@@ -21,7 +19,7 @@
     "@babel/preset-react": "7.18.6",
     "env-cmd": "10.1.0",
     "eslint": "8.25.0",
-    "eslint-config-audius": "1.5.26",
+    "eslint-config-audius": "1.5.39",
     "eslint-config-preact": "^1.3.0",
     "identity-obj-proxy": "3.0.0",
     "jest": "29.4.2",
@@ -35,7 +33,7 @@
   },
   "dependencies": {
     "@audius/sdk": "3.0.7-beta.3",
-    "@audius/stems": "1.5.38",
+    "@audius/stems": "1.5.39",
     "amplitude-js": "8.11.1",
     "axios": "0.19.2",
     "classnames": "2.2.6",

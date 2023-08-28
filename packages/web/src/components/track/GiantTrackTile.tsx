@@ -1,14 +1,11 @@
 import { useCallback, useState } from 'react'
 
 import {
-  squashNewLines,
   getCanonicalName,
   formatDate,
   formatSeconds,
   Genre,
   FeatureFlags,
-  isAudiusUrl,
-  getPathFromAudiusUrl,
   Nullable,
   Remix,
   CoverArtSizes,
@@ -28,13 +25,11 @@ import {
   IconKebabHorizontal
 } from '@audius/stems'
 import cn from 'classnames'
-import Linkify from 'linkify-react'
 
 import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
-import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import { EntityActionButton } from 'components/entity-page/EntityActionButton'
-import { Link } from 'components/link'
+import { UserLink } from 'components/link'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Menu from 'components/menu/Menu'
 import RepostFavoritesStats from 'components/repost-favorites-stats/RepostFavoritesStats'
@@ -44,11 +39,9 @@ import { Tile } from 'components/tile'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement } from 'components/types'
-import { Text } from 'components/typography'
-import UserBadges from 'components/user-badges/UserBadges'
+import { UserGeneratedText } from 'components/user-generated-text'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { moodMap } from 'utils/Moods'
-import { profilePage } from 'utils/route'
 
 import { AiTrackSection } from './AiTrackSection'
 import Badge from './Badge'
@@ -65,7 +58,6 @@ const BUTTON_COLLAPSE_WIDTHS = {
   second: 1190,
   third: 1286
 }
-
 // Toast timeouts in ms
 const REPOST_TIMEOUT = 1000
 const SAVED_TIMEOUT = 1000
@@ -85,7 +77,6 @@ const messages = {
 export type GiantTrackTileProps = {
   aiAttributionUserId: Nullable<number>
   artistHandle: string
-  artistName: string
   badge: Nullable<string>
   coSign: Nullable<Remix>
   coverArtSizes: Nullable<CoverArtSizes>
@@ -111,8 +102,6 @@ export type GiantTrackTileProps = {
   onClickFavorites: () => void
   onClickReposts: () => void
   onDownload: (trackId: ID, category?: string, parentTrackId?: ID) => void
-  onExternalLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
-  onInternalLinkClick: (url: string) => void
   onMakePublic: (trackId: ID) => void
   onFollow: () => void
   onPlay: () => void
@@ -134,7 +123,6 @@ export type GiantTrackTileProps = {
 export const GiantTrackTile = ({
   aiAttributionUserId,
   artistHandle,
-  artistName,
   badge,
   coSign,
   coverArtSizes,
@@ -159,9 +147,7 @@ export const GiantTrackTile = ({
   onClickFavorites,
   onClickReposts,
   onDownload,
-  onExternalLinkClick,
   onFollow,
-  onInternalLinkClick,
   onMakePublic,
   onPlay,
   onSave,
@@ -525,23 +511,15 @@ export const GiantTrackTile = ({
             <div className={styles.artistWrapper}>
               <div className={cn(fadeIn)}>
                 <span>By </span>
-                <ArtistPopover handle={artistHandle}>
-                  <Link
-                    to={profilePage(artistHandle)}
-                    color='secondary'
-                    variant='body'
-                    size='large'
-                  >
-                    <Text as='h2' variant='inherit'>
-                      {artistName}
-                    </Text>
-                    <UserBadges
-                      className={styles.verified}
-                      badgeSize={18}
-                      userId={userId}
-                    />
-                  </Link>
-                </ArtistPopover>
+                <UserLink
+                  color='secondary'
+                  variant='body'
+                  size='large'
+                  textAs='h2'
+                  userId={userId}
+                  badgeSize={18}
+                  popover
+                />
               </div>
               {isLoading && (
                 <Skeleton className={styles.skeleton} width='60%' />
@@ -657,30 +635,13 @@ export const GiantTrackTile = ({
           ) : null}
         </div>
         {description ? (
-          <Linkify
-            options={{
-              attributes: {
-                onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
-                  const url = event.currentTarget.href
-
-                  if (isAudiusUrl(url)) {
-                    const path = getPathFromAudiusUrl(url)
-                    event.nativeEvent.preventDefault()
-                    onInternalLinkClick(path ?? '/')
-                  } else {
-                    onExternalLinkClick(event)
-                  }
-                }
-              },
-              target: (href, type, tokens) => {
-                return isAudiusUrl(href) ? '' : '_blank'
-              }
-            }}
+          <UserGeneratedText
+            component='h3'
+            size='small'
+            className={styles.description}
           >
-            <h3 className={styles.description}>
-              {squashNewLines(description)}
-            </h3>
-          </Linkify>
+            {description}
+          </UserGeneratedText>
         ) : null}
         {renderTags()}
         {renderDownloadButtons()}

@@ -63,8 +63,6 @@ export type OwnProps = {
   isBuffering: boolean
   play: (uid?: string) => void
   pause: () => void
-  onExternalLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
-  onInternalLinkClick: (url: string) => void
 }
 
 const TrackPage = ({
@@ -89,8 +87,6 @@ const TrackPage = ({
   onUnfollow,
   onDownloadTrack,
   makePublic,
-  onExternalLinkClick,
-  onInternalLinkClick,
   onClickReposts,
   onClickFavorites,
 
@@ -130,7 +126,6 @@ const TrackPage = ({
       trackId={defaults.trackId}
       aiAttributionUserId={defaults.aiAttributionUserId}
       userId={user?.user_id ?? 0}
-      artistName={emptyStringGuard(user?.name)}
       artistHandle={emptyStringGuard(user?.handle)}
       coverArtSizes={defaults.coverArtSizes}
       tags={defaults.tags}
@@ -153,8 +148,6 @@ const TrackPage = ({
       }
       isSaved={isSaved}
       badge={badge}
-      onExternalLinkClick={onExternalLinkClick}
-      onInternalLinkClick={onInternalLinkClick}
       isUnlisted={defaults.isUnlisted}
       isPremium={defaults.isPremium}
       premiumConditions={defaults.premiumConditions}
