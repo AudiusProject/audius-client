@@ -14,9 +14,7 @@ import moment from 'moment'
 import { Cell, Row } from 'react-table'
 
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { Table } from 'components/table'
-import { Tile } from 'components/tile'
 import { Text } from 'components/typography'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
@@ -37,7 +35,10 @@ export type PurchasesTableColumn =
   | 'spacerLeft'
   | 'spacerRight'
 
-export type PurchasesTableSortMethod = 'contentName' | 'artist' | 'date'
+export type PurchasesTableSortMethod =
+  | 'contentId'
+  | 'sellerUserId'
+  | 'createdAt'
 export type PurchasesTableSortDirection = 'asc' | 'desc'
 
 type PurchasesTableProps = {
@@ -187,12 +188,6 @@ const tableColumnMap = {
   }
 }
 
-const LoadingTile = () => (
-  <Tile elevation='mid' size='large' className={styles.loadingTile}>
-    <LoadingSpinner className={styles.spinner} />
-  </Tile>
-)
-
 /** Renders a table of `USDCPurchaseDetails` records */
 export const PurchasesTable = ({
   columns = defaultColumns,
@@ -222,12 +217,11 @@ export const PurchasesTable = ({
     [onClickRow]
   )
 
-  return loading ? (
-    <LoadingTile />
-  ) : (
+  return (
     <Table
       columns={tableColumns}
       data={data}
+      loading={loading}
       isEmptyRow={isEmptyRow}
       onClickRow={handleClickRow}
       onSort={onSort}

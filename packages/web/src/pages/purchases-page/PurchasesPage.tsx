@@ -51,9 +51,9 @@ const TRANSACTIONS_BATCH_SIZE = 50
 const sortMethods: {
   [k in PurchasesTableSortMethod]: full.GetPurchasesSortMethodEnum
 } = {
-  contentName: full.GetPurchasesSortMethodEnum.ContentTitle,
-  date: full.GetPurchasesSortMethodEnum.Date,
-  artist: full.GetPurchasesSortMethodEnum.ArtistName
+  contentId: full.GetPurchasesSortMethodEnum.ContentTitle,
+  createdAt: full.GetPurchasesSortMethodEnum.Date,
+  sellerUserId: full.GetPurchasesSortMethodEnum.ArtistName
 }
 
 const sortDirections: {
@@ -62,6 +62,9 @@ const sortDirections: {
   asc: full.GetPurchasesSortDirectionEnum.Asc,
   desc: full.GetPurchasesSortDirectionEnum.Desc
 }
+
+const DEFAULT_SORT_METHOD = full.GetPurchasesSortMethodEnum.Date
+const DEFAULT_SORT_DIRECTION = full.GetPurchasesSortDirectionEnum.Desc
 
 const NoPurchases = () => {
   const dispatch = useDispatch()
@@ -90,68 +93,63 @@ const NoPurchases = () => {
   )
 }
 
-// TODO: Move this into a helper hook and/or down into the table.
-const empty = Array.from({ length: TRANSACTIONS_BATCH_SIZE }).map(() => ({}))
-
 /**
  * Fetches and renders a table of purchases for the currently logged in user
  * */
 export const PurchasesPage = () => {
   const userId = useSelector(getUserId)
   // Defaults: sort method = date, sort direction = desc
-  const [sortMethod, setSortMethod] = useState<full.GetPurchasesSortMethodEnum>(
-    full.GetPurchasesSortMethodEnum.Date
-  )
+  const [sortMethod, setSortMethod] =
+    useState<full.GetPurchasesSortMethodEnum>(DEFAULT_SORT_METHOD)
   const [sortDirection, setSortDirection] =
-    useState<full.GetPurchasesSortDirectionEnum>(
-      full.GetPurchasesSortDirectionEnum.Desc
-    )
+    useState<full.GetPurchasesSortDirectionEnum>(DEFAULT_SORT_DIRECTION)
   const { mainContentRef } = useContext(MainContentContext)
+
+  const [count, setCount] = useState(0)
 
   const {
     status,
-    data: transactions,
-    hasMore,
-    loadMore
+    data: purchases
+    // hasMore,
+    // loadMore
   } = useAllPaginatedQuery(
     useGetPurchases,
     { userId, sortMethod, sortDirection },
     { disabled: !userId, pageSize: TRANSACTIONS_BATCH_SIZE }
   )
 
-  const [rows, setRows] = useState<any[]>([...empty])
-
+  // Mocking count functionality until we have are returning it from
+  // the API. This stabilizes the sort behavior of the table
   useEffect(() => {
-    if (hasMore) {
-      setRows([...transactions, ...empty] as any)
-    } else {
-      setRows(transactions)
+    if (status === Status.SUCCESS) {
+      setCount(purchases.length)
     }
-  }, [transactions, hasMore])
+  }, [status, purchases])
 
-  // TODO: This doesn't seem to work?
   const onSort = useCallback(
     (
       method: PurchasesTableSortMethod,
       direction: PurchasesTableSortDirection
     ) => {
-      setSortMethod(sortMethods[method])
-      setSortDirection(sortDirections[direction])
+      setSortMethod(sortMethods[method] ?? DEFAULT_SORT_METHOD)
+      setSortDirection(sortDirections[direction] ?? DEFAULT_SORT_DIRECTION)
     },
     []
   )
 
-  const fetchMore = useCallback(() => {
-    if (hasMore) {
-      loadMore()
-    }
-  }, [hasMore, loadMore])
+  // TODO: Remove this short circuit once count is implemented
+  const fetchMore = useCallback(() => {}, [])
+  // const fetchMore = useCallback(() => {
+  //   if (hasMore) {
+  //     loadMore()
+  //   }
+  // }, [hasMore, loadMore])
 
   const onClickRow = useCallback((txDetails: USDCPurchaseDetails) => {
     // TODO: Show details modal on row click
   }, [])
 
-  const isEmpty = transactions && transactions.length === 0
+  const isEmpty = status === Status.SUCCESS && purchases.length === 0
   const isLoading = statusIsNotFinalized(status)
 
   return (
@@ -161,19 +159,21 @@ export const PurchasesPage = () => {
       header={<Header primary={messages.headerText} />}
     >
       <div className={styles.container}>
-        {isEmpty && !isLoading ? (
+        {isEmpty ? (
           <NoPurchases />
         ) : (
           <PurchasesTable
             key='purchases'
-            data={status === Status.SUCCESS ? (rows as any) : []}
+            data={purchases}
             loading={isLoading}
             onSort={onSort}
             onClickRow={onClickRow}
             fetchMore={fetchMore}
             isVirtualized={true}
             scrollRef={mainContentRef}
-            totalRowCount={rows?.length}
+            // TODO: When count endpoint is implemented, update this to enable
+            // loading beyond the first batch
+            totalRowCount={count}
             fetchBatchSize={TRANSACTIONS_BATCH_SIZE}
           />
         )}
