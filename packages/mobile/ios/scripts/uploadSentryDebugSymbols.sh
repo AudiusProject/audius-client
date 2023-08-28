@@ -28,8 +28,5 @@ fi
 
 [ -z "$NODE_BINARY" ] && export NODE_BINARY="node"
 
-if [[ -z "${SENTRY_BINARY}" ]]; then
-  export SENTRY_BINARY=../../../node_modules/@sentry/cli/bin/sentry-cli
-fi
-
-$SENTRY_BINARY upload-dsym
+cp ../../../node_modules/@sentry/cli/bin/sentry-cli .
+sentry-cli upload-dsym
