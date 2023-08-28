@@ -90,7 +90,7 @@ const RenderSalesPage = () => {
 
   const {
     status,
-    data: purchases
+    data: sales
     // hasMore,
     // loadMore
   } = useAllPaginatedQuery(
@@ -105,9 +105,9 @@ const RenderSalesPage = () => {
   // the API. This stabilizes the sort behavior of the table
   useEffect(() => {
     if (status === Status.SUCCESS) {
-      setCount(purchases.length)
+      setCount(sales.length)
     }
-  }, [status, purchases])
+  }, [status, sales])
 
   const onSort = useCallback(
     (method: SalesTableSortMethod, direction: SalesTableSortDirection) => {
@@ -129,7 +129,7 @@ const RenderSalesPage = () => {
     // TODO: Show details modal on row click
   }, [])
 
-  const isEmpty = status === Status.SUCCESS && purchases.length === 0
+  const isEmpty = status === Status.SUCCESS && sales.length === 0
   const isLoading = statusIsNotFinalized(status)
 
   return (
@@ -143,8 +143,8 @@ const RenderSalesPage = () => {
           <NoSales />
         ) : (
           <SalesTable
-            key='purchases'
-            data={purchases}
+            key='sales'
+            data={sales}
             loading={isLoading}
             onSort={onSort}
             onClickRow={onClickRow}
