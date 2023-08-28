@@ -30,4 +30,4 @@ fi
 [ -z "$NODE_BINARY" ] && export NODE_BINARY="node"
 
 cp ../../../node_modules/@sentry/cli/bin/sentry-cli .
-sentry-cli react-native xcode ../../../node_modules/react-native/scripts/react-native-xcode.sh
+sentry-cli react-native xcode ../node_modules/react-native/scripts/react-native-xcode.sh
