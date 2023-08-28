@@ -69,7 +69,7 @@
     "@react-navigation/stack": "6.2.0",
     "@reduxjs/toolkit": "1.6.1",
     "@sayem314/react-native-keep-awake": "1.1.0",
-    "@sentry/react-native": "3.2.8",
+    "@sentry/react-native": "5.9.1",
     "@snapchat/snap-kit-react-native": "0.4.0",
     "@solana-mobile/mobile-wallet-adapter-protocol": "0.9.9",
     "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "0.9.9",

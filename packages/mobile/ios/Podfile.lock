@@ -694,9 +694,9 @@ PODS:
   - RNScreens (3.17.0):
     - React-Core
     - React-RCTImage
-  - RNSentry (3.2.8):
+  - RNSentry (5.9.1):
     - React-Core
-    - Sentry (= 7.5.4)
+    - Sentry/HybridSDK (= 8.10.0)
   - RNShare (8.0.0):
     - React-Core
   - RNSVG (12.3.0):
@@ -707,9 +707,9 @@ PODS:
   - SDWebImageWebPCoder (0.8.5):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
-  - Sentry (7.5.4):
-    - Sentry/Core (= 7.5.4)
-  - Sentry/Core (7.5.4)
+  - Sentry/HybridSDK (8.10.0):
+    - SentryPrivate (= 8.10.0)
+  - SentryPrivate (8.10.0)
   - snap-kit-react-native (0.4.0):
     - React-Core
     - SnapSDK/SCSDKCreativeKit (~> 1.15.0)
@@ -838,7 +838,7 @@ DEPENDENCIES:
   - RNReactNativeHapticFeedback (from `../../../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../../node_modules/react-native-screens`)
-  - "RNSentry (from `../../../node_modules/@sentry/react-native`)"
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../../../node_modules/react-native-share`)
   - RNSVG (from `../../../node_modules/react-native-svg`)
   - "snap-kit-react-native (from `../../../node_modules/@snapchat/snap-kit-react-native`)"
@@ -883,6 +883,7 @@ SPEC REPOS:
     - SDWebImage
     - SDWebImageWebPCoder
     - Sentry
+    - SentryPrivate
     - SnapSDK
     - SocketRocket
     - SSZipArchive
@@ -1058,7 +1059,7 @@ EXTERNAL SOURCES:
   RNScreens:
     :path: "../../../node_modules/react-native-screens"
   RNSentry:
-    :path: "../../../node_modules/@sentry/react-native"
+    :path: "../node_modules/@sentry/react-native"
   RNShare:
     :path: "../../../node_modules/react-native-share"
   RNSVG:
@@ -1187,12 +1188,13 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: addc4900bf47882118d0a1b21747fa6705fa8cff
   RNScreens: 0df01424e9e0ed7827200d6ed1087ddd06c493f9
-  RNSentry: fe878ca3982d7871e502ccbb90072fe764c8d07d
+  RNSentry: 0a1daa8ee81e2776f977ae8c66e67c8d85587828
   RNShare: 36aa3e6958373a0ad1c95a1c960adef589da3794
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
-  Sentry: 5c5dd4005f3b7b9765d5a8871232cddbd0d888b7
+  Sentry: 71cd4427146ac56eab6e70401ac7a24384c3d3b5
+  SentryPrivate: 9334613897c85a9e30f2c9d7a331af8aaa4fe71f
   snap-kit-react-native: 751006199818fccb38c8a01196495167bc25e9fb
   SnapSDK: 1e68aad748e080f49e3802559b3b76026666ef62
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
