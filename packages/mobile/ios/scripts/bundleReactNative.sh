@@ -29,4 +29,4 @@ fi
 
 [ -z "$NODE_BINARY" ] && export NODE_BINARY="node"
 
--$SENTRY_BINARY react-native xcode ../../../node_modules/react-native/scripts/react-native-xcode.sh
+$SENTRY_BINARY react-native xcode ../../../node_modules/react-native/scripts/react-native-xcode.sh
