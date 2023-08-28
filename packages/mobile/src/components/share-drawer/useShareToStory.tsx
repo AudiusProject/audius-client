@@ -293,19 +293,14 @@ export const useShareToStory = ({
         toggleProgressDrawer(true, platform)
         dispatch(setProgress(10))
 
-        // Step 1/2: Render and take a screenshot of the sticker, calculate the dominant colors of the cover art:
+        // Step 1: Render and take a screenshot of the sticker
         let stickerUri: string | undefined
+
+        // Step 2: Calculate the dominant colors of the cover art:
         let rawDominantColorsResult: Color[] | string | undefined // `getDominantRgb` returns a string containing a single default color if it couldn't find dominant colors
-        let dominantColorHex1: string
-        let dominantColorHex2: string
-        if (trackImageUri) {
-          try {
-            rawDominantColorsResult = await getDominantRgb(trackImageUri)
-          } catch (e) {}
-        } else {
-          ;[dominantColorHex1, dominantColorHex2] = DEFAULT_DOMINANT_COLORS
-        }
+
         try {
+          // Execute Steps 1 and 2 concurrently:
           ;[rawDominantColorsResult, stickerUri] = await Promise.all([
             trackImageUri
               ? getDominantRgb(trackImageUri)
@@ -338,8 +333,8 @@ export const useShareToStory = ({
                 (c: Color) => convertRGBToHex(c)
               )
             : DEFAULT_DOMINANT_COLORS
-        dominantColorHex1 = finalDominantColorsResult[0]
-        dominantColorHex2 = finalDominantColorsResult[1]
+        const dominantColorHex1 = finalDominantColorsResult[0]
+        const dominantColorHex2 = finalDominantColorsResult[1]
 
         if (cancelRef.current) {
           cleanup()
@@ -603,7 +598,11 @@ export const ShareToStoryProgressDrawer = () => {
   }
 
   return (
-    <NativeDrawer drawerName='ShareToStoryProgress' onClose={handleCancel}>
+    <NativeDrawer
+      zIndex={10}
+      drawerName='ShareToStoryProgress'
+      onClose={handleCancel}
+    >
       <View style={styles.container}>
         <View style={styles.title}>
           <IconWavform
