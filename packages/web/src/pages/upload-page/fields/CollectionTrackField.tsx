@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 
 import {
   HarmonyPlainButton,
+  HarmonyPlainButtonType,
   IconDrag,
   IconPlay,
   IconTrash
@@ -87,16 +88,16 @@ export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
         </div>
         <div className={styles.actions}>
           <HarmonyPlainButton
-            className={styles.actionButton}
+            variant={HarmonyPlainButtonType.SUBDUED}
             text={messages.preview}
             iconLeft={IconPlay}
           />
           <HarmonyPlainButton
-            className={styles.actionButton}
-            disabled={disableDelete}
+            variant={HarmonyPlainButtonType.SUBDUED}
             text={messages.delete}
             iconLeft={IconTrash}
             onClick={handleRemove}
+            disabled={disableDelete}
           />
         </div>
       </div>

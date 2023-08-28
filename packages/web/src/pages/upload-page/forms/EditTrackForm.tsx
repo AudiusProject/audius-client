@@ -182,7 +182,6 @@ const MultiTrackFooter = () => {
   return (
     <div className={cn(styles.multiTrackFooter, layoutStyles.row)}>
       <HarmonyPlainButton
-        className={cn({ [styles.disabled]: prevDisabled })}
         text={messages.prev}
         iconLeft={IconCaretLeft}
         onClick={goPrev}
@@ -190,7 +189,6 @@ const MultiTrackFooter = () => {
         type='button'
       />
       <HarmonyPlainButton
-        className={cn({ [styles.disabled]: nextDisabled })}
         text={messages.next}
         iconRight={IconCaretRight}
         onClick={goNext}
