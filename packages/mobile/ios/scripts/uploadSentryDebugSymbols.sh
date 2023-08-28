@@ -28,4 +28,4 @@ fi
 
 [ -z "$NODE_BINARY" ] && export NODE_BINARY="node"
 
-$NODE_BINARY ../../../node_modules/@sentry/cli/bin/sentry-cli upload-dsym
+$SENTRY_BINARY upload-dsym

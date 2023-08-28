@@ -29,9 +29,4 @@ fi
 
 [ -z "$NODE_BINARY" ] && export NODE_BINARY="node"
 
-if [[ -z "${SENTRY_BINARY}" ]]; then
-  export SENTRY_BINARY=../../../node_modules/@sentry/cli/bin/sentry-cli
-fi
-
-$NODE_BINARY ../../../node_modules/@sentry/cli/bin/sentry-cli react-native xcode \
-  ../../../node_modules/react-native/scripts/react-native-xcode.sh
+-$SENTRY_BINARY react-native xcode ../../../node_modules/react-native/scripts/react-native-xcode.sh
