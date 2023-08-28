@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import {
   HarmonyButton,
   HarmonyButtonType,
+  HarmonyPlainButton,
   IconArrow,
   IconCaretRight
 } from '@audius/stems'
@@ -180,18 +181,16 @@ const MultiTrackFooter = () => {
   const nextDisabled = index === trackMetadatas.length - 1
   return (
     <div className={cn(styles.multiTrackFooter, layoutStyles.row)}>
-      <HarmonyButton
+      <HarmonyPlainButton
         className={cn({ [styles.disabled]: prevDisabled })}
-        variant={HarmonyButtonType.PLAIN}
         text={messages.prev}
         iconLeft={IconCaretLeft}
         onClick={goPrev}
         disabled={prevDisabled}
         type='button'
       />
-      <HarmonyButton
+      <HarmonyPlainButton
         className={cn({ [styles.disabled]: nextDisabled })}
-        variant={HarmonyButtonType.PLAIN}
         text={messages.next}
         iconRight={IconCaretRight}
         onClick={goNext}
