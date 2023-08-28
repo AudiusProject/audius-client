@@ -119,6 +119,8 @@ const RenderPurchasesPage = () => {
     { disabled: !userId, pageSize: TRANSACTIONS_BATCH_SIZE }
   )
 
+  // TODO: Should fetch tracks and users before rendering the table
+
   // Mocking count functionality until we have are returning it from
   // the API. This stabilizes the sort behavior of the table
   useEffect(() => {

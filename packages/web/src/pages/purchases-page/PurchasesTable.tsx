@@ -1,31 +1,18 @@
 import { MouseEvent, useCallback, useMemo } from 'react'
 
 import {
-  accountSelectors,
   formatUSDCWeiToUSDString,
-  SquareSizes,
-  statusIsNotFinalized,
   USDCContentPurchaseType,
-  USDCPurchaseDetails,
-  useGetTrackById,
-  useGetUserById
+  USDCPurchaseDetails
 } from '@audius/common'
 import moment from 'moment'
-import { Cell, Row } from 'react-table'
 
-import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { Table } from 'components/table'
-import { Text } from 'components/typography'
-import UserBadges from 'components/user-badges/UserBadges'
-import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
-import { useSelector } from 'utils/reducer'
 
-import styles from './PurchasesTable.module.css'
-
-const { getUserId } = accountSelectors
-
-type PurchaseCell = Cell<USDCPurchaseDetails>
-type PurchaseRow = Row<USDCPurchaseDetails>
+import { TrackNameWithArtwork } from './components/TrackNameWithArtwork'
+import { UserNameWithBadges } from './components/UserNameWithBadges'
+import { PurchaseCell, PurchaseRow } from './types'
+import { isEmptyRow } from './utils'
 
 export type PurchasesTableColumn =
   | 'contentName'
@@ -66,58 +53,20 @@ const defaultColumns: PurchasesTableColumn[] = [
   'spacerRight'
 ]
 
-// TODO: When we support collection purchases
-const CollectionNameCell = ({ id }: { id: number }) => {
-  return <div />
-}
-
-const TrackNameCell = ({ id }: { id: number }) => {
-  const { status, data: track } = useGetTrackById({ id })
-  const image = useTrackCoverArt2(id, SquareSizes.SIZE_150_BY_150)
-  const loading = statusIsNotFinalized(status) || !track
-  return loading ? null : (
-    <div className={styles.contentName}>
-      <DynamicImage wrapperClassName={styles.artwork} image={image} />
-      <Text variant='body' size='small'>
-        {track.title}
-      </Text>
-    </div>
-  )
-}
-
-const UserNameAndBadge = ({ userId }: { userId: number }) => {
-  const currentUserId: number = useSelector(getUserId)!
-  const { status, data: user } = useGetUserById({ id: userId, currentUserId })
-  const loading = statusIsNotFinalized(status) || !user
-  return loading ? null : (
-    <div className={styles.artistName}>
-      <Text variant='body' size='small' strength='strong'>
-        {user.name}
-      </Text>
-      <UserBadges
-        userId={userId}
-        className={styles.badgeIcon}
-        noContentClassName={styles.noContentBadgeIcon}
-        badgeSize={12}
-        useSVGTiers
-      />
-    </div>
-  )
-}
-
 // Cell Render Functions
 const renderContentNameCell = (cellInfo: PurchaseCell) => {
   const { contentId, contentType } = cellInfo.row.original
   return contentType === USDCContentPurchaseType.TRACK ? (
-    <TrackNameCell id={contentId} />
+    <TrackNameWithArtwork id={contentId} />
   ) : (
-    <CollectionNameCell id={contentId} />
+    // TODO: When we support collection purchases
+    <div />
   )
 }
 
 const renderArtistCell = (cellInfo: PurchaseCell) => {
   const { sellerUserId } = cellInfo.row.original
-  return <UserNameAndBadge userId={sellerUserId} />
+  return <UserNameWithBadges userId={sellerUserId} />
 }
 
 const renderDateCell = (cellInfo: PurchaseCell) => {
@@ -128,10 +77,6 @@ const renderDateCell = (cellInfo: PurchaseCell) => {
 const renderValueCell = (cellInfo: PurchaseCell) => {
   const transaction = cellInfo.row.original
   return `$${formatUSDCWeiToUSDString(transaction.amount)}`
-}
-
-const isEmptyRow = (row?: PurchaseRow) => {
-  return !row?.original.signature
 }
 
 // Columns
