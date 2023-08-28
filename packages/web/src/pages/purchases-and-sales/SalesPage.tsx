@@ -1,13 +1,15 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 
 import {
   FeatureFlags,
   Status,
   USDCPurchaseDetails,
   accountSelectors,
+  combineStatuses,
   statusIsNotFinalized,
   useAllPaginatedQuery,
-  useGetSales
+  useGetSales,
+  useGetSalesCount
 } from '@audius/common'
 import { full } from '@audius/sdk'
 import { push as pushRoute } from 'connected-react-router'
@@ -86,28 +88,22 @@ const RenderSalesPage = () => {
     useState<full.GetSalesSortDirectionEnum>(DEFAULT_SORT_DIRECTION)
   const { mainContentRef } = useContext(MainContentContext)
 
-  const [count, setCount] = useState(0)
-
   const {
-    status,
-    data: sales
-    // hasMore,
-    // loadMore
+    status: dataStatus,
+    data: sales,
+    hasMore,
+    loadMore
   } = useAllPaginatedQuery(
     useGetSales,
     { userId, sortMethod, sortDirection },
     { disabled: !userId, pageSize: TRANSACTIONS_BATCH_SIZE }
   )
 
-  // TODO: Should fetch tracks and users before rendering the table
+  const { status: countStatus, data: count } = useGetSalesCount({ userId })
 
-  // Mocking count functionality until we have are returning it from
-  // the API. This stabilizes the sort behavior of the table
-  useEffect(() => {
-    if (status === Status.SUCCESS) {
-      setCount(sales.length)
-    }
-  }, [status, sales])
+  const status = combineStatuses([dataStatus, countStatus])
+
+  // TODO: Should fetch tracks and users before rendering the table
 
   const onSort = useCallback(
     (method: SalesTableSortMethod, direction: SalesTableSortDirection) => {
@@ -117,13 +113,11 @@ const RenderSalesPage = () => {
     []
   )
 
-  // TODO: Remove this short circuit once count is implemented
-  const fetchMore = useCallback(() => {}, [])
-  // const fetchMore = useCallback(() => {
-  //   if (hasMore) {
-  //     loadMore()
-  //   }
-  // }, [hasMore, loadMore])
+  const fetchMore = useCallback(() => {
+    if (hasMore) {
+      loadMore()
+    }
+  }, [hasMore, loadMore])
 
   const onClickRow = useCallback((txDetails: USDCPurchaseDetails) => {
     // TODO: Show details modal on row click
@@ -151,8 +145,6 @@ const RenderSalesPage = () => {
             fetchMore={fetchMore}
             isVirtualized={true}
             scrollRef={mainContentRef}
-            // TODO: When count endpoint is implemented, update this to enable
-            // loading beyond the first batch
             totalRowCount={count}
             fetchBatchSize={TRANSACTIONS_BATCH_SIZE}
           />

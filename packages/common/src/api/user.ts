@@ -76,6 +76,24 @@ const userApi = createApi({
       },
       options: {}
     },
+    getPurchasesCount: {
+      fetch: async (
+        { userId }: Pick<GetPurchaseListArgs, 'userId'>,
+        { audiusSdk, audiusBackend }
+      ) => {
+        const { data: encodedDataMessage, signature: encodedDataSignature } =
+          await audiusBackend.signDiscoveryNodeRequest()
+        const sdk = await audiusSdk()
+        const { data } = await sdk.full.users.getPurchasesCount({
+          id: encodeHashId(userId!),
+          userId: encodeHashId(userId!),
+          encodedDataMessage,
+          encodedDataSignature
+        })
+        return data ?? 0
+      },
+      options: {}
+    },
     getSales: {
       fetch: async (
         {
@@ -103,9 +121,33 @@ const userApi = createApi({
         return purchases.map(parsePurchase)
       },
       options: {}
+    },
+    getSalesCount: {
+      fetch: async (
+        { userId }: Pick<GetPurchaseListArgs, 'userId'>,
+        { audiusSdk, audiusBackend }
+      ) => {
+        const { data: encodedDataMessage, signature: encodedDataSignature } =
+          await audiusBackend.signDiscoveryNodeRequest()
+        const sdk = await audiusSdk()
+        const { data } = await sdk.full.users.getSalesCount({
+          id: encodeHashId(userId!),
+          userId: encodeHashId(userId!),
+          encodedDataMessage,
+          encodedDataSignature
+        })
+        return data ?? 0
+      },
+      options: {}
     }
   }
 })
 
-export const { useGetUserById, useGetPurchases, useGetSales } = userApi.hooks
+export const {
+  useGetUserById,
+  useGetPurchases,
+  useGetPurchasesCount,
+  useGetSales,
+  useGetSalesCount
+} = userApi.hooks
 export const userApiReducer = userApi.reducer
