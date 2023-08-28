@@ -1,9 +1,7 @@
 import { useCallback, useEffect } from 'react'
 
 import {
-  HarmonyButton,
-  HarmonyButtonSize,
-  HarmonyButtonType,
+  HarmonyPlainButton,
   IconDrag,
   IconPlay,
   IconTrash
@@ -69,7 +67,7 @@ export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
           <Icon icon={IconDrag} size='large' />
         </span>
         <Text size='small' className={styles.trackindex}>
-          {index}
+          {index + 1}
         </Text>
         <TrackNameField name={`tracks.${index}.metadata.title`} />
       </div>
@@ -88,16 +86,14 @@ export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
           <Text>{messages.overrideLabel}</Text>
         </div>
         <div className={styles.actions}>
-          <HarmonyButton
-            variant={HarmonyButtonType.GHOST}
-            size={HarmonyButtonSize.SMALL}
+          <HarmonyPlainButton
+            className={styles.actionButton}
             text={messages.preview}
             iconLeft={IconPlay}
           />
-          <HarmonyButton
+          <HarmonyPlainButton
+            className={styles.actionButton}
             disabled={disableDelete}
-            variant={HarmonyButtonType.GHOST}
-            size={HarmonyButtonSize.SMALL}
             text={messages.delete}
             iconLeft={IconTrash}
             onClick={handleRemove}
