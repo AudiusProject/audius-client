@@ -23,7 +23,9 @@ import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { Tile } from 'components/tile'
 import { Text } from 'components/typography'
+import { useIsUSDCEnabled } from 'hooks/useIsUSDCEnabled'
 import { MainContentContext } from 'pages/MainContentContext'
+import NotFoundPage from 'pages/not-found-page/NotFoundPage'
 import { useSelector } from 'utils/reducer'
 import { FEED_PAGE } from 'utils/route'
 
@@ -45,7 +47,6 @@ const messages = {
   headerText: 'Your Purchases'
 }
 
-// TODO: Use higher value after testing
 const TRANSACTIONS_BATCH_SIZE = 50
 
 const sortMethods: {
@@ -96,7 +97,7 @@ const NoPurchases = () => {
 /**
  * Fetches and renders a table of purchases for the currently logged in user
  * */
-export const PurchasesPage = () => {
+const RenderPurchasesPage = () => {
   const userId = useSelector(getUserId)
   // Defaults: sort method = date, sort direction = desc
   const [sortMethod, setSortMethod] =
@@ -180,4 +181,8 @@ export const PurchasesPage = () => {
       </div>
     </Page>
   )
+}
+
+export const PurchasesPage = () => {
+  return useIsUSDCEnabled() ? <RenderPurchasesPage /> : <NotFoundPage />
 }
