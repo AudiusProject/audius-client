@@ -1,4 +1,4 @@
-import { AudiusLibs } from '@audius/sdk'
+import { AudiusLibs, MintName, DEFAULT_MINT } from '@audius/sdk'
 import { AccountInfo, u64 } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
 import BN from 'bn.js'
@@ -9,10 +9,6 @@ import { AudiusBackend } from './AudiusBackend'
 
 const DEFAULT_RETRY_DELAY = 1000
 const DEFAULT_MAX_RETRY_COUNT = 120
-
-// TODO: Import from libs https://linear.app/audius/issue/PAY-1750/export-mintname-and-default-mint-from-libs
-export type MintName = 'audio' | 'usdc'
-export const DEFAULT_MINT: MintName = 'audio'
 
 type UserBankConfig = {
   ethAddress?: string
