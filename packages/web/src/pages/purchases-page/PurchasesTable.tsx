@@ -138,7 +138,7 @@ const isEmptyRow = (row?: PurchaseRow) => {
 const tableColumnMap = {
   contentName: {
     id: 'contentName',
-    Header: 'Sales',
+    Header: 'Purchases',
     accessor: 'contentId',
     Cell: renderContentNameCell,
     width: 480,
