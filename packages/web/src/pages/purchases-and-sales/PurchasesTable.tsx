@@ -133,7 +133,7 @@ const tableColumnMap = {
   }
 }
 
-/** Renders a table of `USDCPurchaseDetails` records */
+/** Renders a table of `USDCPurchaseDetails` records with details intended for the Buyer */
 export const PurchasesTable = ({
   columns = defaultColumns,
   data,

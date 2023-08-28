@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 
 import {
+  FeatureFlags,
   Status,
   USDCPurchaseDetails,
   accountSelectors,
@@ -9,21 +10,12 @@ import {
   useGetPurchases
 } from '@audius/common'
 import { full } from '@audius/sdk'
-import {
-  HarmonyButton,
-  HarmonyButtonSize,
-  HarmonyButtonType,
-  IconCart
-} from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { Icon } from 'components/Icon'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
-import { Tile } from 'components/tile'
-import { Text } from 'components/typography'
-import { useIsUSDCEnabled } from 'hooks/useIsUSDCEnabled'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { MainContentContext } from 'pages/MainContentContext'
 import NotFoundPage from 'pages/not-found-page/NotFoundPage'
 import { useSelector } from 'utils/reducer'
@@ -35,6 +27,7 @@ import {
   PurchasesTableSortDirection,
   PurchasesTableSortMethod
 } from './PurchasesTable'
+import { NoPurchasesContent } from './components/NoPurchasesContent'
 
 const { getUserId } = accountSelectors
 
@@ -74,23 +67,12 @@ const NoPurchases = () => {
   }, [dispatch])
 
   return (
-    <Tile elevation='far' size='large' className={styles.noPurchasesTile}>
-      <div className={styles.noPurchasesContent}>
-        <Icon icon={IconCart} color='neutralLight4' size='xxxLarge' />
-        <Text variant='heading' size='small'>
-          {messages.noPurchasesHeader}
-        </Text>
-        <Text variant='body' size='large'>
-          {messages.noPurchasesBody}
-        </Text>
-      </div>
-      <HarmonyButton
-        variant={HarmonyButtonType.SECONDARY}
-        size={HarmonyButtonSize.SMALL}
-        text={messages.findSongs}
-        onClick={handleClickFindSongs}
-      />
-    </Tile>
+    <NoPurchasesContent
+      headerText={messages.noPurchasesHeader}
+      bodyText={messages.noPurchasesBody}
+      ctaText={messages.findSongs}
+      onCTAClicked={handleClickFindSongs}
+    />
   )
 }
 
@@ -186,5 +168,9 @@ const RenderPurchasesPage = () => {
 }
 
 export const PurchasesPage = () => {
-  return useIsUSDCEnabled() ? <RenderPurchasesPage /> : <NotFoundPage />
+  const { isLoaded, isEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
+
+  // Return null if flag isn't loaded yet to prevent flash of 404 page
+  if (!isLoaded) return null
+  return isEnabled ? <RenderPurchasesPage /> : <NotFoundPage />
 }

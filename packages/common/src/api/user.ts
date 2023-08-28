@@ -10,7 +10,7 @@ import { StringUSDC } from 'models/Wallet'
 import { encodeHashId } from 'utils/hashIds'
 import { Nullable } from 'utils/typeUtils'
 
-type GetPurchasesArgs = {
+type GetPurchaseListArgs = {
   userId: Nullable<ID>
   offset: number
   limit: number
@@ -50,7 +50,13 @@ const userApi = createApi({
     },
     getPurchases: {
       fetch: async (
-        { offset, limit, userId, sortDirection, sortMethod }: GetPurchasesArgs,
+        {
+          offset,
+          limit,
+          userId,
+          sortDirection,
+          sortMethod
+        }: GetPurchaseListArgs,
         { audiusSdk, audiusBackend }
       ) => {
         const { data: encodedDataMessage, signature: encodedDataSignature } =
@@ -69,9 +75,37 @@ const userApi = createApi({
         return purchases.map(parsePurchase)
       },
       options: {}
+    },
+    getSales: {
+      fetch: async (
+        {
+          offset,
+          limit,
+          userId,
+          sortDirection,
+          sortMethod
+        }: GetPurchaseListArgs,
+        { audiusSdk, audiusBackend }
+      ) => {
+        const { data: encodedDataMessage, signature: encodedDataSignature } =
+          await audiusBackend.signDiscoveryNodeRequest()
+        const sdk = await audiusSdk()
+        const { data: purchases = [] } = await sdk.full.users.getSales({
+          limit,
+          offset,
+          sortDirection,
+          sortMethod,
+          id: encodeHashId(userId!),
+          userId: encodeHashId(userId!),
+          encodedDataMessage,
+          encodedDataSignature
+        })
+        return purchases.map(parsePurchase)
+      },
+      options: {}
     }
   }
 })
 
-export const { useGetUserById, useGetPurchases } = userApi.hooks
+export const { useGetUserById, useGetPurchases, useGetSales } = userApi.hooks
 export const userApiReducer = userApi.reducer
