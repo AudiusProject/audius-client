@@ -7,10 +7,10 @@ import {
   USDCPurchaseDetails
 } from 'models/USDCTransactions'
 import { StringUSDC } from 'models/Wallet'
-import { encodeHashId } from 'utils/hashIds'
 import { Nullable } from 'utils/typeUtils'
 
 import { trackApiFetch } from './track'
+import { HashId, Id } from './utils'
 
 type GetPurchaseListArgs = {
   userId: Nullable<ID>
@@ -26,10 +26,10 @@ const parsePurchase = (purchase: full.Purchase): USDCPurchaseDetails => {
   return {
     ...rest,
     contentType: contentType as USDCContentPurchaseType,
-    contentId: Number.parseInt(contentId),
+    contentId: HashId.parse(contentId),
     amount: amount as StringUSDC,
-    buyerUserId: Number.parseInt(buyerUserId),
-    sellerUserId: Number.parseInt(sellerUserId)
+    buyerUserId: HashId.parse(buyerUserId),
+    sellerUserId: HashId.parse(sellerUserId)
   }
 }
 
@@ -55,8 +55,8 @@ const purchasesApi = createApi({
           offset,
           sortDirection,
           sortMethod,
-          id: encodeHashId(userId!),
-          userId: encodeHashId(userId!),
+          id: Id.parse(userId!),
+          userId: Id.parse(userId!),
           encodedDataMessage,
           encodedDataSignature
         })
@@ -85,8 +85,8 @@ const purchasesApi = createApi({
           await audiusBackend.signDiscoveryNodeRequest()
         const sdk = await audiusSdk()
         const { data } = await sdk.full.users.getPurchasesCount({
-          id: encodeHashId(userId!),
-          userId: encodeHashId(userId!),
+          id: Id.parse(userId!),
+          userId: Id.parse(userId!),
           encodedDataMessage,
           encodedDataSignature
         })
@@ -113,8 +113,8 @@ const purchasesApi = createApi({
           offset,
           sortDirection,
           sortMethod,
-          id: encodeHashId(userId!),
-          userId: encodeHashId(userId!),
+          id: Id.parse(userId!),
+          userId: Id.parse(userId!),
           encodedDataMessage,
           encodedDataSignature
         })
@@ -144,8 +144,8 @@ const purchasesApi = createApi({
           await audiusBackend.signDiscoveryNodeRequest()
         const sdk = await audiusSdk()
         const { data } = await sdk.full.users.getSalesCount({
-          id: encodeHashId(userId!),
-          userId: encodeHashId(userId!),
+          id: Id.parse(userId!),
+          userId: Id.parse(userId!),
           encodedDataMessage,
           encodedDataSignature
         })
