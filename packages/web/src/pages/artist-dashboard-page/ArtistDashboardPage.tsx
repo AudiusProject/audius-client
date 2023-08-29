@@ -45,6 +45,7 @@ import { Input } from 'components/input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
+import { Text } from 'components/typography'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { AppState } from 'store/types'
@@ -430,13 +431,20 @@ export class ArtistDashboardPage extends Component<
               {/* TODO: update icon */}
               <Icon icon={IconNote} size='xxxLarge' />
               <div className={styles.usdc}>
-                <span>{messages.usdc}</span>
+                <Text
+                  variant='heading'
+                  size='xxLarge'
+                  color='staticWhite'
+                  strength='strong'
+                >
+                  {messages.usdc}
+                </Text>
               </div>
             </div>
             <div className={styles.usdcBalance}>${formatUSDC(balance)}</div>
           </div>
           <div className={styles.usdcInfo}>
-            <span>{messages.earn}</span>
+            <Text color='staticWhite'>{messages.earn}</Text>
             <HarmonyPlainButton
               // TODO: wire up learn more link
               onClick={() => {}}

@@ -39,7 +39,7 @@ export const formatCount = (count: number) => {
  * - show 0 if 0
  * - don't show decimal places if input is a round number
  * - show only up to 2 decimal places if input is not a round number
- * - round to nearest thousand if input is greater than 10000
+ * - round down to nearest thousand if input is greater than 10000
  * ie.
  * 0 => 0
  * 8 => 8
@@ -54,7 +54,7 @@ export const formatUSDC = (amount: number) => {
   if (amount === 0) {
     return '0'
   } else if (amount >= 9999.995) {
-    const roundedAmount = Math.round(amount / 1000)
+    const roundedAmount = Math.floor(amount / 1000)
     return `${roundedAmount}k`
   } else if (Number.isInteger(amount)) {
     return amount.toString()
