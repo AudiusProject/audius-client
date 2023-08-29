@@ -103,7 +103,7 @@ const RenderSalesPage = () => {
 
   const status = combineStatuses([dataStatus, countStatus])
 
-  // TODO: Should fetch tracks and users before rendering the table
+  // TODO: Should fetch users before rendering the table
 
   const onSort = useCallback(
     (method: SalesTableSortMethod, direction: SalesTableSortDirection) => {
