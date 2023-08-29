@@ -1,7 +1,7 @@
 embed-init:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/node:18.17
   steps:
     - checkout
 
@@ -16,11 +16,6 @@ embed-init:
         keys:
           - cache-{{ .Revision }}
 
-    - run:
-        name: Link packages
-        command: |
-          npm run link
-
     - persist_to_workspace:
         root: ./
         paths:
@@ -32,7 +27,7 @@ embed-init:
 embed-build-staging:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/node:18.17
   resource_class: xlarge
   steps:
     - embed-build:
@@ -42,7 +37,7 @@ embed-build-staging:
 embed-build-production:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/node:18.17
   resource_class: xlarge
   steps:
     - embed-build:
