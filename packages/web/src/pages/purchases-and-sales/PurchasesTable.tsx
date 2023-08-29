@@ -12,7 +12,7 @@ import { Table } from 'components/table'
 import { TrackNameWithArtwork } from './components/TrackNameWithArtwork'
 import { UserNameWithBadges } from './components/UserNameWithBadges'
 import { PurchaseCell, PurchaseRow } from './types'
-import { isEmptyRow } from './utils'
+import { isEmptyPurchaseRow } from './utils'
 
 export type PurchasesTableColumn =
   | 'contentName'
@@ -167,7 +167,7 @@ export const PurchasesTable = ({
       columns={tableColumns}
       data={data}
       loading={loading}
-      isEmptyRow={isEmptyRow}
+      isEmptyRow={isEmptyPurchaseRow}
       onClickRow={handleClickRow}
       onSort={onSort}
       fetchMore={fetchMore}

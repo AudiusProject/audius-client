@@ -1,5 +1,5 @@
 import { PurchaseRow } from './types'
 
-export const isEmptyRow = (row?: PurchaseRow) => {
+export const isEmptyPurchaseRow = (row?: PurchaseRow) => {
   return !row?.original.signature
 }
