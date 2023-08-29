@@ -76,7 +76,7 @@ const getQuote = async ({
     )
   }
   const amount =
-    swapMode === SwapMode.ExactIn
+    swapMode === 'ExactIn'
       ? JSBI.BigInt(Math.ceil(inputAmount * 10 ** inputToken.decimals))
       : JSBI.BigInt(Math.floor(inputAmount * 10 ** outputToken.decimals))
   const jup = await getInstance()
