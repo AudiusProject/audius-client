@@ -4,8 +4,7 @@ import {
   convertJSBIToAmountObject
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
-import type { Jupiter as JupiterInstance } from '@jup-ag/core'
-import { SwapMode } from '@jup-ag/core'
+import type { Jupiter as JupiterInstance, SwapMode } from '@jup-ag/core'
 import { Cluster, Connection, PublicKey, Transaction } from '@solana/web3.js'
 import JSBI from 'jsbi'
 
@@ -58,7 +57,7 @@ const getQuote = async ({
   inputAmount,
   forceFetch,
   slippage,
-  swapMode = SwapMode.ExactIn,
+  swapMode = 'ExactIn' as SwapMode,
   onlyDirectRoutes = false
 }: {
   inputTokenSymbol: JupiterTokenSymbol
