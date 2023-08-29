@@ -2,6 +2,7 @@
   gap: var(--unit-4);
   padding: var(--unit-4) var(--unit-6);
   flex-direction: column;
+  cursor: pointer;
 }
 
 .preview {

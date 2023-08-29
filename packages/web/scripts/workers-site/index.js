@@ -1,6 +1,6 @@
 import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
 
-/* globals GA, GA_ACCESS_TOKEN, SITEMAP, DISCOVERY_NODES, HTMLRewriter */
+/* globals GA, GA_ACCESS_TOKEN, EMBED, DISCOVERY_NODES, HTMLRewriter */
 
 const DEBUG = false
 const BROWSER_CACHE_TTL_SECONDS = 60 * 60 * 24
@@ -211,9 +211,7 @@ class SEOHandlerHead {
       description
     )}" data-react-helmet="true">
 
-    <link rel="canonical" href="https://audius.co${encodeURI(
-      permalink
-    )}" data-react-helmet="true">
+    <link rel="canonical" href="https://audius.co${encodeURI(permalink)}">
     <meta property="og:title" content="${clean(title)}">
     <meta property="og:description" content="${clean(ogDescription)}">
     <meta property="og:image" content="${image}">
@@ -237,6 +235,13 @@ async function handleEvent(event) {
     return Response.redirect(url.origin, 302)
   }
 
+  const isSitemap = pathname.startsWith('/sitemaps')
+  if (isSitemap) {
+    const destinationURL = discoveryNode + pathname + search + hash
+    const newRequest = new Request(destinationURL, event.request)
+    return await fetch(newRequest)
+  }
+
   const userAgent = event.request.headers.get('User-Agent') || ''
 
   const is204 = pathname === '/204'
@@ -248,9 +253,8 @@ async function handleEvent(event) {
   }
 
   const isBot = checkIsBot(userAgent)
-  const isEmbed = pathname.startsWith('/embed')
 
-  if (isBot || isEmbed) {
+  if (isBot) {
     const destinationURL = GA + pathname + search + hash
     const newRequest = new Request(destinationURL, event.request)
     newRequest.headers.set('host', GA)
@@ -259,10 +263,11 @@ async function handleEvent(event) {
     return await fetch(newRequest)
   }
 
-  const isSitemap = pathname.startsWith('/sitemaps')
-  if (isSitemap) {
-    const destinationURL = SITEMAP + pathname + search + hash
+  const isEmbed = pathname.startsWith('/embed')
+  if (isEmbed) {
+    const destinationURL = EMBED + pathname + search + hash
     const newRequest = new Request(destinationURL, event.request)
+
     return await fetch(newRequest)
   }
 

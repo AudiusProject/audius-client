@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import {
   HarmonyButton,
   HarmonyButtonType,
+  HarmonyPlainButton,
   IconArrow,
   IconCaretRight
 } from '@audius/stems'
@@ -31,9 +32,9 @@ import { TrackMetadataSchema } from '../validation'
 import styles from './EditTrackForm.module.css'
 
 const messages = {
-  titleError: 'Your track must have a name',
-  artworkError: 'Artwork is required',
-  genreError: 'Genre is required',
+  titleError: 'Your track must have a name.',
+  artworkError: 'Artwork is required.',
+  genreError: 'Genre is required.',
   multiTrackCount: (index: number, total: number) =>
     `TRACK ${index} of ${total}`,
   prev: 'Prev',
@@ -57,9 +58,9 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
   const initialValues: TrackEditFormValues = useMemo(
     () => ({
       trackMetadatasIndex: 0,
+      tracks,
       trackMetadatas: tracks.map((track) => ({
         ...track.metadata,
-        artwork: null,
         description: '',
         releaseDate: new Date(moment().startOf('day').toString()),
         tags: '',
@@ -112,15 +113,21 @@ const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
   return (
     <Form>
       <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
-        <div className={styles.formContainer}>
+        <div className={cn(styles.formContainer, layoutStyles.col)}>
           {isMultiTrack ? <MultiTrackHeader /> : null}
-          <div className={styles.trackEditForm}>
+          <div
+            className={cn(
+              styles.trackEditForm,
+              layoutStyles.col,
+              layoutStyles.gap4
+            )}
+          >
             <TrackMetadataFields />
             <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
               <ReleaseDateField />
               <RemixSettingsField />
               <SourceFilesField />
-              <AccessAndSaleField />
+              <AccessAndSaleField isUpload />
               <AttributionField />
             </div>
             <PreviewButton playing={false} onClick={() => {}} />
@@ -174,18 +181,14 @@ const MultiTrackFooter = () => {
   const nextDisabled = index === trackMetadatas.length - 1
   return (
     <div className={cn(styles.multiTrackFooter, layoutStyles.row)}>
-      <HarmonyButton
-        className={cn({ [styles.disabled]: prevDisabled })}
-        variant={HarmonyButtonType.PLAIN}
+      <HarmonyPlainButton
         text={messages.prev}
         iconLeft={IconCaretLeft}
         onClick={goPrev}
         disabled={prevDisabled}
         type='button'
       />
-      <HarmonyButton
-        className={cn({ [styles.disabled]: nextDisabled })}
-        variant={HarmonyButtonType.PLAIN}
+      <HarmonyPlainButton
         text={messages.next}
         iconRight={IconCaretRight}
         onClick={goNext}

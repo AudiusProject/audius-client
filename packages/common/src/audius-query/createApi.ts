@@ -57,7 +57,8 @@ export const createApi = <
 }) => {
   const api = {
     reducerPath,
-    hooks: {}
+    hooks: {},
+    fetch: {}
   } as unknown as Api<EndpointDefinitions>
 
   const sliceConfig: SliceConfig = {
@@ -244,7 +245,11 @@ const useCacheData = <Args, Data>(
       endpoint.options.kind,
       hookOptions?.shallow
     )
-    return denormalize(nonNormalizedData, apiResponseSchema, entityMap) as Data
+    return (
+      endpoint.options.schemaKey
+        ? denormalize(nonNormalizedData, apiResponseSchema, entityMap)
+        : nonNormalizedData
+    ) as Data
   }, isEqual)
 }
 
@@ -253,10 +258,9 @@ const fetchData = async <Args, Data>(
   endpointName: string,
   endpoint: EndpointConfig<Args, Data>,
   actions: CaseReducerActions<any>,
-  context: AudiusQueryContextType,
-  dispatch: Dispatch
+  context: AudiusQueryContextType
 ) => {
-  const { audiusBackend } = context
+  const { audiusBackend, dispatch } = context
   try {
     dispatch(
       // @ts-ignore
@@ -333,7 +337,7 @@ const buildEndpointHooks = <
   Data
 >(
   api: Api<EndpointDefinitions>,
-  endpointName: string,
+  endpointName: keyof EndpointDefinitions & string,
   endpoint: EndpointConfig<Args, Data>,
   actions: CaseReducerActions<any>,
   reducerPath: string
@@ -378,7 +382,7 @@ const buildEndpointHooks = <
           return
         if (hookOptions?.disabled) return
 
-        fetchData(fetchArgs, endpointName, endpoint, actions, context, dispatch)
+        fetchData(fetchArgs, endpointName, endpoint, actions, context)
       }
 
       fetchWrapped()
@@ -406,7 +410,6 @@ const buildEndpointHooks = <
     (fetchArgs: Args, hookOptions?: QueryHookOptions) => void,
     QueryHookResults<Data>
   ] => {
-    const dispatch = useDispatch()
     const [fetchArgs, setFetchArgs] = useState<Args | null>(null)
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useQueryState(
@@ -437,16 +440,9 @@ const buildEndpointHooks = <
         if (!context) return
         if (hookOptions?.disabled) return
 
-        fetchData(
-          newFetchArgs,
-          endpointName,
-          endpoint,
-          actions,
-          context,
-          dispatch
-        )
+        fetchData(newFetchArgs, endpointName, endpoint, actions, context)
       },
-      [key, dispatch, context, hookOptions?.disabled]
+      [key, context, hookOptions?.disabled]
     )
 
     if (endpoint.options?.schemaKey) {
@@ -455,6 +451,11 @@ const buildEndpointHooks = <
 
     return [fetchWrapped, { data: cachedData, status, errorMessage }]
   }
+
+  api.fetch[endpointName] = (
+    fetchArgs: Args,
+    context: AudiusQueryContextType
+  ) => fetchData(fetchArgs, endpointName, endpoint, actions, context)
 
   if (endpoint.options.type === 'mutation') {
     api.hooks[`use${capitalize(endpointName)}`] = useMutation

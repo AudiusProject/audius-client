@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { UploadType, uploadActions } from '@audius/common'
+import {
+  UploadType,
+  uploadActions,
+  uploadConfirmationModalUIActions
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import Header from 'components/header/desktop/Header'
@@ -13,19 +17,26 @@ import { EditPage } from './pages/EditPage'
 import { UploadFormState } from './types'
 
 const { uploadTracks } = uploadActions
+const { requestOpen: openUploadConfirmationModal } =
+  uploadConfirmationModalUIActions
 
 const messages = {
   selectPageTitle: 'Upload Your Music',
-  editSingleTrackPageTitle: 'Complete Your Track',
-  editMultiTrackPageTitle: 'Complete Your Tracks',
-  finishSingleTrackPageTitle: 'Uploading Your Track',
-  finishMultiTrackPageTitle: 'Uploading Your Tracks'
+  editPageTitle: 'Complete Your ',
+  finishPageTitle: 'Uploading Your '
 }
 
 enum Phase {
   SELECT,
   EDIT,
   FINISH
+}
+
+const uploadTypeStringMap: Record<UploadType, string> = {
+  [UploadType.INDIVIDUAL_TRACK]: 'Track',
+  [UploadType.INDIVIDUAL_TRACKS]: 'Tracks',
+  [UploadType.ALBUM]: 'Album',
+  [UploadType.PLAYLIST]: 'Playlist'
 }
 
 export const UploadPageNew = () => {
@@ -37,7 +48,7 @@ export const UploadPageNew = () => {
     tracks: undefined
   })
 
-  const { tracks } = formState
+  const { tracks, uploadType } = formState
 
   // Pretty print json just for testing
   useEffect(() => {
@@ -63,21 +74,24 @@ export const UploadPageNew = () => {
     injectPrettifyScript()
   }, [phase])
 
-  const pageTitle = useMemo(() => {
-    switch (phase) {
-      case Phase.EDIT:
-        return tracks && tracks.length > 1
-          ? messages.editMultiTrackPageTitle
-          : messages.editSingleTrackPageTitle
-      case Phase.FINISH:
-        return tracks && tracks.length > 1
-          ? messages.finishMultiTrackPageTitle
-          : messages.finishSingleTrackPageTitle
-      case Phase.SELECT:
-      default:
-        return messages.selectPageTitle
-    }
-  }, [phase, tracks])
+  const pageTitleUploadType =
+    !uploadType ||
+    (uploadType === UploadType.INDIVIDUAL_TRACKS && tracks?.length === 1)
+      ? UploadType.INDIVIDUAL_TRACK
+      : uploadType
+
+  let pageTitle = messages.selectPageTitle
+  switch (phase) {
+    case Phase.EDIT:
+      pageTitle = `${messages.editPageTitle}${uploadTypeStringMap[pageTitleUploadType]}`
+      break
+    case Phase.FINISH:
+      pageTitle = `${messages.finishPageTitle}${uploadTypeStringMap[pageTitleUploadType]}`
+      break
+    case Phase.SELECT:
+    default:
+      pageTitle = messages.selectPageTitle
+  }
 
   let page
   switch (phase) {
@@ -99,7 +113,11 @@ export const UploadPageNew = () => {
             formState={formState}
             onContinue={(formState: UploadFormState) => {
               setFormState(formState)
-              setPhase(Phase.FINISH)
+              const hasPublicTracks =
+                formState.tracks?.some(
+                  (track) => !track.metadata.is_unlisted
+                ) ?? true
+              openUploadConfirmation(hasPublicTracks)
             }}
           />
         )
@@ -122,6 +140,20 @@ export const UploadPageNew = () => {
         )
       }
   }
+
+  const openUploadConfirmation = useCallback(
+    (hasPublicTracks: boolean) => {
+      dispatch(
+        openUploadConfirmationModal({
+          hasPublicTracks,
+          confirmCallback: () => {
+            setPhase(Phase.FINISH)
+          }
+        })
+      )
+    },
+    [dispatch]
+  )
 
   const handleUpload = useCallback(() => {
     if (!formState.tracks) return
@@ -155,7 +187,15 @@ export const UploadPageNew = () => {
       title='Upload'
       description='Upload and publish audio content to the Audius platform'
       contentClassName={styles.upload}
-      header={<Header primary={pageTitle} />}
+      header={
+        <Header
+          primary={pageTitle}
+          showBackButton={phase === Phase.EDIT}
+          onClickBack={() => {
+            setPhase(Phase.SELECT)
+          }}
+        />
+      }
     >
       {page}
     </Page>

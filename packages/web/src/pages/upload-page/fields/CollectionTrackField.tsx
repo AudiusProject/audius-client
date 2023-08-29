@@ -1,9 +1,8 @@
 import { useCallback, useEffect } from 'react'
 
 import {
-  HarmonyButton,
-  HarmonyButtonSize,
-  HarmonyButtonType,
+  HarmonyPlainButton,
+  HarmonyPlainButtonType,
   IconDrag,
   IconPlay,
   IconTrash
@@ -32,10 +31,11 @@ const messages = {
 type CollectionTrackFieldProps = {
   index: number
   remove: (index: number) => void
+  disableDelete: boolean
 }
 
 export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
-  const { index, remove } = props
+  const { disableDelete = false, index, remove } = props
   const [{ value: track }] = useField<CollectionTrackForUpload>(
     `tracks.${index}`
   )
@@ -68,7 +68,7 @@ export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
           <Icon icon={IconDrag} size='large' />
         </span>
         <Text size='small' className={styles.trackindex}>
-          {index}
+          {index + 1}
         </Text>
         <TrackNameField name={`tracks.${index}.metadata.title`} />
       </div>
@@ -87,18 +87,17 @@ export const CollectionTrackField = (props: CollectionTrackFieldProps) => {
           <Text>{messages.overrideLabel}</Text>
         </div>
         <div className={styles.actions}>
-          <HarmonyButton
-            variant={HarmonyButtonType.GHOST}
-            size={HarmonyButtonSize.SMALL}
+          <HarmonyPlainButton
+            variant={HarmonyPlainButtonType.SUBDUED}
             text={messages.preview}
             iconLeft={IconPlay}
           />
-          <HarmonyButton
-            variant={HarmonyButtonType.GHOST}
-            size={HarmonyButtonSize.SMALL}
+          <HarmonyPlainButton
+            variant={HarmonyPlainButtonType.SUBDUED}
             text={messages.delete}
             iconLeft={IconTrash}
             onClick={handleRemove}
+            disabled={disableDelete}
           />
         </div>
       </div>

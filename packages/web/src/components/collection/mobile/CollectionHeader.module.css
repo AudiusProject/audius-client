@@ -49,24 +49,7 @@
 }
 
 .artist {
-  color: var(--secondary);
-  font-family: var(--font-family);
-  font-size: var(--font-l);
-  font-weight: var(--font-medium);
-  line-height: 16px;
-  text-align: center;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-}
-
-.artist h2 {
-  display: inline;
-  color: var(--secondary);
-}
-
-.verified {
-  margin-left: 8px;
+  margin-bottom: var(--unit-6);
 }
 
 /* Button Section */
@@ -172,21 +155,9 @@
 }
 
 .description {
-  color: var(--neutral);
-  font-family: var(--font-family);
-  font-size: var(--font-m);
-  font-weight: var(--font-medium);
-  white-space: pre-line;
-  line-height: 26px;
   text-align: left;
   width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.description > a {
-  color: var(--primary);
+  margin-bottom: var(--unit-6);
 }
 
 /* Loading */

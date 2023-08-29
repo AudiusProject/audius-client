@@ -128,7 +128,7 @@ export function* fetchOpenSeaAssets(user) {
 
     const collectibleList = Object.values(collectiblesMap).flat()
     if (!collectibleList.length) {
-      console.log('profile has no assets in OpenSea')
+      console.info('profile has no assets in OpenSea')
     }
 
     yield put(
@@ -172,7 +172,7 @@ export function* fetchSolanaCollectibles(user) {
 
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
   if (!solanaCollectibleList.length) {
-    console.log('profile has no Solana NFTs')
+    console.info('profile has no Solana NFTs')
   }
 
   yield put(
@@ -327,10 +327,13 @@ function* fetchProfileAsync(action) {
     yield fork(fetchSolanaCollectibles, user)
 
     // Get current user notification & subscription status
-    const isSubscribed = yield call(
-      audiusBackendInstance.getUserSubscribed,
-      user.user_id
-    )
+    // TODO(michelle) simply use user.does_current_user_subscribe after all DNs
+    // are running >v0.4.6
+    const isSubscribed =
+      'does_current_user_subscribe' in user
+        ? user.does_current_user_subscribe
+        : yield call(audiusBackendInstance.getUserSubscribed, user.user_id)
+
     yield put(
       profileActions.setNotificationSubscription(
         user.user_id,

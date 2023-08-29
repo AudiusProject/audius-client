@@ -357,6 +357,7 @@ const EditPlaylistPage = g(
           artistName: t.user.name,
           artistHandle: t.user.handle,
           trackTitle: t.title,
+          permalink: t.permalink,
           trackId: t.track_id,
           time: playlistTrack?.time,
           isPremium: t.is_premium,
@@ -410,7 +411,7 @@ const EditPlaylistPage = g(
                 placeholderValue={messages.placeholderDescription}
                 onChange={onUpdateDescription}
                 centerLeftElement={false}
-                maxLength={256}
+                maxLength={1000}
               />
             </Grouping>
             {trackList && trackList.length > 0 && (

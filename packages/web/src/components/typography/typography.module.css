@@ -17,6 +17,14 @@
  ```
 */
 
+.inherit {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: inherit;
+}
+
 .root {
   color: var(--text-color);
 }
@@ -57,6 +65,12 @@
 /* Heading Styles */
 .heading {
   font-weight: var(--font-bold);
+}
+
+/* 40 / 44 */
+.headingXxLarge {
+  font-size: var(--unit-10);
+  line-height: var(--unit-11);
 }
 
 /* 36 / 40 */
@@ -220,12 +234,4 @@
 .link:hover {
   color: var(--focus);
   text-decoration: underline !important;
-}
-
-.inherit {
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  text-decoration: inherit;
 }

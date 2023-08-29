@@ -71,6 +71,7 @@ jobs:
             - ./packages/stems/node_modules
             - ./packages/common/node_modules
             - ./packages/probers/node_modules
+            - ./packages/embed/node_modules
 
       - save_cache:
           key: cache-{{ .Revision }}
@@ -128,9 +129,11 @@ workflows:
             packages/mobile/.* run-mobile-workflow true
             packages/stems/.* run-stems-workflow true
             packages/stems/.* run-web-workflow true
+            packages/embed/.* run-embed-workflow true
             .circleci/.* run-web-workflow true
             .circleci/.* run-mobile-workflow true
             .circleci/.* run-stems-workflow true
+            .circleci/.* run-embed-workflow true
             packages/eslint-config-audius/.* run-web-workflow true
             packages/eslint-config-audius/.* run-mobile-workflow true
             packages/eslint-config-audius/.* run-stems-workflow true

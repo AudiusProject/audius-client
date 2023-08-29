@@ -81,11 +81,7 @@ export const SelectedValue = (props: SelectedValueProps) => {
   return (
     <span className={styles.selectedValue}>
       {icon ? <Icon icon={icon} size='small' /> : null}
-      {label ? (
-        <Text variant='body' strength='strong'>
-          {label}
-        </Text>
-      ) : null}
+      {label ? <Text strength='strong'>{label}</Text> : null}
       {children}
     </span>
   )
@@ -108,6 +104,7 @@ type ContextualMenuProps<FormValues extends FormikValues> = {
   menuFields: ReactNode
   error?: boolean
   errorMessage?: string
+  previewOverride?: (toggleMenu: () => void) => ReactNode
 } & FormikConfig<FormValues>
 
 export const ContextualMenu = <FormValues extends FormikValues = FormikValues>(
@@ -122,11 +119,14 @@ export const ContextualMenu = <FormValues extends FormikValues = FormikValues>(
     onSubmit,
     error,
     errorMessage,
+    previewOverride,
     ...formikProps
   } = props
   const [isMenuOpen, toggleMenu] = useToggle(false)
 
-  const preview = (
+  const preview = previewOverride ? (
+    previewOverride(toggleMenu)
+  ) : (
     <Tile onClick={toggleMenu} className={styles.root} elevation='flat'>
       <div className={styles.header}>
         <div className={styles.title}>
