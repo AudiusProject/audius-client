@@ -120,6 +120,7 @@ const RenderSalesPage = () => {
   }, [hasMore, loadMore])
 
   const onClickRow = useCallback((txDetails: USDCPurchaseDetails) => {
+    // https://linear.app/audius/issue/PAY-1757/[web]-click-to-view-purchasesale-details-in-table
     // TODO: Show details modal on row click
   }, [])
 
