@@ -35,7 +35,7 @@ export const formatCount = (count: number) => {
 }
 
 /**
- * The format for USDC should be:
+ * The format any currency should be:
  * - show 0 if 0
  * - don't show decimal places if input is a round number
  * - show only up to 2 decimal places if input is not a round number
@@ -50,7 +50,7 @@ export const formatCount = (count: number) => {
  * 56,010 => 56K
  * 443,123 => 443K
  */
-export const formatUSDC = (amount: number) => {
+export const formatCurrencyBalance = (amount: number) => {
   if (amount === 0) {
     return '0'
   } else if (amount >= 9999.995) {

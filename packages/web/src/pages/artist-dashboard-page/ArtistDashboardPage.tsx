@@ -13,7 +13,7 @@ import {
   Theme,
   Track,
   User,
-  formatUSDC,
+  formatCurrencyBalance,
   formatCount,
   themeSelectors,
   FeatureFlags
@@ -407,18 +407,18 @@ export class ArtistDashboardPage extends Component<
     const { account } = this.props
     if (!account) return null
 
-    // TODO: wire up balance
+    // TODO: wire up balance https://linear.app/audius/issue/PAY-1761/wire-up-usdc-balance-in-artist-dashboard
     const balance = 10.29
 
     const menuItems: PopupMenuItem[] = [
       {
         text: messages.salesSummary,
-        // TODO: link to sales page
+        // TODO: link to sales page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
         onClick: () => {}
       },
       {
         text: messages.withdrawHistory,
-        // TODO: link to withdraw history page
+        // TODO: link to withdraw history page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
         onClick: () => {}
       }
     ]
@@ -428,7 +428,7 @@ export class ArtistDashboardPage extends Component<
         <div className={styles.backgroundBlueGradient}>
           <div className={styles.usdcTitleContainer}>
             <div className={styles.usdcTitle}>
-              {/* TODO: update icon */}
+              {/* TODO: update icon https://linear.app/audius/issue/PAY-1764/update-icons-in-usdc-tile */}
               <Icon icon={IconNote} size='xxxLarge' />
               <div className={styles.usdc}>
                 <Text
@@ -441,12 +441,14 @@ export class ArtistDashboardPage extends Component<
                 </Text>
               </div>
             </div>
-            <div className={styles.usdcBalance}>${formatUSDC(balance)}</div>
+            <div className={styles.usdcBalance}>
+              ${formatCurrencyBalance(balance)}
+            </div>
           </div>
           <div className={styles.usdcInfo}>
             <Text color='staticWhite'>{messages.earn}</Text>
             <HarmonyPlainButton
-              // TODO: wire up learn more link
+              // TODO: wire up learn more link https://linear.app/audius/issue/PAY-1762/wire-up-learn-more-link
               onClick={() => {}}
               iconLeft={IconQuestionCircle}
               variant={HarmonyPlainButtonType.INVERTED}
@@ -458,7 +460,7 @@ export class ArtistDashboardPage extends Component<
           <HarmonyButton
             variant={HarmonyButtonType.SECONDARY}
             text={messages.withdraw}
-            // TODO: update leftIcon and wire up withdraw page
+            // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
             iconLeft={() => <Icon icon={IconNote} size='medium' />}
             onClick={() => {}}
           />
