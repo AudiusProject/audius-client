@@ -104,12 +104,12 @@ export const messages = {
   unlistedTracksTabTitle: 'HIDDEN TRACKS',
   filterInputPlacehoder: 'Filter Tracks',
   thisYear: 'This Year',
-  usdc: 'usdc',
+  usdc: 'USDC',
   earn: 'Earn USDC by selling your music',
   learnMore: 'Learn More',
   withdraw: 'Withdraw Funds',
   salesSummary: 'Sales Summary',
-  withdrawHistory: 'Withdraw History'
+  withdrawalHistory: 'Withdrawal History'
 }
 
 const tableColumns: TracksTableColumn[] = [
@@ -250,6 +250,89 @@ const TracksTableContainer = ({
         <div className={styles.tabContainer}>{tabs}</div>
       </div>
       {body}
+    </div>
+  )
+}
+
+const USDCSection = ({ account }: { account: User }) => {
+  if (!account) return null
+
+  // TODO: wire up balance https://linear.app/audius/issue/PAY-1761/wire-up-usdc-balance-in-artist-dashboard
+  const balance = 10.29
+
+  const menuItems: PopupMenuItem[] = [
+    {
+      text: messages.salesSummary,
+      // TODO: link to sales page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
+      onClick: () => {}
+    },
+    {
+      text: messages.withdrawalHistory,
+      // TODO: link to withdraw history page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
+      onClick: () => {}
+    }
+  ]
+
+  return (
+    <div className={styles.usdcContainer}>
+      <div className={styles.backgroundBlueGradient}>
+        <div className={styles.usdcTitleContainer}>
+          <div className={styles.usdcTitle}>
+            {/* TODO: update icon https://linear.app/audius/issue/PAY-1764/update-icons-in-usdc-tile */}
+            <Icon icon={IconNote} size='xxxLarge' color='staticWhite' />
+            <div className={styles.usdc}>
+              <Text
+                variant='heading'
+                size='xxLarge'
+                color='staticWhite'
+                strength='strong'
+              >
+                {messages.usdc}
+              </Text>
+            </div>
+          </div>
+          <Text
+            variant='heading'
+            color='staticWhite'
+            strength='strong'
+            size='xxLarge'
+          >
+            ${formatCurrencyBalance(balance)}
+          </Text>
+        </div>
+        <div className={styles.usdcInfo}>
+          <Text color='staticWhite'>{messages.earn}</Text>
+          <HarmonyPlainButton
+            // TODO: wire up learn more link https://linear.app/audius/issue/PAY-1762/wire-up-learn-more-link
+            onClick={() => {}}
+            iconLeft={IconQuestionCircle}
+            variant={HarmonyPlainButtonType.INVERTED}
+            text={messages.learnMore}
+          />
+        </div>
+      </div>
+      <div className={styles.withdrawContainer}>
+        <HarmonyButton
+          variant={HarmonyButtonType.SECONDARY}
+          text={messages.withdraw}
+          // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
+          iconLeft={() => <Icon icon={IconNote} size='medium' />}
+          onClick={() => {}}
+        />
+        <PopupMenu
+          transformOrigin={{ horizontal: 'center', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+          items={menuItems}
+          renderTrigger={(anchorRef, triggerPopup) => (
+            <HarmonyButton
+              ref={anchorRef}
+              variant={HarmonyButtonType.SECONDARY}
+              iconLeft={IconKebabHorizontal}
+              onClick={triggerPopup}
+            />
+          )}
+        />
+      </div>
     </div>
   )
 }
@@ -403,85 +486,6 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
-  renderUSDCSection() {
-    const { account } = this.props
-    if (!account) return null
-
-    // TODO: wire up balance https://linear.app/audius/issue/PAY-1761/wire-up-usdc-balance-in-artist-dashboard
-    const balance = 10.29
-
-    const menuItems: PopupMenuItem[] = [
-      {
-        text: messages.salesSummary,
-        // TODO: link to sales page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
-        onClick: () => {}
-      },
-      {
-        text: messages.withdrawHistory,
-        // TODO: link to withdraw history page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
-        onClick: () => {}
-      }
-    ]
-
-    return (
-      <div className={styles.usdcContainer}>
-        <div className={styles.backgroundBlueGradient}>
-          <div className={styles.usdcTitleContainer}>
-            <div className={styles.usdcTitle}>
-              {/* TODO: update icon https://linear.app/audius/issue/PAY-1764/update-icons-in-usdc-tile */}
-              <Icon icon={IconNote} size='xxxLarge' />
-              <div className={styles.usdc}>
-                <Text
-                  variant='heading'
-                  size='xxLarge'
-                  color='staticWhite'
-                  strength='strong'
-                >
-                  {messages.usdc}
-                </Text>
-              </div>
-            </div>
-            <div className={styles.usdcBalance}>
-              ${formatCurrencyBalance(balance)}
-            </div>
-          </div>
-          <div className={styles.usdcInfo}>
-            <Text color='staticWhite'>{messages.earn}</Text>
-            <HarmonyPlainButton
-              // TODO: wire up learn more link https://linear.app/audius/issue/PAY-1762/wire-up-learn-more-link
-              onClick={() => {}}
-              iconLeft={IconQuestionCircle}
-              variant={HarmonyPlainButtonType.INVERTED}
-              text={messages.learnMore}
-            />
-          </div>
-        </div>
-        <div className={styles.withdrawContainer}>
-          <HarmonyButton
-            variant={HarmonyButtonType.SECONDARY}
-            text={messages.withdraw}
-            // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
-            iconLeft={() => <Icon icon={IconNote} size='medium' />}
-            onClick={() => {}}
-          />
-          <PopupMenu
-            transformOrigin={{ horizontal: 'center', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-            items={menuItems}
-            renderTrigger={(anchorRef, triggerPopup) => (
-              <HarmonyButton
-                ref={anchorRef}
-                variant={HarmonyButtonType.SECONDARY}
-                iconLeft={() => <IconKebabHorizontal />}
-                onClick={triggerPopup}
-              />
-            )}
-          />
-        </div>
-      </div>
-    )
-  }
-
   render() {
     const { account, status } = this.props
     const header = <Header primary='Dashboard' />
@@ -499,7 +503,7 @@ export class ArtistDashboardPage extends Component<
         ) : (
           <>
             {this.renderProfileSection()}
-            {isUSDCEnabled ? this.renderUSDCSection() : null}
+            {isUSDCEnabled ? <USDCSection account={account} /> : null}
             {this.renderCreatorContent()}
           </>
         )}

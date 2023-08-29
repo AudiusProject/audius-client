@@ -190,10 +190,6 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  text-transform: uppercase;
-  font-weight: 900;
-  font-size: var(--font-5xl);
-  color: var(--static-white);
 }
 
 .usdcTitle {
@@ -211,10 +207,6 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  color: var(--static-white);
-  font-size: var(--font-m);
-  font-weight: var(--font-medium);
-  line-height: var(--unit-5); /* 125% */
 }
 
 .withdrawContainer {
@@ -225,8 +217,4 @@
   justify-content: space-between;
   padding: var(--unit-6);
   gap: var(--unit-6);
-}
-
-.learnMoreContainer {
-  color: var(--static-white);
 }
