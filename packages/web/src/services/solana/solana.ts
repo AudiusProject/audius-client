@@ -1,16 +1,22 @@
 import { SolanaWalletAddress } from '@audius/common'
-import { DEFAULT_MINT, MintName } from '@audius/sdk'
+import { MintName } from '@audius/sdk'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Token,
   TOKEN_PROGRAM_ID,
   AccountInfo
 } from '@solana/spl-token'
-import { PublicKey, Transaction, Keypair } from '@solana/web3.js'
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  Keypair
+} from '@solana/web3.js'
 
 import { getLibs } from 'services/audius-libs'
 
 const ROOT_ACCOUNT_SIZE = 0 // Root account takes 0 bytes, but still pays rent!
+const DEFAULT_MINT = 'audio'
 
 /**
  * Gets the solana connection from libs.
@@ -93,13 +99,21 @@ export const getTokenAccountInfo = async ({
 }
 
 /**
+ * Gets the recent blockhash.
+ */
+export const getRecentBlockhash = async () => {
+  const connection = await getSolanaConnection()
+  return (await connection.getLatestBlockhash()).blockhash
+}
+
+/**
  * Gets the fee for a transfer transaction.
  */
 export const getTransferTransactionFee = async (
   destinationPubkey: PublicKey
 ) => {
   const connection = await getSolanaConnection()
-  const recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+  const recentBlockhash = await getRecentBlockhash()
   const tx = new Transaction({ recentBlockhash })
   tx.feePayer = destinationPubkey
   return await tx.getEstimatedFee(connection)
@@ -129,12 +143,19 @@ export const getUSDCAssociatedTokenAccount = async (
   )
 }
 
-export const getNewTransaction = async () => {
+/**
+ * Creates a new solana transaction.
+ */
+export const getNewTransaction = async (recentBlockhash?: string) => {
   const connection = await getSolanaConnection()
-  const recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-  return new Transaction({ recentBlockhash })
+  const blockhash =
+    recentBlockhash ?? (await connection.getLatestBlockhash()).blockhash
+  return new Transaction({ recentBlockhash: blockhash })
 }
 
+/**
+ * Adds a userbank transfer instruction to a given transaction.
+ */
 export const addTransferInstructionToTransaction = async ({
   transaction,
   amount,
@@ -164,4 +185,26 @@ export const addTransferInstructionToTransaction = async ({
     decimals // decimals
   )
   transaction.add(instruction)
+}
+
+/**
+ * Signs a set of instructions with the supplied signer and fee payer.
+ */
+export const getSignatureForTransaction = async ({
+  instructions,
+  signer,
+  feePayer,
+  recentBlockhash
+}: {
+  instructions: TransactionInstruction[]
+  signer: Keypair
+  feePayer: PublicKey
+  recentBlockhash: string
+}) => {
+  const transaction = await getNewTransaction(recentBlockhash)
+  transaction.add(...instructions)
+  transaction.feePayer = feePayer
+  transaction.partialSign(signer)
+  const nonNull = transaction.signatures.filter((s) => s.signature !== null)
+  return nonNull
 }

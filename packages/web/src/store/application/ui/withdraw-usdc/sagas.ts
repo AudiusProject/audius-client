@@ -31,7 +31,9 @@ import {
   isValidSolAddress,
   getRootSolanaAccount,
   getNewTransaction,
-  addTransferInstructionToTransaction
+  addTransferInstructionToTransaction,
+  getSignatureForTransaction,
+  getRecentBlockhash
 } from 'services/solana/solana'
 
 const {
@@ -120,18 +122,18 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     if (feePayer === null) {
       throw new Error('Fee payer not set')
     }
-    // const transactionHandler = libs.solanaWeb3Manager?.transactionHandler
+    const transactionHandler = libs.solanaWeb3Manager?.transactionHandler
     const connection = libs.solanaWeb3Manager?.connection
     if (!connection) {
       throw new Error('Failed to get connection')
     }
     const rootSolanaAccount = yield* call(getRootSolanaAccount)
-    const transactionHandler = new TransactionHandler({
-      connection,
-      useRelay: true,
-      feePayerKeypairs: [rootSolanaAccount],
-      skipPreflight: false
-    })
+    // const transactionHandler = new TransactionHandler({
+    //   connection,
+    //   useRelay: true,
+    //   feePayerKeypairs: [rootSolanaAccount],
+    //   skipPreflight: false
+    // })
     if (!transactionHandler) {
       throw new Error('Failed to get transaction handler')
     }
@@ -169,12 +171,23 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
           const filtered = instruction.keys?.filter((k) => k.isSigner)
           console.log(filtered[0]?.pubkey?.toString())
         })
+        const recentBlockHash = yield* call(getRecentBlockhash)
+        console.log(`REED got recentBlockHash: ${recentBlockHash}`)
+        const signatureWithPubkey = yield* call(getSignatureForTransaction, {
+          instructions: swapInstructions,
+          signer: rootSolanaAccount,
+          feePayer: feePayerPubkey,
+          recentBlockHash
+        })
+        console.log('REED got signature:', signatureWithPubkey)
         const { res: swapRes, error: swapError } = yield* call(
           [transactionHandler, transactionHandler.handleTransaction],
           {
             instructions: swapInstructions,
             feePayerOverride: feePayerPubkey,
-            skipPreflight: false
+            skipPreflight: false,
+            signatures: signatureWithPubkey,
+            recentBlockHash
           }
         )
         console.log('REED got swapRes:', swapRes)
