@@ -13,10 +13,24 @@ import {
   Theme,
   Track,
   User,
+  formatUSDC,
   formatCount,
-  themeSelectors
+  themeSelectors,
+  FeatureFlags
 } from '@audius/common'
-import { IconFilter, IconNote, IconHidden } from '@audius/stems'
+import {
+  IconFilter,
+  IconNote,
+  IconHidden,
+  IconKebabHorizontal,
+  IconQuestionCircle,
+  HarmonyButton,
+  HarmonyButtonType,
+  PopupMenu,
+  PopupMenuItem,
+  HarmonyPlainButton,
+  HarmonyPlainButtonType
+} from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
@@ -25,12 +39,14 @@ import { connect, useDispatch, useSelector } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
+import { Icon } from 'components/Icon'
 import Header from 'components/header/desktop/Header'
 import { Input } from 'components/input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { AppState } from 'store/types'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import { profilePage, TRENDING_PAGE } from 'utils/route'
@@ -86,7 +102,13 @@ export const messages = {
   publicTracksTabTitle: 'PUBLIC TRACKS',
   unlistedTracksTabTitle: 'HIDDEN TRACKS',
   filterInputPlacehoder: 'Filter Tracks',
-  thisYear: 'This Year'
+  thisYear: 'This Year',
+  usdc: 'usdc',
+  earn: 'Earn USDC by selling your music',
+  learnMore: 'Learn More',
+  withdraw: 'Withdraw Funds',
+  salesSummary: 'Sales Summary',
+  withdrawHistory: 'Withdraw History'
 }
 
 const tableColumns: TracksTableColumn[] = [
@@ -380,9 +402,80 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
+  renderUSDCSection() {
+    const { account } = this.props
+    if (!account) return null
+
+    // TODO: wire up balance
+    const balance = 10.29
+
+    const menuItems: PopupMenuItem[] = [
+      {
+        text: messages.salesSummary,
+        // TODO: link to sales page
+        onClick: () => {}
+      },
+      {
+        text: messages.withdrawHistory,
+        // TODO: link to withdraw history page
+        onClick: () => {}
+      }
+    ]
+
+    return (
+      <div className={styles.usdcContainer}>
+        <div className={styles.backgroundBlueGradient}>
+          <div className={styles.usdcTitleContainer}>
+            <div className={styles.usdcTitle}>
+              {/* TODO: update icon */}
+              <Icon icon={IconNote} size='xxxLarge' />
+              <div className={styles.usdc}>
+                <span>{messages.usdc}</span>
+              </div>
+            </div>
+            <div className={styles.usdcBalance}>${formatUSDC(balance)}</div>
+          </div>
+          <div className={styles.usdcInfo}>
+            <span>{messages.earn}</span>
+            <HarmonyPlainButton
+              // TODO: wire up learn more link
+              onClick={() => {}}
+              iconLeft={IconQuestionCircle}
+              variant={HarmonyPlainButtonType.INVERTED}
+              text={messages.learnMore}
+            />
+          </div>
+        </div>
+        <div className={styles.withdrawContainer}>
+          <HarmonyButton
+            variant={HarmonyButtonType.SECONDARY}
+            text={messages.withdraw}
+            // TODO: update leftIcon and wire up withdraw page
+            iconLeft={() => <Icon icon={IconNote} size='medium' />}
+            onClick={() => {}}
+          />
+          <PopupMenu
+            transformOrigin={{ horizontal: 'center', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+            items={menuItems}
+            renderTrigger={(anchorRef, triggerPopup) => (
+              <HarmonyButton
+                ref={anchorRef}
+                variant={HarmonyButtonType.SECONDARY}
+                iconLeft={() => <IconKebabHorizontal />}
+                onClick={triggerPopup}
+              />
+            )}
+          />
+        </div>
+      </div>
+    )
+  }
+
   render() {
     const { account, status } = this.props
     const header = <Header primary='Dashboard' />
+    const isUSDCEnabled = getFeatureEnabled(FeatureFlags.USDC_PURCHASES)
 
     return (
       <Page
@@ -396,6 +489,7 @@ export class ArtistDashboardPage extends Component<
         ) : (
           <>
             {this.renderProfileSection()}
+            {isUSDCEnabled ? this.renderUSDCSection() : null}
             {this.renderCreatorContent()}
           </>
         )}
