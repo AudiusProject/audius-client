@@ -1,5 +1,5 @@
 import { SolanaWalletAddress } from '@audius/common'
-import { MintName } from '@audius/sdk'
+// import { MintName } from '@audius/sdk'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Token,
@@ -15,6 +15,7 @@ import {
 
 import { getLibs } from 'services/audius-libs'
 
+type MintName = 'usdc' | 'audio'
 const ROOT_ACCOUNT_SIZE = 0 // Root account takes 0 bytes, but still pays rent!
 const DEFAULT_MINT = 'audio'
 
@@ -146,10 +147,9 @@ export const getUSDCAssociatedTokenAccount = async (
 /**
  * Creates a new solana transaction.
  */
-export const getNewTransaction = async (recentBlockhash?: string) => {
-  const connection = await getSolanaConnection()
-  const blockhash =
-    recentBlockhash ?? (await connection.getLatestBlockhash()).blockhash
+export const getNewTransaction = async (recentBlockhash: string) => {
+  // const connection = await getSolanaConnection()
+  const blockhash = recentBlockhash
   return new Transaction({ recentBlockhash: blockhash })
 }
 
@@ -201,7 +201,7 @@ export const getSignatureForTransaction = async ({
   feePayer: PublicKey
   recentBlockhash: string
 }) => {
-  const transaction = await getNewTransaction(recentBlockhash)
+  const transaction = new Transaction({ recentBlockhash })
   transaction.add(...instructions)
   transaction.feePayer = feePayer
   transaction.partialSign(signer)

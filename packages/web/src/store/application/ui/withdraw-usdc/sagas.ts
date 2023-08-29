@@ -118,7 +118,6 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
       throw new Error('Please enter a destination address')
     }
     const feePayer = yield* select(getFeePayer)
-    console.log(`REED got feePayer: ${feePayer}`)
     if (feePayer === null) {
       throw new Error('Fee payer not set')
     }
@@ -140,7 +139,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
 
     let destinationPubkey = new PublicKey(destinationAddress)
     const feePayerPubkey = new PublicKey(feePayer)
-    const tx = yield* call(getNewTransaction)
+    // const tx = yield* call(getNewTransaction)
 
     const isDestinationSolAddress = yield* call(
       isSolWallet,
@@ -166,40 +165,39 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
           destinationAddress,
           feePayer: feePayerPubkey
         })
-        console.log('REED swapInstructions:', swapInstructions)
         swapInstructions.forEach((instruction) => {
           const filtered = instruction.keys?.filter((k) => k.isSigner)
-          console.log(filtered[0]?.pubkey?.toString())
+          console.debug(filtered[0]?.pubkey?.toString())
         })
-        const recentBlockHash = yield* call(getRecentBlockhash)
-        console.log(`REED got recentBlockHash: ${recentBlockHash}`)
+        const recentBlockhash = yield* call(getRecentBlockhash)
         const signatureWithPubkey = yield* call(getSignatureForTransaction, {
           instructions: swapInstructions,
           signer: rootSolanaAccount,
           feePayer: feePayerPubkey,
-          recentBlockHash
+          recentBlockhash
         })
-        console.log('REED got signature:', signatureWithPubkey)
         const { res: swapRes, error: swapError } = yield* call(
           [transactionHandler, transactionHandler.handleTransaction],
           {
             instructions: swapInstructions,
             feePayerOverride: feePayerPubkey,
             skipPreflight: false,
-            signatures: signatureWithPubkey,
-            recentBlockHash
+            signatures: signatureWithPubkey.map((s) => ({
+              signature: s.signature!,
+              publicKey: s.publicKey.toString()
+            })),
+            recentBlockhash
           }
         )
-        console.log('REED got swapRes:', swapRes)
         if (swapError) {
           throw new Error(`Swap transaction failed: ${swapError}`)
         }
 
-        yield* call(addCreateAssociatedTokenAccountInstructionToTransaction, {
-          destinationTokenAccountAddress: destinationTokenPubkey,
-          destinationSolAddress: destinationPubkey,
-          transaction: tx
-        })
+        // yield* call(addCreateAssociatedTokenAccountInstructionToTransaction, {
+        //   destinationTokenAccountAddress: destinationTokenPubkey,
+        //   destinationSolAddress: destinationPubkey,
+        //   transaction: tx
+        // })
         // yield* call(
         //   sendAndConfirmTransaction,
         //   libs.solanaWeb3Manager!.connection,
@@ -218,11 +216,11 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
       }
     }
 
-    const withdrawInstructions = yield* call(getWithdrawUSDCInstructions, {
-      amount: amount * TOKEN_LISTING_MAP.USDC.decimals,
-      destinationAddress,
-      feePayer
-    })
+    // const withdrawInstructions = yield* call(getWithdrawUSDCInstructions, {
+    //   amount: amount * TOKEN_LISTING_MAP.USDC.decimals,
+    //   destinationAddress,
+    //   feePayer
+    // })
     // const { error: withdrawError } = yield* call(
     //   [transactionHandler, transactionHandler.handleTransaction],
     //   {
