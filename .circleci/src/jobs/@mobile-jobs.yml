@@ -75,9 +75,6 @@ mobile-build-staging-ios:
     - run:
         name: Set Ruby Version
         command: rbenv global 2.7.7 && rbenv rehash
-    - run:
-        name: Install Sentry CLI
-        command: curl -sL https://sentry.io/get-cli/ | bash
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
