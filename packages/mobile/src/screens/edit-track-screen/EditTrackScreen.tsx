@@ -21,7 +21,23 @@ const EditTrackSchema = Yup.object().shape({
     .nullable(),
   trackArtwork: Yup.string().nullable(),
   genre: Yup.string().required('Required'),
-  description: Yup.string().max(1000).nullable()
+  description: Yup.string().max(1000).nullable(),
+  premium_conditions: Yup.object({
+    usdc_purchase: Yup.object({
+      price: Yup.number()
+        .positive()
+        .min(0.99, 'Price must be at least $0.99.')
+        .max(9.99, 'Price must be less than $9.99.')
+        .required('Required')
+    })
+  }).nullable(),
+  duration: Yup.number(),
+  preview_start_seconds: Yup.number()
+    .max(
+      Yup.ref('duration'),
+      'Preview must start at least 15 seconds before the end of the track.'
+    )
+    .nullable()
 })
 
 export type EditTrackParams = UploadTrack

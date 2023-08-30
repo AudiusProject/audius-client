@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { useState, useRef, forwardRef, useCallback } from 'react'
 
 import { BlurView } from '@react-native-community/blur'
@@ -99,7 +99,7 @@ export type TextInputProps = RNTextInputProps & {
    */
   Icon?: ComponentType<SvgProps>
   startAdornment?: ReactNode
-  endAdornment?: ReactElement
+  endAdornment?: ReactNode
   /**
    * Whether or not the search input should show a clear icon
    */

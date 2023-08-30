@@ -114,7 +114,7 @@ const messages = {
     preview: {
       tooEarly: 'Preview must start during the track.',
       tooLate:
-        'Preview must start at lest 15 seconds before the end of the track.'
+        'Preview must start at least 15 seconds before the end of the track.'
     }
   }
 }

@@ -35,7 +35,8 @@ export const processTrackFile = (
     preview: null,
     metadata: newTrackMetadata({
       title,
-      artwork: null
+      artwork: null,
+      duration: 60
     })
   }
 }

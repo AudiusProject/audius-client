@@ -8,7 +8,7 @@ import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailability
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
-import type { TrackAvailabilitySelectionProps } from './types'
+import type { TrackAvailabilitySelectionProps } from '../../components/types'
 
 const messages = {
   public: 'Public (Default)',
@@ -48,10 +48,10 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   }
 }))
 
-export const PublicAvailability = ({
-  selected,
-  disabled = false
-}: TrackAvailabilitySelectionProps) => {
+export const PublicAvailabilityRadioField = (
+  props: TrackAvailabilitySelectionProps
+) => {
+  const { selected, disabled = false } = props
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
