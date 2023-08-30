@@ -42,6 +42,7 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     alignItems: 'center',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 2,
     borderRadius: 8,
     borderWidth: 1,
     paddingVertical: spacing(2),

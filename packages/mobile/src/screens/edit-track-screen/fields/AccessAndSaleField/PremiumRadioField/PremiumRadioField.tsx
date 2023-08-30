@@ -25,7 +25,8 @@ const messages = {
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    width: screenWidth - spacing(22)
+    width: screenWidth - spacing(22),
+    gap: spacing(4)
   },
   titleContainer: {
     flexDirection: 'row',
@@ -100,10 +101,10 @@ export const PremiumRadioField = (props: PremiumRadioFieldProps) => {
         </Text>
       </View>
       {selected ? (
-        <View>
+        <>
           <TrackPriceField />
           <TrackPreviewField />
-        </View>
+        </>
       ) : null}
     </View>
   )

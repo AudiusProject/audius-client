@@ -28,8 +28,16 @@ export const TrackPriceField = () => {
       keyboardType='number-pad'
       label={messages.label}
       placeholder={messages.placeholder}
-      startAdornment={<Text>{messages.dollars}</Text>}
-      endAdornment={<Text>{messages.usdc}</Text>}
+      startAdornment={
+        <Text color='neutralLight2' weight='bold'>
+          {messages.dollars}
+        </Text>
+      }
+      endAdornment={
+        <Text color='neutralLight2' weight='bold'>
+          {messages.usdc}
+        </Text>
+      }
     />
   )
 }
