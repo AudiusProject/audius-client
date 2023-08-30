@@ -150,10 +150,6 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
           destinationAddress,
           feePayer: feePayerPubkey
         })
-        swapInstructions.forEach((instruction) => {
-          const filtered = instruction.keys?.filter((k) => k.isSigner)
-          console.debug(filtered[0]?.pubkey?.toString())
-        })
         const recentBlockhash = yield* call(getRecentBlockhash)
         const signatureWithPubkey = yield* call(getSignatureForTransaction, {
           instructions: swapInstructions,
