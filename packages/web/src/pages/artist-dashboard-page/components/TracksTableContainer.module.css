@@ -1,0 +1,61 @@
+.tableContainer {
+  border-radius: 6px;
+  background: var(--white);
+  box-shadow: var(--table-shadow) 0px 16px 20px 0px;
+  overflow: hidden;
+}
+
+.sectionContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: var(--unit-3) 0px;
+}
+
+.tabBodyWrapper {
+  align-items: flex-start;
+  transition: all 0.5s ease-in-out;
+  margin: 0px;
+  flex-grow: 1;
+  min-width: 0px;
+}
+
+.tabBody {
+  transition: height 0.1s ease-out;
+  overflow: hidden;
+}
+
+.tabBorderProvider {
+  position: relative;
+  width: 100%;
+  background-color: var(--neutral-light-10);
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+
+.tabContainer {
+  width: 100%;
+  display: flex;
+  padding-top: 48px;
+  margin-left: 8px;
+}
+
+.filterInputContainer {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+
+.trackName {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.ant-table-thead
+    > tr
+    > th.ant-table-column-has-actions.ant-table-column-has-sorters).col:global(.colName),
+.col:global(.colName) {
+  padding-left: 24px !important;
+}
