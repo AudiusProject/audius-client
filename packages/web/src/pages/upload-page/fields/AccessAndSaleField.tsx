@@ -156,7 +156,7 @@ export const AccessAndSaleFormSchema = (trackLength: number) =>
           )
         })
       ),
-      [PREVIEW]: z.optional(z.number())
+      [PREVIEW]: z.optional(z.nullable(z.number()))
     })
     .refine(
       (values) => {
