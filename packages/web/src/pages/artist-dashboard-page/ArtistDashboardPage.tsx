@@ -7,7 +7,6 @@ import {
   formatCount,
   themeSelectors,
   FeatureFlags,
-  TOKEN_LISTING_MAP,
   combineStatuses,
   useUSDCBalance
 } from '@audius/common'
@@ -87,9 +86,7 @@ export const ArtistDashboardPage = () => {
   const listenData = useSelector(getDashboardListenData)
   const dashboardStatus = useSelector(getDashboardStatus)
   const isMatrix = useSelector(getTheme) === Theme.MATRIX
-  const { data, status: balanceStatus } = useUSDCBalance()
-  const balance =
-    (data?.toNumber() ?? 0) / 10 ** TOKEN_LISTING_MAP.USDC.decimals
+  const { data: balance, status: balanceStatus } = useUSDCBalance()
   const status = combineStatuses([dashboardStatus, balanceStatus])
 
   const header = <Header primary='Dashboard' />
@@ -208,7 +205,7 @@ export const ArtistDashboardPage = () => {
       contentClassName={styles.pageContainer}
       header={header}
     >
-      {!account || status === Status.LOADING ? (
+      {!account || !balance || status === Status.LOADING ? (
         <LoadingSpinner className={styles.spinner} />
       ) : (
         <>
