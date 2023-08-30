@@ -29,13 +29,17 @@ const EditTrackSchema = Yup.object().shape({
         .min(0.99, 'Price must be at least $0.99.')
         .max(9.99, 'Price must be less than $9.99.')
         .required('Required')
-    })
+    }).nullable()
   }).nullable(),
   duration: Yup.number(),
   preview_start_seconds: Yup.number()
     .max(
-      Yup.ref('duration'),
-      'Preview must start at least 15 seconds before the end of the track.'
+      (Yup.ref('duration') as unknown as number) > 15
+        ? (Yup.ref('duration') as unknown as number) - 15
+        : 0,
+      (Yup.ref('duration') as unknown as number)
+        ? 'Preview must start at least 15 seconds before the end of the track.'
+        : 'Preview must start at 0 since the track is less than 15 seconds'
     )
     .nullable()
 })
