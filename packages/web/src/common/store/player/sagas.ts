@@ -66,7 +66,7 @@ const { getIsReachable } = reachabilitySelectors
 const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
 const RECORD_LISTEN_INTERVAL = 1000
-const PREVIEW_LENGTH_SECONDS = 15
+const PREVIEW_LENGTH_SECONDS = 30
 
 export function* watchPlay() {
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
