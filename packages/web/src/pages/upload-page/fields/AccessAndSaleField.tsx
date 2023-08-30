@@ -109,12 +109,12 @@ const messages = {
   errors: {
     price: {
       tooLow: 'Price must be at least $0.99.',
-      tooHigh: 'Price must be less than $9.99.'
+      tooHigh: 'Price must be less than $9999.99.'
     },
     preview: {
       tooEarly: 'Preview must start during the track.',
       tooLate:
-        'Preview must start at lest 15 seconds before the end of the track.'
+        'Preview must start at lest 30 seconds before the end of the track.'
     }
   }
 }
@@ -150,7 +150,7 @@ export const AccessAndSaleFormSchema = (trackLength: number) =>
             z.object({
               price: z
                 .number()
-                .lte(999, messages.errors.price.tooHigh)
+                .lte(999999, messages.errors.price.tooHigh)
                 .gte(99, messages.errors.price.tooLow)
             })
           )
@@ -174,7 +174,7 @@ export const AccessAndSaleFormSchema = (trackLength: number) =>
         if (isPremiumContentUSDCPurchaseGated(formValues[PREMIUM_CONDITIONS])) {
           return (
             formValues[PREVIEW] === undefined ||
-            (formValues[PREVIEW] >= 0 && formValues[PREVIEW] < trackLength - 15)
+            (formValues[PREVIEW] >= 0 && formValues[PREVIEW] < trackLength - 30)
           )
         }
         return true
