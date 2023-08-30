@@ -162,3 +162,27 @@ export const getSignatureForTransaction = async ({
   const nonNull = transaction.signatures.filter((s) => s.signature !== null)
   return nonNull
 }
+
+/**
+ * Creates an instruction for creating a new associated token account.
+ */
+export const getCreateAssociatedTokenAccountInstruction = ({
+  associatedTokenAccount,
+  owner,
+  mint,
+  feePayer
+}: {
+  associatedTokenAccount: PublicKey
+  owner: PublicKey
+  mint: PublicKey
+  feePayer: PublicKey
+}) => {
+  return Token.createAssociatedTokenAccountInstruction(
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+    TOKEN_PROGRAM_ID,
+    mint,
+    associatedTokenAccount,
+    owner,
+    feePayer
+  )
+}

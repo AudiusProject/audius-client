@@ -1,13 +1,8 @@
 import type { SwapMode } from '@jup-ag/core'
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  Token,
-  TOKEN_PROGRAM_ID
-} from '@solana/spl-token'
+import { Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
-  Transaction,
   TransactionInstruction
 } from '@solana/web3.js'
 import BN from 'bn.js'
@@ -18,7 +13,8 @@ import {
   getRootSolanaAccount,
   getAssociatedTokenAccountRent,
   getTransferTransactionFee,
-  getUSDCAssociatedTokenAccount
+  getUSDCAssociatedTokenAccount,
+  getCreateAssociatedTokenAccountInstruction
 } from 'services/solana/solana'
 
 // TODO: Grab from remote config
@@ -93,14 +89,12 @@ export const getSwapUSDCUserBankInstructions = async ({
     })
 
   const createAssociatedTokenAccountInstruction =
-    Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID, // associatedProgramId
-      TOKEN_PROGRAM_ID, // programId
-      libs.solanaWeb3Manager!.mints.usdc, // mint
-      solanaUSDCAssociatedTokenAccount, // associatedAccount
-      solanaRootAccount.publicKey, // owner
-      feePayer // payer
-    )
+    getCreateAssociatedTokenAccountInstruction({
+      associatedTokenAccount: solanaUSDCAssociatedTokenAccount,
+      owner: solanaRootAccount.publicKey,
+      mint: libs.solanaWeb3Manager!.mints.usdc,
+      feePayer
+    })
   const closeAssociatedTokenAccountInstruction =
     Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID, //    programId
@@ -110,10 +104,35 @@ export const getSwapUSDCUserBankInstructions = async ({
       [] //  multiSigners
     )
 
-  return [
+  const instructions = [
     createAssociatedTokenAccountInstruction,
     ...transferInstructions,
     ...swapInstructions,
     closeAssociatedTokenAccountInstruction
   ]
+  return instructions
+}
+
+export const getWithdrawUSDCInstructions = async ({
+  amount,
+  destinationAddress,
+  feePayer
+}: {
+  amount: number
+  destinationAddress: string
+  feePayer: PublicKey
+}) => {
+  const libs = await getLibs()
+  const usdcUserBank = await libs.solanaWeb3Manager!.deriveUserBank({
+    mint: 'usdc'
+  })
+  const instructions =
+    await libs.solanaWeb3Manager!.createTransferInstructionsFromCurrentUser({
+      amount: new BN(amount),
+      feePayerKey: feePayer,
+      senderSolanaAddress: usdcUserBank,
+      recipientSolanaAddress: destinationAddress,
+      mint: 'usdc'
+    })
+  return instructions
 }
