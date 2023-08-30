@@ -1,4 +1,4 @@
-import { TOKEN_LISTING_MAP, formatCurrencyBalance } from '@audius/common'
+import { formatCurrencyBalance } from '@audius/common'
 import {
   IconNote,
   IconKebabHorizontal,
@@ -26,7 +26,6 @@ const messages = {
 }
 
 export const USDCTile = ({ balance }: { balance: number }) => {
-  // ;(data?.toNumber() ?? 0) / 10 ** TOKEN_LISTING_MAP.USDC.decimals
   // TODO: wire up balance https://linear.app/audius/issue/PAY-1761/wire-up-usdc-balance-in-artist-dashboard
 
   const menuItems: PopupMenuItem[] = [
