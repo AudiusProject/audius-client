@@ -1,7 +1,7 @@
 .tableContainer {
   border-radius: 6px;
   background: var(--white);
-  box-shadow: var(--table-shadow) 0px 16px 20px 0px;
+  box-shadow: var(--table-shadow) 0px var(--unit-4) var(--unit-5) 0px;
   overflow: hidden;
 }
 
@@ -36,14 +36,14 @@
 .tabContainer {
   width: 100%;
   display: flex;
-  padding-top: 48px;
-  margin-left: 8px;
+  padding-top: var(--unit-12);
+  margin-left: var(--unit-2);
 }
 
 .filterInputContainer {
   position: absolute;
-  top: 20px;
-  right: 24px;
+  top: var(--unit-5);
+  right: var(--unit-6);
 }
 
 .trackName {
@@ -57,5 +57,5 @@
     > tr
     > th.ant-table-column-has-actions.ant-table-column-has-sorters).col:global(.colName),
 .col:global(.colName) {
-  padding-left: 24px !important;
+  padding-left: var(--unit-6) !important;
 }
