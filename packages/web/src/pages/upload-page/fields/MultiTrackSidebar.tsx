@@ -105,12 +105,16 @@ const TrackRow = (props: TrackRowProps) => {
     (index: number) => {
       const newTrackMetadatas = [...values.trackMetadatas]
       newTrackMetadatas.splice(index, 1)
-      const newIndex = selectedIndex === index ? Math.max(index - 1, 0) : index
+      const newTracks = [...values.tracks]
+      newTracks.splice(index, 1)
+      const newIndex =
+        selectedIndex === index ? Math.max(index - 1, 0) : selectedIndex
       setValues({
         ...values,
-        trackMetadatas: newTrackMetadatas,
-        trackMetadatasIndex: newIndex
+        trackMetadatas: newTrackMetadatas
+        // trackMetadatasIndex: newIndex
       })
+      setIndex(newIndex)
     },
     [selectedIndex, setValues, values]
   )
