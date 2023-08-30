@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 
 import { Status, User, Track } from '@audius/common'
 import { IconFilter, IconNote, IconHidden } from '@audius/stems'

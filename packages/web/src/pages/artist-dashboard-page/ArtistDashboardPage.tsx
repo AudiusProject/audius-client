@@ -1,4 +1,4 @@
-import React, { Suspense, Component, ReactNode } from 'react'
+import { useState, Suspense, ReactNode, useEffect } from 'react'
 
 import {
   ID,
@@ -10,21 +10,17 @@ import {
   FeatureFlags
 } from '@audius/common'
 import cn from 'classnames'
-import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
 import moment, { Moment } from 'moment'
-import { connect } from 'react-redux'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
-import { Dispatch } from 'redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Header from 'components/header/desktop/Header'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import { useGoToRoute } from 'hooks/useGoToRoute'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { AppState } from 'store/types'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import { profilePage, TRENDING_PAGE } from 'utils/route'
-import { withClassNullGuard } from 'utils/withNullGuard'
 
 import styles from './ArtistDashboardPage.module.css'
 import ArtistProfile from './components/ArtistProfile'
@@ -63,42 +59,38 @@ export const messages = {
   thisYear: 'This Year'
 }
 
-type ArtistDashboardPageProps = ReturnType<typeof mapDispatchToProps> &
-  ReturnType<ReturnType<typeof makeMapStateToProps>> &
-  RouteComponentProps
+export const ArtistDashboardPage = () => {
+  const [selectedTrack, setSelectedTrack] = useState(-1)
+  const goToRoute = useGoToRoute()
+  const dispatch = useDispatch()
+  const header = <Header primary='Dashboard' />
+  const isUSDCEnabled = getFeatureEnabled(FeatureFlags.USDC_PURCHASES)
 
-const mapper = (props: ArtistDashboardPageProps) => {
-  const { account } = props
-  return { ...props, account }
-}
+  const { account, tracks, unlistedTracks, stats } = useSelector(
+    makeGetDashboard()
+  )
+  const listenData = useSelector(getDashboardListenData)
+  const status = useSelector(getDashboardStatus)
+  const isMatrix = useSelector(getTheme) === Theme.MATRIX
 
-export class ArtistDashboardPage extends Component<
-  NonNullable<ReturnType<typeof mapper>>
-> {
-  state = {
-    selectedTrack: -1 // all tracks
-  }
-
-  componentDidMount() {
-    this.props.fetchDashboard(0, tablePageSize)
+  useEffect(() => {
+    dispatch(fetchDashboard(0, tablePageSize))
     TotalPlaysChart.preload()
-  }
+    return () => {
+      dispatch(resetDashboard())
+    }
+  }, [dispatch])
 
-  componentDidUpdate() {
-    const { account } = this.props
+  useEffect(() => {
     if (account) {
       const { track_count = 0 } = account
       if (!(track_count > 0)) {
-        this.props.goToRoute(TRENDING_PAGE)
+        goToRoute(TRENDING_PAGE)
       }
     }
-  }
+  }, [account, goToRoute])
 
-  componentWillUnmount() {
-    this.props.resetDashboard()
-  }
-
-  formatMetadata(trackMetadatas: Track[]): DataSourceTrack[] {
+  const formatMetadata = (trackMetadatas: Track[]): DataSourceTrack[] => {
     return trackMetadatas
       .map((metadata, i) => ({
         ...metadata,
@@ -113,17 +105,16 @@ export class ArtistDashboardPage extends Component<
       .filter((meta) => !meta.is_invalid)
   }
 
-  onClickRow = (record: any) => {
-    const { account, goToRoute } = this.props
+  const onClickRow = (record: any) => {
     if (!account) return
     goToRoute(record.permalink)
   }
 
-  onSetTrackOption = (trackId: ID) => {
-    this.setState({ selectedTrack: trackId })
+  const onSetTrackOption = (trackId: ID) => {
+    setSelectedTrack(trackId)
   }
 
-  onSetYearOption = (year: string) => {
+  const onSetYearOption = (year: string) => {
     let start: Moment
     let end: Moment
     if (year === messages.thisYear) {
@@ -134,20 +125,18 @@ export class ArtistDashboardPage extends Component<
       start = moment('01/01/' + year)
       end = start.clone().add(1, 'year')
     }
-    this.props.fetchDashboardListenData(
-      this.props.tracks.map((t) => t.track_id),
-      start.toISOString(),
-      end.toISOString()
+    dispatch(
+      fetchDashboardListenData(
+        tracks.map((t) => t.track_id),
+        start.toISOString(),
+        end.toISOString()
+      )
     )
   }
 
-  renderCreatorContent() {
-    const { account, listenData, tracks, unlistedTracks, stats, isMatrix } =
-      this.props
-    const trackCount = this.props.account?.track_count || 0
+  const renderCreatorContent = () => {
+    const trackCount = account?.track_count || 0
     if (!account || !(trackCount > 0)) return null
-
-    const { selectedTrack } = this.state
 
     const statTiles: ReactNode[] = []
     each(stats, (stat, title) =>
@@ -162,8 +151,8 @@ export class ArtistDashboardPage extends Component<
       name: track.title
     }))
 
-    const listedDataSource = this.formatMetadata(tracks)
-    const unlistedDataSource = this.formatMetadata(unlistedTracks)
+    const listedDataSource = formatMetadata(tracks)
+    const unlistedDataSource = formatMetadata(unlistedTracks)
     return (
       <>
         <div className={styles.sectionContainer}>
@@ -173,8 +162,8 @@ export class ArtistDashboardPage extends Component<
               isMatrix={isMatrix}
               tracks={chartTracks}
               selectedTrack={selectedTrack}
-              onSetYearOption={this.onSetYearOption}
-              onSetTrackOption={this.onSetTrackOption}
+              onSetYearOption={onSetYearOption}
+              onSetTrackOption={onSetTrackOption}
               accountCreatedAt={account.created_at}
             />
           </Suspense>
@@ -184,7 +173,7 @@ export class ArtistDashboardPage extends Component<
         </div>
         <div className={styles.tracksTableWrapper}>
           <TracksTableContainer
-            onClickRow={this.onClickRow}
+            onClickRow={onClickRow}
             listedDataSource={listedDataSource}
             unlistedDataSource={unlistedDataSource}
             account={account}
@@ -194,8 +183,7 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
-  renderProfileSection() {
-    const { account, goToRoute } = this.props
+  const renderProfileSection = () => {
     if (!account) return null
 
     return (
@@ -212,53 +200,22 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
-  render() {
-    const { account, status } = this.props
-    const header = <Header primary='Dashboard' />
-    const isUSDCEnabled = getFeatureEnabled(FeatureFlags.USDC_PURCHASES)
-
-    return (
-      <Page
-        title='Dashboard'
-        description='View important stats like plays, reposts, and more.'
-        contentClassName={styles.pageContainer}
-        header={header}
-      >
-        {!account || status === Status.LOADING ? (
-          <LoadingSpinner className={styles.spinner} />
-        ) : (
-          <>
-            {this.renderProfileSection()}
-            {isUSDCEnabled ? <USDCTile balance={0} /> : null}
-            {this.renderCreatorContent()}
-          </>
-        )}
-      </Page>
-    )
-  }
+  return (
+    <Page
+      title='Dashboard'
+      description='View important stats like plays, reposts, and more.'
+      contentClassName={styles.pageContainer}
+      header={header}
+    >
+      {!account || status === Status.LOADING ? (
+        <LoadingSpinner className={styles.spinner} />
+      ) : (
+        <>
+          {renderProfileSection()}
+          {isUSDCEnabled ? <USDCTile balance={0} /> : null}
+          {renderCreatorContent()}
+        </>
+      )}
+    </Page>
+  )
 }
-
-const makeMapStateToProps = () => {
-  const getDashboard = makeGetDashboard()
-  return (state: AppState) => ({
-    ...getDashboard(state),
-    listenData: getDashboardListenData(state),
-    status: getDashboardStatus(state),
-    isMatrix: getTheme(state) === Theme.MATRIX
-  })
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  fetchDashboard: (offset?: number, limit?: number) =>
-    dispatch(fetchDashboard(offset, limit)),
-  fetchDashboardListenData: (trackIds: ID[], start: string, end: string) =>
-    dispatch(fetchDashboardListenData(trackIds, start, end, 'month')),
-  resetDashboard: () => dispatch(resetDashboard()),
-  goToRoute: (route: string) => dispatch(pushRoute(route))
-})
-
-const g = withClassNullGuard(mapper)
-
-export default withRouter(
-  connect(makeMapStateToProps, mapDispatchToProps)(g(ArtistDashboardPage))
-)
