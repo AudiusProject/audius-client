@@ -23,7 +23,7 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 import cn from 'classnames'
-import { useField } from 'formik'
+import { useField, useFormikContext } from 'formik'
 import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
 import { z } from 'zod'
@@ -515,6 +515,10 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
       setfieldVisibilityValue
     ]
   )
+
+  const { values, errors } = useFormikContext()
+
+  console.log({ values, errors })
 
   return (
     <div className={cn(layoutStyles.col, layoutStyles.gap4)}>

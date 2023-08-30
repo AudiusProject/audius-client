@@ -41,6 +41,11 @@ import { SpecialAccessType } from 'pages/upload-page/fields/availability/Special
 
 import styles from './AccessAndSaleModalLegacy.module.css'
 import { ContextualMenu } from './ContextualMenu'
+import {
+  PremiumConditionsFollowUserId,
+  PremiumConditionsNFTCollection,
+  PremiumConditionsTipUserId
+} from '@audius/sdk'
 
 const messages = {
   title: 'Access & Sale',
@@ -65,25 +70,46 @@ const messages = {
 }
 
 const AccessAndSaleFormSchema = (trackLength: number) =>
-  z.object({
-    [PREMIUM_CONDITIONS]: z.nullable(
-      z.object({
-        // TODO: there are other types
-        usdc_purchase: z.object({
-          price: z
-            .number()
-            .lte(999, messages.errors.price.tooHigh)
-            .gte(99, messages.errors.price.tooLow)
+  z
+    .object({
+      [PREMIUM_CONDITIONS]: z.nullable(
+        z.object({
+          // TODO: there are other types
+          usdc_purchase: z.optional(
+            z.object({
+              price: z
+                .number()
+                .lte(999, messages.errors.price.tooHigh)
+                .gte(99, messages.errors.price.tooLow)
+            })
+          )
         })
-      })
-    ),
-    [PREVIEW]: z.optional(
-      z
-        .number()
-        .gte(0, messages.errors.preview.tooEarly)
-        .lte(trackLength - 15, messages.errors.preview.tooLate)
+      ),
+      [PREVIEW]: z.optional(z.number())
+    })
+    .refine(
+      (values) => {
+        const formValues = values as AccessAndSaleFormValues
+        if (isPremiumContentUSDCPurchaseGated(formValues[PREMIUM_CONDITIONS])) {
+          return formValues[PREVIEW] !== undefined && formValues[PREVIEW] >= 0
+        }
+        return true
+      },
+      { message: messages.errors.preview.tooEarly, path: [PREVIEW] }
     )
-  })
+    .refine(
+      (values) => {
+        const formValues = values as AccessAndSaleFormValues
+        if (isPremiumContentUSDCPurchaseGated(formValues[PREMIUM_CONDITIONS])) {
+          return (
+            formValues[PREVIEW] === undefined ||
+            (formValues[PREVIEW] >= 0 && formValues[PREVIEW] < trackLength - 15)
+          )
+        }
+        return true
+      },
+      { message: messages.errors.preview.tooLate, path: [PREVIEW] }
+    )
 
 type AccessAndSaleModalLegacyProps = {
   isRemix: boolean
@@ -158,8 +184,7 @@ export const AccessAndSaleModalLegacy = (
       ...metadataState,
       is_premium: !isEmpty(values[PREMIUM_CONDITIONS]),
       premium_conditions: values[PREMIUM_CONDITIONS],
-      unlisted: values.is_unlisted,
-      preview_start_seconds: values[PREVIEW] ?? 0
+      unlisted: values.is_unlisted
     }
 
     if (
@@ -173,6 +198,7 @@ export const AccessAndSaleModalLegacy = (
           price
         }
       }
+      newState.preview_start_seconds = values[PREVIEW] ?? 0
     }
 
     if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
