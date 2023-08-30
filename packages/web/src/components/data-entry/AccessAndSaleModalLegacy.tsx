@@ -38,6 +38,7 @@ import {
   SPECIAL_ACCESS_TYPE
 } from 'pages/upload-page/fields/AccessAndSaleField'
 import { SpecialAccessType } from 'pages/upload-page/fields/availability/SpecialAccessFields'
+
 import styles from './AccessAndSaleModalLegacy.module.css'
 import { ContextualMenu } from './ContextualMenu'
 
