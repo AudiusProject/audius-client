@@ -4,7 +4,8 @@ import {
   accountSelectors,
   statusIsNotFinalized,
   useGetLibraryAlbums,
-  useAllPaginatedQuery
+  useAllPaginatedQuery,
+  savedPageSelectors
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -17,6 +18,8 @@ import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
 const { getUserId } = accountSelectors
+const { getSelectedCategory } = savedPageSelectors
+
 const messages = {
   emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
   emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
@@ -26,6 +29,7 @@ const messages = {
 export const AlbumsTabPage = () => {
   const goToRoute = useGoToRoute()
   const currentUserId = useSelector(getUserId)
+  const selectedCategory = useSelector(getSelectedCategory)
 
   const {
     data: fetchedAlbums,
@@ -35,7 +39,8 @@ export const AlbumsTabPage = () => {
   } = useAllPaginatedQuery(
     useGetLibraryAlbums,
     {
-      userId: currentUserId!
+      userId: currentUserId!,
+      category: selectedCategory
     },
     {
       pageSize: 20,

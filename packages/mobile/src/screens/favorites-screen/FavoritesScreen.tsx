@@ -5,9 +5,11 @@ import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
+import { makeStyles } from 'app/styles'
 
 import { AlbumsTab } from './AlbumsTab'
 import { FavoritesDownloadSection } from './FavoritesDownloadSection'
+import { LibraryCategorySelectionMenu } from './LibraryCategorySelectionMenu'
 import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
 
@@ -33,17 +35,29 @@ const favoritesScreens = [
   }
 ]
 
+const useHeaderStyles = makeStyles(({ spacing }) => ({
+  icon: { marginLeft: 3 },
+  root: {
+    flexWrap: 'wrap',
+    height: 88,
+    paddingTop: spacing(2),
+    paddingBottom: spacing(2)
+  }
+}))
+
 export const FavoritesScreen = () => {
   useAppTabScreen()
+  const headerStyles = useHeaderStyles()
 
   return (
     <Screen>
       <ScreenHeader
         text={messages.header}
         icon={IconLibrary}
-        styles={{ icon: { marginLeft: 3 } }}
+        styles={headerStyles}
       >
         <FavoritesDownloadSection />
+        <LibraryCategorySelectionMenu />
       </ScreenHeader>
       <ScreenContent isOfflineCapable>
         <TopTabNavigator

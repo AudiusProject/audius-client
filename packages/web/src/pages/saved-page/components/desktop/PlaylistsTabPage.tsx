@@ -6,7 +6,8 @@ import {
   CreatePlaylistSource,
   statusIsNotFinalized,
   useGetLibraryPlaylists,
-  useAllPaginatedQuery
+  useAllPaginatedQuery,
+  savedPageSelectors
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +21,7 @@ import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 const { createPlaylist } = cacheCollectionsActions
 const { getUserId } = accountSelectors
+const { getSelectedCategory } = savedPageSelectors
 
 const messages = {
   emptyPlaylistsHeader: 'You haven’t created or favorited any playlists yet.',
@@ -31,6 +33,7 @@ const messages = {
 export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
+  const selectedCategory = useSelector(getSelectedCategory)
 
   const {
     data: fetchedPlaylists,
@@ -40,7 +43,8 @@ export const PlaylistsTabPage = () => {
   } = useAllPaginatedQuery(
     useGetLibraryPlaylists,
     {
-      userId: currentUserId!
+      userId: currentUserId!,
+      category: selectedCategory
     },
     {
       pageSize: 20,
