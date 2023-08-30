@@ -39,3 +39,5 @@ export type ColorValue =
   | 'accentBlue'
   | 'specialLightGreen'
   | 'darkmodeStaticWhite'
+  | 'staticWhite'
+  | 'staticNeutral'
