@@ -6,7 +6,10 @@ import {
   Track,
   formatCount,
   themeSelectors,
-  FeatureFlags
+  FeatureFlags,
+  TOKEN_LISTING_MAP,
+  combineStatuses,
+  useUSDCBalance
 } from '@audius/common'
 import cn from 'classnames'
 import { each } from 'lodash'
@@ -82,8 +85,12 @@ export const ArtistDashboardPage = () => {
     makeGetDashboard()
   )
   const listenData = useSelector(getDashboardListenData)
-  const status = useSelector(getDashboardStatus)
+  const dashboardStatus = useSelector(getDashboardStatus)
   const isMatrix = useSelector(getTheme) === Theme.MATRIX
+  const { data, status: balanceStatus } = useUSDCBalance()
+  const balance =
+    (data?.toNumber() ?? 0) / 10 ** TOKEN_LISTING_MAP.USDC.decimals
+  const status = combineStatuses([dashboardStatus, balanceStatus])
 
   const header = <Header primary='Dashboard' />
 
@@ -213,7 +220,7 @@ export const ArtistDashboardPage = () => {
             handle={account.handle}
             onViewProfile={() => goToRoute(profilePage(account.handle))}
           />
-          {isUSDCEnabled ? <USDCTile balance={0} /> : null}
+          {isUSDCEnabled ? <USDCTile balance={balance} /> : null}
           {renderCreatorContent()}
         </>
       )}
