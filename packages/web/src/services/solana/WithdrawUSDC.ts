@@ -7,7 +7,6 @@ import {
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
-  Transaction,
   TransactionInstruction
 } from '@solana/web3.js'
 import BN from 'bn.js'
