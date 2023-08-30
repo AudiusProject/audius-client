@@ -54,12 +54,12 @@ const messages = {
   errors: {
     price: {
       tooLow: 'Price must be at least $0.99',
-      tooHigh: 'Price must be less than $9.99'
+      tooHigh: 'Price must be less than $9999.99'
     },
     preview: {
       tooEarly: 'Preview must start during the track',
       tooLate:
-        'Preview must start at lest 15 seconds before the end of the track'
+        'Preview must start at least 30 seconds before the end of the track'
     }
   }
 }
@@ -142,7 +142,7 @@ export const AccessAndSaleModalLegacy = (
       case TrackAvailabilityType.PUBLIC: {
         newState.is_premium = false
         newState.unlisted = false
-        newState.premium_conditions = null
+        newState.premium_conditions = {}
         break
       }
       case TrackAvailabilityType.USDC_PURCHASE: {
@@ -169,7 +169,7 @@ export const AccessAndSaleModalLegacy = (
       newState = {
         ...newState,
         ...(get(values, FIELD_VISIBILITY) ?? undefined),
-        premium_conditions: null,
+        premium_conditions: {},
         unlisted: true
       }
     } else {
