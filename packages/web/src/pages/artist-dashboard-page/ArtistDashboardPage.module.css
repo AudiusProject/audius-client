@@ -63,14 +63,6 @@
   height: 368px;
 }
 
-.profileContainer {
-  display: inline-flex;
-  width: 100%;
-  align-items: center;
-  justify-content: stretch;
-  margin: 12px 0px 36px;
-}
-
 .tracksTableWrapper {
   margin-top: 50px;
 }

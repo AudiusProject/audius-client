@@ -1,7 +1,6 @@
-import { useState, Suspense, ReactNode, useEffect } from 'react'
+import { useState, Suspense, ReactNode, useEffect, useCallback } from 'react'
 
 import {
-  ID,
   Status,
   Theme,
   Track,
@@ -46,6 +45,25 @@ const TotalPlaysChart = lazyWithPreload(
   () => import('./components/TotalPlaysChart')
 )
 
+export const messages = {
+  thisYear: 'This Year'
+}
+
+const formatMetadata = (trackMetadatas: Track[]): DataSourceTrack[] => {
+  return trackMetadatas
+    .map((metadata, i) => ({
+      ...metadata,
+      key: `${metadata.title}_${metadata.dateListened}_${i}`,
+      name: metadata.title,
+      date: metadata.created_at,
+      time: metadata.duration,
+      saves: metadata.save_count,
+      reposts: metadata.repost_count,
+      plays: metadata.play_count
+    }))
+    .filter((meta) => !meta.is_invalid)
+}
+
 const StatTile = (props: { title: string; value: any }) => {
   return (
     <div className={styles.statTileContainer}>
@@ -55,23 +73,19 @@ const StatTile = (props: { title: string; value: any }) => {
   )
 }
 
-export const messages = {
-  thisYear: 'This Year'
-}
-
 export const ArtistDashboardPage = () => {
-  const [selectedTrack, setSelectedTrack] = useState(-1)
   const goToRoute = useGoToRoute()
   const dispatch = useDispatch()
-  const header = <Header primary='Dashboard' />
   const isUSDCEnabled = getFeatureEnabled(FeatureFlags.USDC_PURCHASES)
-
+  const [selectedTrack, setSelectedTrack] = useState(-1)
   const { account, tracks, unlistedTracks, stats } = useSelector(
     makeGetDashboard()
   )
   const listenData = useSelector(getDashboardListenData)
   const status = useSelector(getDashboardStatus)
   const isMatrix = useSelector(getTheme) === Theme.MATRIX
+
+  const header = <Header primary='Dashboard' />
 
   useEffect(() => {
     dispatch(fetchDashboard(0, tablePageSize))
@@ -90,51 +104,38 @@ export const ArtistDashboardPage = () => {
     }
   }, [account, goToRoute])
 
-  const formatMetadata = (trackMetadatas: Track[]): DataSourceTrack[] => {
-    return trackMetadatas
-      .map((metadata, i) => ({
-        ...metadata,
-        key: `${metadata.title}_${metadata.dateListened}_${i}`,
-        name: metadata.title,
-        date: metadata.created_at,
-        time: metadata.duration,
-        saves: metadata.save_count,
-        reposts: metadata.repost_count,
-        plays: metadata.play_count
-      }))
-      .filter((meta) => !meta.is_invalid)
-  }
+  const onClickRow = useCallback(
+    (record: any) => {
+      if (!account) return
+      goToRoute(record.permalink)
+    },
+    [account, goToRoute]
+  )
 
-  const onClickRow = (record: any) => {
-    if (!account) return
-    goToRoute(record.permalink)
-  }
-
-  const onSetTrackOption = (trackId: ID) => {
-    setSelectedTrack(trackId)
-  }
-
-  const onSetYearOption = (year: string) => {
-    let start: Moment
-    let end: Moment
-    if (year === messages.thisYear) {
-      const now = moment()
-      start = now.clone().subtract(1, 'years')
-      end = now
-    } else {
-      start = moment('01/01/' + year)
-      end = start.clone().add(1, 'year')
-    }
-    dispatch(
-      fetchDashboardListenData(
-        tracks.map((t) => t.track_id),
-        start.toISOString(),
-        end.toISOString()
+  const onSetYearOption = useCallback(
+    (year: string) => {
+      let start: Moment
+      let end: Moment
+      if (year === messages.thisYear) {
+        const now = moment()
+        start = now.clone().subtract(1, 'years')
+        end = now
+      } else {
+        start = moment('01/01/' + year)
+        end = start.clone().add(1, 'year')
+      }
+      dispatch(
+        fetchDashboardListenData(
+          tracks.map((t) => t.track_id),
+          start.toISOString(),
+          end.toISOString()
+        )
       )
-    )
-  }
+    },
+    [dispatch, tracks]
+  )
 
-  const renderCreatorContent = () => {
+  const renderCreatorContent = useCallback(() => {
     const trackCount = account?.track_count || 0
     if (!account || !(trackCount > 0)) return null
 
@@ -163,7 +164,7 @@ export const ArtistDashboardPage = () => {
               tracks={chartTracks}
               selectedTrack={selectedTrack}
               onSetYearOption={onSetYearOption}
-              onSetTrackOption={onSetTrackOption}
+              onSetTrackOption={setSelectedTrack}
               accountCreatedAt={account.created_at}
             />
           </Suspense>
@@ -181,24 +182,17 @@ export const ArtistDashboardPage = () => {
         </div>
       </>
     )
-  }
-
-  const renderProfileSection = () => {
-    if (!account) return null
-
-    return (
-      <div className={styles.profileContainer}>
-        <ArtistProfile
-          userId={account.user_id}
-          profilePictureSizes={account._profile_picture_sizes}
-          isVerified={account.is_verified}
-          name={account.name}
-          handle={account.handle}
-          onViewProfile={() => goToRoute(profilePage(account.handle))}
-        />
-      </div>
-    )
-  }
+  }, [
+    account,
+    isMatrix,
+    listenData,
+    onClickRow,
+    onSetYearOption,
+    selectedTrack,
+    stats,
+    tracks,
+    unlistedTracks
+  ])
 
   return (
     <Page
@@ -211,7 +205,14 @@ export const ArtistDashboardPage = () => {
         <LoadingSpinner className={styles.spinner} />
       ) : (
         <>
-          {renderProfileSection()}
+          <ArtistProfile
+            userId={account.user_id}
+            profilePictureSizes={account._profile_picture_sizes}
+            isVerified={account.is_verified}
+            name={account.name}
+            handle={account.handle}
+            onViewProfile={() => goToRoute(profilePage(account.handle))}
+          />
           {isUSDCEnabled ? <USDCTile balance={0} /> : null}
           {renderCreatorContent()}
         </>
