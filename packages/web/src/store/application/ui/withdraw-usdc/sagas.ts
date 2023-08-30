@@ -179,16 +179,8 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
         }
         console.debug(`Withdraw USDC - swap successful: ${swapRes}`)
       }
-    } else {
-      // If destination is not a sol address, check if it's a valid token address
-      const tokenAccountInfo = yield* call(getTokenAccountInfo, {
-        tokenAccount: destinationPubkey,
-        mint: 'usdc'
-      })
-      if (tokenAccountInfo === null) {
-        throw new Error('Destination account does not exist')
-      }
     }
+    // TODO: handle case where destination is a USDC associated token account
   } catch (e: unknown) {
     const reportToSentry = yield* getContext('reportToSentry')
     reportToSentry({
