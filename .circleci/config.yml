@@ -63,7 +63,7 @@ jobs:
             npm ci
 
       - save_cache:
-          key: cache-{{ .Revision }}-test
+          key: cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-patch-file.txt" }}
           paths:
             - ./node_modules
             - ./packages/web/node_modules
