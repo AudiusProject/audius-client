@@ -36,12 +36,10 @@ const favoritesScreens = [
 ]
 
 const useHeaderStyles = makeStyles(({ spacing }) => ({
-  icon: { marginLeft: 3 },
   root: {
     flexWrap: 'wrap',
     height: 88,
-    paddingTop: spacing(2),
-    paddingBottom: spacing(2)
+    paddingVertical: spacing(2)
   }
 }))
 
