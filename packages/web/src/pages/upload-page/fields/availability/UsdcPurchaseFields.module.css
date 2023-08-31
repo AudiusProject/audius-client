@@ -6,6 +6,6 @@
   background: var(--background-surface-1);
 }
 
-.input > div:first-child {
+.inputRoot {
   background: var(--background-white)
 }
