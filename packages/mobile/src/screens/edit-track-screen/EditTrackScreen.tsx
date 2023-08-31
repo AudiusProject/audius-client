@@ -34,12 +34,12 @@ const EditTrackSchema = Yup.object().shape({
   duration: Yup.number(),
   preview_start_seconds: Yup.number()
     .max(
-      (Yup.ref('duration') as unknown as number) > 15
-        ? (Yup.ref('duration') as unknown as number) - 15
+      (Yup.ref('duration') as unknown as number) > 30
+        ? (Yup.ref('duration') as unknown as number) - 30
         : 0,
       (Yup.ref('duration') as unknown as number)
-        ? 'Preview must start at least 15 seconds before the end of the track.'
-        : 'Preview must start at 0 since the track is less than 15 seconds'
+        ? 'Preview must start at least 30 seconds before the end of the track.'
+        : 'Preview must start at 0 since the track is less than 30 seconds'
     )
     .nullable()
 })
