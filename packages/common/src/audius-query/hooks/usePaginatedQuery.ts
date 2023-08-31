@@ -95,30 +95,30 @@ export const useAllPaginatedQuery = <
   )
 
   const notError = result.status !== Status.ERROR
-  const notStillLoadingCurrentPage =
-    !loadingMore && !(result.status === Status.LOADING)
+  const stillLoadingCurrentPage =
+    loadingMore || result.status === Status.LOADING
   const notStarted = result.status === Status.IDLE && allData.length === 0
   const hasNotFetched = !result.data && result.status !== Status.SUCCESS
   const fetchedFullPreviousPage = result.data?.length === pageSize
 
   const hasMore =
     notError &&
-    notStillLoadingCurrentPage &&
+    !stillLoadingCurrentPage &&
     (notStarted || hasNotFetched || fetchedFullPreviousPage)
 
   const loadMore = useCallback(() => {
-    if (!notStillLoadingCurrentPage) {
+    if (stillLoadingCurrentPage) {
       return
     }
     setLoadingMore(true)
     setPage(page + 1)
-  }, [notStillLoadingCurrentPage, page])
+  }, [stillLoadingCurrentPage, page])
   return {
     ...result,
     // TODO: add another status for reloading
     status: allData?.length > 0 ? Status.SUCCESS : status,
     data: allData,
-    isLoadingMore: !notStillLoadingCurrentPage,
+    isLoadingMore: stillLoadingCurrentPage,
     loadMore,
     hasMore
   }
