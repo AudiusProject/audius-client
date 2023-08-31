@@ -7,7 +7,7 @@ const defaultTrackAvailabilityFields = {
   is_premium: false,
   premium_conditions: null as Nullable<PremiumConditions>,
   is_unlisted: false,
-  preview_start_seconds: null,
+  preview_start_seconds: null as Nullable<Number>,
   'field_visibility.genre': true,
   'field_visibility.mood': true,
   'field_visibility.tags': true,

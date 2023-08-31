@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import { useField } from 'formik'
-import { capitalize } from 'lodash'
 import { View } from 'react-native'
 import type { Asset } from 'react-native-image-picker'
 
@@ -14,10 +13,6 @@ import { makeStyles } from 'app/styles'
 import type { Image } from 'app/types/image'
 import { launchSelectImageActionSheet } from 'app/utils/launchSelectImageActionSheet'
 import { useThemeColors } from 'app/utils/theme'
-
-type Error = {
-  url: string
-}
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {

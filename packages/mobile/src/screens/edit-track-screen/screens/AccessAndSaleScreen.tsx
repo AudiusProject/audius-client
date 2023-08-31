@@ -6,7 +6,9 @@ import {
   collectiblesSelectors,
   isPremiumContentFollowGated,
   isPremiumContentTipGated,
-  isPremiumContentCollectibleGated
+  isPremiumContentCollectibleGated,
+  FeatureFlags,
+  removeNullable
 } from '@audius/common'
 import { useField, useFormikContext } from 'formik'
 import { useSelector } from 'react-redux'
@@ -15,6 +17,7 @@ import IconCart from 'app/assets/images/iconCart.svg'
 import { Button } from 'app/components/core'
 import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 
 import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
@@ -80,6 +83,10 @@ export const AccessAndSaleScreen = () => {
   const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
   const isRemix = !!remixOf
 
+  const { isEnabled: isUsdcEnabled } = useFeatureFlag(
+    FeatureFlags.USDC_PURCHASES
+  )
+
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
   )
@@ -143,7 +150,9 @@ export const AccessAndSaleScreen = () => {
 
   const data: ListSelectionData[] = [
     { label: publicAvailability, value: publicAvailability },
-    { label: premiumAvailability, value: premiumAvailability },
+    isUsdcEnabled
+      ? { label: premiumAvailability, value: premiumAvailability }
+      : null,
     {
       label: specialAccessAvailability,
       value: specialAccessAvailability,
@@ -155,7 +164,7 @@ export const AccessAndSaleScreen = () => {
       disabled: noCollectibleGate
     },
     { label: hiddenAvailability, value: hiddenAvailability, disabled: noHidden }
-  ]
+  ].filter(removeNullable)
 
   const items = {
     [publicAvailability]: (
@@ -164,11 +173,15 @@ export const AccessAndSaleScreen = () => {
       />
     )
   }
-  items[premiumAvailability] = (
-    <PremiumRadioField
-      selected={availability === TrackAvailabilityType.USDC_PURCHASE}
-    />
-  )
+
+  if (isUsdcEnabled) {
+    items[premiumAvailability] = (
+      <PremiumRadioField
+        selected={availability === TrackAvailabilityType.USDC_PURCHASE}
+      />
+    )
+  }
+
   items[specialAccessAvailability] = (
     <SpecialAccessAvailability
       selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
@@ -177,6 +190,7 @@ export const AccessAndSaleScreen = () => {
       previousPremiumConditions={previousPremiumConditions}
     />
   )
+
   items[collectibleGatedAvailability] = (
     <CollectibleGatedAvailability
       selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
@@ -185,6 +199,7 @@ export const AccessAndSaleScreen = () => {
       previousPremiumConditions={previousPremiumConditions}
     />
   )
+
   items[hiddenAvailability] = (
     <HiddenAvailability
       selected={availability === TrackAvailabilityType.HIDDEN}
