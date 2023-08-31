@@ -10,6 +10,7 @@ import {
 import cn from 'classnames'
 import { Form, Formik, FormikProps, useField } from 'formik'
 import moment from 'moment'
+import { Prompt } from 'react-router-dom'
 import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 
@@ -35,6 +36,8 @@ const messages = {
   titleError: 'Your track must have a name.',
   artworkError: 'Artwork is required.',
   genreError: 'Genre is required.',
+  navigationWarning:
+    'You have unsaved changes. Do you want to leave this page?',
   multiTrackCount: (index: number, total: number) =>
     `TRACK ${index} of ${total}`,
   prev: 'Prev',
@@ -107,11 +110,12 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
 }
 
 const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
-  const { values } = props
+  const { values, dirty } = props
   const isMultiTrack = values.trackMetadatas.length > 1
 
   return (
     <Form>
+      <Prompt message={messages.navigationWarning} when={dirty} />
       <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
         <div className={cn(styles.formContainer, layoutStyles.col)}>
           {isMultiTrack ? <MultiTrackHeader /> : null}
