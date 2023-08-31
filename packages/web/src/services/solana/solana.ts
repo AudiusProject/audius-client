@@ -159,6 +159,5 @@ export const getSignatureForTransaction = async ({
   transaction.add(...instructions)
   transaction.feePayer = feePayer
   transaction.partialSign(signer)
-  const nonNull = transaction.signatures.filter((s) => s.signature !== null)
-  return nonNull
+  return transaction.signatures.filter((s) => s.signature !== null)
 }
