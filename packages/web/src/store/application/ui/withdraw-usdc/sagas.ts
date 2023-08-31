@@ -29,7 +29,7 @@ import {
   isValidSolAddress,
   getRootSolanaAccount,
   getSignatureForTransaction,
-  getCreateAssociatedTokenAccountInstruction,
+  createAssociatedTokenAccountInstruction,
   getRecentBlockhash
 } from 'services/solana/solana'
 
@@ -182,8 +182,8 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
         // Then create and fund the destination associated token account.
         const createRecentBlockhash = yield* call(getRecentBlockhash)
         const tx = new Transaction({ recentBlockhash: createRecentBlockhash })
-        const createAssociatedTokenAccountInstruction = yield* call(
-          getCreateAssociatedTokenAccountInstruction,
+        const createTokenAccountInstruction = yield* call(
+          createAssociatedTokenAccountInstruction,
           {
             associatedTokenAccount: destinationTokenAccountPubkey,
             owner: destinationPubkey,
@@ -191,7 +191,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
             feePayer: rootSolanaAccount.publicKey
           }
         )
-        yield* call([tx, tx.add], createAssociatedTokenAccountInstruction)
+        yield* call([tx, tx.add], createTokenAccountInstruction)
         yield* call(
           sendAndConfirmTransaction,
           libs.solanaWeb3Manager!.connection,

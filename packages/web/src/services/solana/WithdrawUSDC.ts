@@ -14,7 +14,7 @@ import {
   getAssociatedTokenAccountRent,
   getTransferTransactionFee,
   getUSDCAssociatedTokenAccount,
-  getCreateAssociatedTokenAccountInstruction
+  createAssociatedTokenAccountInstruction
 } from 'services/solana/solana'
 
 // TODO: Grab from remote config
@@ -88,32 +88,29 @@ export const getSwapUSDCUserBankInstructions = async ({
       mint: 'usdc'
     })
 
-  const createAssociatedTokenAccountInstruction =
-    getCreateAssociatedTokenAccountInstruction({
-      associatedTokenAccount: solanaUSDCAssociatedTokenAccount,
-      owner: solanaRootAccount.publicKey,
-      mint: libs.solanaWeb3Manager!.mints.usdc,
-      feePayer
-    })
-  const closeAssociatedTokenAccountInstruction =
-    Token.createCloseAccountInstruction(
-      TOKEN_PROGRAM_ID, //    programId
-      solanaUSDCAssociatedTokenAccount, //  account to close
-      feePayer, // fee destination
-      solanaRootAccount.publicKey, //  owner
-      [] //  multiSigners
-    )
+  const createInstruction = createAssociatedTokenAccountInstruction({
+    associatedTokenAccount: solanaUSDCAssociatedTokenAccount,
+    owner: solanaRootAccount.publicKey,
+    mint: libs.solanaWeb3Manager!.mints.usdc,
+    feePayer
+  })
+  const closeInstruction = Token.createCloseAccountInstruction(
+    TOKEN_PROGRAM_ID, //    programId
+    solanaUSDCAssociatedTokenAccount, //  account to close
+    feePayer, // fee destination
+    solanaRootAccount.publicKey, //  owner
+    [] //  multiSigners
+  )
 
-  const instructions = [
-    createAssociatedTokenAccountInstruction,
+  return [
+    createInstruction,
     ...transferInstructions,
     ...swapInstructions,
-    closeAssociatedTokenAccountInstruction
+    closeInstruction
   ]
-  return instructions
 }
 
-export const getWithdrawUSDCInstructions = async ({
+export const createUSDCTransferInstructions = async ({
   amount,
   destinationAddress,
   feePayer

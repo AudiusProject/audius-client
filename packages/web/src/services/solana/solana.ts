@@ -122,8 +122,7 @@ export const getTransferTransactionFee = async (
  */
 export const getAssociatedTokenAccountRent = async () => {
   const connection = await getSolanaConnection()
-  const rent = await Token.getMinBalanceRentForExemptAccount(connection)
-  return rent
+  return await Token.getMinBalanceRentForExemptAccount(connection)
 }
 
 /**
@@ -165,7 +164,7 @@ export const getSignatureForTransaction = async ({
 /**
  * Creates an instruction for creating a new associated token account.
  */
-export const getCreateAssociatedTokenAccountInstruction = ({
+export const createAssociatedTokenAccountInstruction = ({
   associatedTokenAccount,
   owner,
   mint,
