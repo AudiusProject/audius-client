@@ -370,7 +370,7 @@ export const Audio = () => {
           // Figure out how to call next earlier
           next()
         } else {
-          const { track, isPreview } = queueTracks[playerIndex]
+          const { track, isPreview } = queueTracks[playerIndex] ?? {}
 
           // Skip track if user does not have access i.e. for an unlocked premium track
           const doesUserHaveAccess = (() => {
@@ -426,8 +426,8 @@ export const Audio = () => {
       }
 
       const isLongFormContent =
-        queueTracks[playerIndex].track?.genre === Genre.PODCASTS ||
-        queueTracks[playerIndex].track?.genre === Genre.AUDIOBOOKS
+        queueTracks[playerIndex]?.track?.genre === Genre.PODCASTS ||
+        queueTracks[playerIndex]?.track?.genre === Genre.AUDIOBOOKS
       if (isLongFormContent !== isLongFormContentRef.current) {
         isLongFormContentRef.current = isLongFormContent
         // Update playback rate based on if the track is a podcast or not
@@ -442,10 +442,10 @@ export const Audio = () => {
       // Handle track end event
       if (
         isNewPodcastControlsEnabled &&
-        event?.position !== null &&
-        event?.track !== null
+        event?.position != null &&
+        event?.track != null
       ) {
-        const { track } = queueTracks[event.track]
+        const { track } = queueTracks[event.track] ?? {}
         const isLongFormContent =
           track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
         const isAtEndOfTrack =
