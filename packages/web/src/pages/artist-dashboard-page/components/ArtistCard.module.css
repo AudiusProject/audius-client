@@ -10,7 +10,6 @@
 }
 
 .coverPhotoWrapper {
-  height: 100px;
   border-bottom: 2px solid var(--border-default);
 }
 
@@ -33,9 +32,6 @@
   margin-right: var(--unit-2);
 }
 
-.profilePicture {
-}
-
 .info {
   display: flex;
   flex-direction: column;
@@ -47,8 +43,4 @@
   display: flex;
   align-items: center;
   gap: var(--unit);
-}
-
-.handle {
-
 }

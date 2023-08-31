@@ -27,7 +27,6 @@ export const ArtistCard = ({ userId, handle, name }: ArtistCardProps) => {
       />
       <div className={styles.details}>
         <DynamicImage
-          className={styles.profilePicture}
           wrapperClassName={styles.profilePictureWrapper}
           image={profilePicture}
         />
