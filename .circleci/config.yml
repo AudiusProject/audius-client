@@ -63,7 +63,7 @@ jobs:
             npm ci
 
       - save_cache:
-          key: cache-{{ .Revision }}
+          key: cache-{{ .Revision }}-test
           paths:
             - ./node_modules
             - ./packages/web/node_modules
