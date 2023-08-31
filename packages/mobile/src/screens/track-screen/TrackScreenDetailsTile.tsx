@@ -59,7 +59,7 @@ import { moodMap } from 'app/utils/moods'
 import { useThemeColors } from 'app/utils/theme'
 
 import { TrackScreenDownloadButtons } from './TrackScreenDownloadButtons'
-const { getPlaying, getTrackId } = playerSelectors
+const { getPlaying, getTrackId, getPreviewing } = playerSelectors
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -220,6 +220,7 @@ export const TrackScreenDetailsTile = ({
   const dispatch = useDispatch()
   const playingId = useSelector(getTrackId)
   const isPlaying = useSelector(getPlaying)
+  const isPreviewing = useSelector(getPreviewing)
   const isPlayingId = playingId === track.track_id
 
   const {
@@ -289,20 +290,37 @@ export const TrackScreenDetailsTile = ({
     [track]
   )
 
-  const handlePressPlay = useCallback(() => {
-    if (isLineupLoading) return
+  const play = useCallback(
+    ({ isPreview = false } = {}) => {
+      if (isLineupLoading) return
 
-    if (isPlaying && isPlayingId) {
-      dispatch(tracksActions.pause())
-      recordPlay(track_id, false)
-    } else if (!isPlayingId) {
-      dispatch(tracksActions.play(uid))
-      recordPlay(track_id)
-    } else {
-      dispatch(tracksActions.play())
-      recordPlay(track_id)
-    }
-  }, [track_id, uid, isPlayingId, dispatch, isPlaying, isLineupLoading])
+      if (isPlaying && isPlayingId && isPreviewing === isPreview) {
+        dispatch(tracksActions.pause())
+        recordPlay(track_id, false)
+      } else if (!isPlayingId) {
+        dispatch(tracksActions.play(uid, { isPreview }))
+        recordPlay(track_id)
+      } else {
+        dispatch(tracksActions.play())
+        recordPlay(track_id)
+      }
+    },
+    [
+      track_id,
+      uid,
+      isPlayingId,
+      dispatch,
+      isPlaying,
+      isPreviewing,
+      isLineupLoading
+    ]
+  )
+
+  const handlePressPlay = useCallback(() => play({ isPreview: false }), [play])
+  const handlePressPreview = useCallback(
+    () => play({ isPreview: true }),
+    [play]
+  )
 
   const handlePressFavorites = useCallback(() => {
     dispatch(setFavorite(track_id, FavoriteType.TRACK))
@@ -542,6 +560,7 @@ export const TrackScreenDetailsTile = ({
       onPressFavorites={handlePressFavorites}
       onPressOverflow={handlePressOverflow}
       onPressPlay={handlePressPlay}
+      onPressPreview={handlePressPreview}
       onPressRepost={handlePressRepost}
       onPressReposts={handlePressReposts}
       onPressSave={handlePressSave}
