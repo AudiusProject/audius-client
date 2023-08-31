@@ -259,6 +259,9 @@ web-dist-mac-staging:
     - run:
         name: Set Ruby Version
         command: rbenv global 2.7.7 && rbenv rehash
+    - run:
+        name: Install dependencies
+        command: rm -rf node_modules && npm ci
     - web-distribute:
         build-type: mac-publish
 
