@@ -19,6 +19,7 @@ import { zIndex } from 'app/utils/zIndex'
 import { PlayButton } from './PlayButton'
 import { TrackingBar } from './TrackingBar'
 import { NOW_PLAYING_HEIGHT, PLAY_BAR_HEIGHT } from './constants'
+import { useTrackPlayerDuration } from './useTrackPlayerDuration'
 const { getAccountUser } = accountSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 
@@ -97,6 +98,7 @@ export const PlayBar = (props: PlayBarProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
+  const duration = useTrackPlayerDuration()
 
   const onPressFavoriteButton = useCallback(() => {
     if (track) {
@@ -136,7 +138,7 @@ export const PlayBar = (props: PlayBarProps) => {
   return (
     <Animated.View style={[styles.root, { opacity: rootOpacityAnimation }]}>
       <TrackingBar
-        duration={track?.duration ?? 0}
+        duration={duration}
         mediaKey={mediaKey}
         translateYAnimation={translationAnim}
       />

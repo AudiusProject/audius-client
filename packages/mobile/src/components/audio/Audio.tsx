@@ -5,6 +5,7 @@ import type {
   ID,
   Nullable,
   QueryParams,
+  Queueable,
   Track
 } from '@audius/common'
 import {
@@ -30,7 +31,8 @@ import {
   SquareSizes,
   shallowCompare,
   savedPageTracksLineupActions,
-  useAppContext
+  useAppContext,
+  getTrackPreviewDuration
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import TrackPlayer, {
@@ -149,6 +151,10 @@ const unlistedTrackFallbackTrackData = {
   duration: 0
 }
 
+type QueueableTrack = {
+  track: Nullable<Track>
+} & Pick<Queueable, 'isPreview'>
+
 export const Audio = () => {
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
@@ -184,11 +190,12 @@ export const Audio = () => {
     (state) => getTracks(state, { uids: queueTrackUids }),
     shallowCompare
   )
-  const queueTracks = queueOrder.map(
-    (trackData) => queueTrackMap[trackData.id] as Nullable<Track>
-  )
+  const queueTracks: QueueableTrack[] = queueOrder.map(({ id, isPreview }) => ({
+    track: queueTrackMap[id] as Nullable<Track>,
+    isPreview
+  }))
   const queueTrackOwnerIds = queueTracks
-    .map((track) => track?.owner_id)
+    .map(({ track }) => track?.owner_id)
     .filter(removeNullable)
 
   const queueTrackOwnersMap = useSelector(
@@ -278,10 +285,10 @@ export const Audio = () => {
   }>({})
 
   const handleGatedQueryParams = useCallback(
-    async (tracks: Nullable<Track>[]) => {
+    async (tracks: QueueableTrack[]) => {
       const queryParamsMap: { [trackId: ID]: QueryParams } = {}
 
-      for (const track of tracks) {
+      for (const { track } of tracks) {
         if (!track) {
           continue
         }
@@ -355,7 +362,7 @@ export const Audio = () => {
           // Figure out how to call next earlier
           next()
         } else {
-          const track = queueTracks[playerIndex]
+          const { track } = queueTracks[playerIndex]
 
           // Skip track if user does not have access i.e. for an unlocked premium track
           const doesUserHaveAccess = (() => {
@@ -410,8 +417,8 @@ export const Audio = () => {
       }
 
       const isLongFormContent =
-        queueTracks[playerIndex]?.genre === Genre.PODCASTS ||
-        queueTracks[playerIndex]?.genre === Genre.AUDIOBOOKS
+        queueTracks[playerIndex].track?.genre === Genre.PODCASTS ||
+        queueTracks[playerIndex].track?.genre === Genre.AUDIOBOOKS
       if (isLongFormContent !== isLongFormContentRef.current) {
         isLongFormContentRef.current = isLongFormContent
         // Update playback rate based on if the track is a podcast or not
@@ -429,7 +436,7 @@ export const Audio = () => {
         event?.position !== null &&
         event?.track !== null
       ) {
-        const track = queueTracks[event.track]
+        const { track } = queueTracks[event.track]
         const isLongFormContent =
           track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
         const isAtEndOfTrack =
@@ -574,7 +581,7 @@ export const Audio = () => {
       ? await handleGatedQueryParams(newQueueTracks)
       : null
 
-    const newTrackData = newQueueTracks.map((track) => {
+    const newTrackData = newQueueTracks.map(({ track, isPreview }) => {
       if (!track) {
         return unlistedTrackFallbackTrackData
       }
@@ -589,17 +596,14 @@ export const Audio = () => {
         const audioFilePath = getLocalAudioPath(trackId)
         url = `file://${audioFilePath}`
       } else {
-        const queryParams = queryParamsMap?.[track.track_id]
-        if (queryParams) {
-          url = apiClient.makeUrl(
-            `/tracks/${encodeHashId(track.track_id)}/stream`,
-            queryParams
-          )
-        } else {
-          url = apiClient.makeUrl(
-            `/tracks/${encodeHashId(track.track_id)}/stream`
-          )
+        const queryParams = {
+          ...queryParamsMap?.[track.track_id],
+          preview: isPreview
         }
+        url = apiClient.makeUrl(
+          `/tracks/${encodeHashId(track.track_id)}/stream`,
+          queryParams
+        )
       }
 
       const localTrackImageSource =
@@ -627,7 +631,7 @@ export const Audio = () => {
         genre: track.genre,
         date: track.created_at,
         artwork: imageUrl,
-        duration: track?.duration
+        duration: isPreview ? getTrackPreviewDuration(track) : track.duration
       }
     })
 
