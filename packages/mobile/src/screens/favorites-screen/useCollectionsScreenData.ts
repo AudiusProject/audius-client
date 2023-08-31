@@ -8,7 +8,8 @@ import {
   useAllPaginatedQuery,
   useGetLibraryAlbums,
   useGetLibraryPlaylists,
-  useProxySelector
+  useProxySelector,
+  savedPageSelectors
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -23,6 +24,7 @@ import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 const { getIsReachable } = reachabilitySelectors
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
+const { getSelectedCategory } = savedPageSelectors
 
 type UseCollectionsScreenDataConfig = {
   filterValue?: string
@@ -35,6 +37,7 @@ export const useCollectionsScreenData = ({
 }: UseCollectionsScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
+  const selectedCategory = useSelector(getSelectedCategory)
   const currentUserId = useSelector(getUserId)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
 
@@ -42,10 +45,12 @@ export const useCollectionsScreenData = ({
     data: collectionsData,
     status: fetchedStatus,
     hasMore,
+    isLoadingMore,
     loadMore: fetchMore
   } = useAllPaginatedQuery(
     collectionType === 'albums' ? useGetLibraryAlbums : useGetLibraryPlaylists,
     {
+      category: selectedCategory,
       userId: currentUserId!
     },
     {
@@ -53,7 +58,6 @@ export const useCollectionsScreenData = ({
       disabled: currentUserId == null || !isReachable
     }
   )
-
   const fetchedCollectionIds = collectionsData?.map((c) => c.playlist_id)
 
   // TODO: Filter collections using `filterCollections` from Common if all loaded, or by changing fetch args if not all loaded
@@ -113,7 +117,7 @@ export const useCollectionsScreenData = ({
 
   let status: Status
   if (isReachable) {
-    status = hasMore ? Status.LOADING : fetchedStatus
+    status = hasMore || isLoadingMore ? Status.LOADING : fetchedStatus
   } else {
     status = isDoneLoadingFromDisk ? Status.SUCCESS : Status.LOADING
   }
