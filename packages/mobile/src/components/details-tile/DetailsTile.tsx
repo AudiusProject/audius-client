@@ -218,6 +218,9 @@ export const DetailsTile = ({
   const isPlayingPreview = isPreviewing && isPlaying
   const isPlayingFullAccess = isPlaying && !isPreviewing
 
+  const showPreviewButton =
+    isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess) && onPressPreview
+
   const handlePressArtistName = useCallback(() => {
     if (!user) {
       return
@@ -236,7 +239,7 @@ export const DetailsTile = ({
 
   const handlePressPreview = useCallback(() => {
     light()
-    onPressPreview()
+    onPressPreview?.()
   }, [onPressPreview])
 
   const renderDogEar = () => {
@@ -389,9 +392,7 @@ export const DetailsTile = ({
                 trackArtist={user}
               />
             ) : null}
-            {isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess) ? (
-              <PreviewButton />
-            ) : null}
+            {showPreviewButton ? <PreviewButton /> : null}
             <DetailsTileActionButtons
               hasReposted={!!hasReposted}
               hasSaved={!!hasSaved}

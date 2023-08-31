@@ -92,8 +92,8 @@ export type DetailsTileProps = {
   /** Function to call when play button is pressed */
   onPressPlay: GestureResponderHandler
 
-  /** Function to call when play button is pressed */
-  onPressPreview: GestureResponderHandler
+  /** Function to call when preview button is pressed */
+  onPressPreview?: GestureResponderHandler
 
   /** Function to call when publish button is pressed */
   onPressPublish?: GestureResponderHandler
