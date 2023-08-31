@@ -151,7 +151,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const styles = useStyles()
 
     const [isFocused, setIsFocused] = useState(Boolean(autoFocus))
-    const isLabelActive = isFocused || value
+    const isLabelActive = isFocused || value || startAdornment
     const labelY = useRef(
       new Animated.Value(isLabelActive ? activeLabelY : inactiveLabelY)
     )
@@ -222,7 +222,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
 
         animations.push(borderFocusCompositeAnim)
 
-        if (isFocused && !value) {
+        if (isFocused && !value && !startAdornment) {
           const labelYAnimation = Animated.spring(labelY.current, {
             toValue: inactiveLabelY,
             useNativeDriver: true
@@ -243,7 +243,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         }
         Animated.parallel(animations).start()
       },
-      [onBlur, isFocused, value]
+      [onBlur, isFocused, value, startAdornment]
     )
 
     const handlePressRoot = useCallback(() => {
@@ -321,7 +321,9 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             value={value}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={label && !isFocused ? undefined : placeholder}
+            placeholder={
+              label && !isFocused && !startAdornment ? undefined : placeholder
+            }
             inputAccessoryViewID={
               hideInputAccessory ? undefined : inputAccessoryViewID
             }

@@ -10,17 +10,17 @@ import type { FormValues, EditTrackScreenProps } from './types'
 const { computeLicenseVariables, ALL_RIGHTS_RESERVED_TYPE } = creativeCommons
 
 const EditTrackSchema = Yup.object().shape({
-  title: Yup.string().required('Required'),
+  title: Yup.string().required('Your track must have a name.'),
   artwork: Yup.object({
     url: Yup.string()
   })
     .when('trackArtwork', {
       is: undefined,
-      then: Yup.object().required('Required').nullable()
+      then: Yup.object().required('Artwork is required.').nullable()
     })
     .nullable(),
   trackArtwork: Yup.string().nullable(),
-  genre: Yup.string().required('Required'),
+  genre: Yup.string().required('Genre is required.'),
   description: Yup.string().max(1000).nullable(),
   premium_conditions: Yup.object({
     usdc_purchase: Yup.object({

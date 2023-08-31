@@ -133,11 +133,7 @@ export const PickArtworkField = (props: PickArtworkFieldProps) => {
           />
         </View>
       </DynamicImage>
-      {error && touched ? (
-        <InputErrorMessage
-          message={`${capitalize(name)} ${error as unknown as Error}`}
-        />
-      ) : null}
+      {error && touched ? <InputErrorMessage message={error} /> : null}
     </View>
   )
 }

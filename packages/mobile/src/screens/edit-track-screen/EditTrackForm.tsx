@@ -129,12 +129,7 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
         <KeyboardAwareScrollView>
           <Tile style={styles.tile}>
             <PickArtworkField name='artwork' />
-            <TextField
-              name='title'
-              label={messages.trackName}
-              required
-              errorMessage={messages.trackNameError}
-            />
+            <TextField name='title' label={messages.trackName} required />
             <SubmenuList>
               <SelectGenreField />
               <SelectMoodField />
