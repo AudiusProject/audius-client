@@ -7,9 +7,9 @@ import { BoxedTextField } from './BoxedTextField'
 const TRACK_PREVIEW = 'preview_start_seconds'
 
 const messages = {
-  title: '15 Second Preview',
+  title: '30 Second Preview',
   description:
-    'A 15 second preview will be generated. Specify a starting timestamp below.',
+    'A 30 second preview will be generated. Specify a starting timestamp below.',
   label: 'Start Time',
   placeholder: 'Start Time',
   seconds: 'Seconds'
