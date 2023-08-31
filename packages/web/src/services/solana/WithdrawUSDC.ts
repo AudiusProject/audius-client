@@ -1,9 +1,5 @@
 import type { SwapMode } from '@jup-ag/core'
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  Token,
-  TOKEN_PROGRAM_ID
-} from '@solana/spl-token'
+import { Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -17,7 +13,8 @@ import {
   getRootSolanaAccount,
   getAssociatedTokenAccountRent,
   getTransferTransactionFee,
-  getUSDCAssociatedTokenAccount
+  getUSDCAssociatedTokenAccount,
+  createAssociatedTokenAccountInstruction
 } from 'services/solana/solana'
 
 // TODO: Grab from remote config
@@ -36,10 +33,13 @@ const getWithdrawUSDCFees = async (account: PublicKey) => {
  * Creates instructions to swap USDC from a user bank into
  * SOL, which is deposited into the user's root solana account.
  */
-export const getSwapUSDCUserBankInstructions = async (
-  destinationAddress: string,
+export const getSwapUSDCUserBankInstructions = async ({
+  destinationAddress,
+  feePayer
+}: {
+  destinationAddress: string
   feePayer: PublicKey
-): Promise<TransactionInstruction[]> => {
+}): Promise<TransactionInstruction[]> => {
   const libs = await getLibs()
 
   // Destination associated token account does not exist - create and fund it
@@ -88,28 +88,48 @@ export const getSwapUSDCUserBankInstructions = async (
       mint: 'usdc'
     })
 
-  const createAssociatedTokenAccountInstruction =
-    Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID, // associatedProgramId
-      TOKEN_PROGRAM_ID, // programId
-      libs.solanaWeb3Manager!.mints.usdc, // mint
-      solanaUSDCAssociatedTokenAccount, // associatedAccount
-      solanaRootAccount.publicKey, // owner
-      feePayer // payer
-    )
-  const closeAssociatedTokenAccountInstruction =
-    Token.createCloseAccountInstruction(
-      TOKEN_PROGRAM_ID, //    programId
-      solanaUSDCAssociatedTokenAccount, //  account to close
-      feePayer, // fee destination
-      solanaRootAccount.publicKey, //  owner
-      [] //  multiSigners
-    )
+  const createInstruction = createAssociatedTokenAccountInstruction({
+    associatedTokenAccount: solanaUSDCAssociatedTokenAccount,
+    owner: solanaRootAccount.publicKey,
+    mint: libs.solanaWeb3Manager!.mints.usdc,
+    feePayer
+  })
+  const closeInstruction = Token.createCloseAccountInstruction(
+    TOKEN_PROGRAM_ID, //    programId
+    solanaUSDCAssociatedTokenAccount, //  account to close
+    feePayer, // fee destination
+    solanaRootAccount.publicKey, //  owner
+    [] //  multiSigners
+  )
 
   return [
-    createAssociatedTokenAccountInstruction,
+    createInstruction,
     ...transferInstructions,
     ...swapInstructions,
-    closeAssociatedTokenAccountInstruction
+    closeInstruction
   ]
+}
+
+export const createUSDCTransferInstructions = async ({
+  amount,
+  destinationAddress,
+  feePayer
+}: {
+  amount: number
+  destinationAddress: string
+  feePayer: PublicKey
+}) => {
+  const libs = await getLibs()
+  const usdcUserBank = await libs.solanaWeb3Manager!.deriveUserBank({
+    mint: 'usdc'
+  })
+  const instructions =
+    await libs.solanaWeb3Manager!.createTransferInstructionsFromCurrentUser({
+      amount: new BN(amount),
+      feePayerKey: feePayer,
+      senderSolanaAddress: usdcUserBank,
+      recipientSolanaAddress: destinationAddress,
+      mint: 'usdc'
+    })
+  return instructions
 }

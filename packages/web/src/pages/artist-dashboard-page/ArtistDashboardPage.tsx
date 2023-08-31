@@ -6,7 +6,9 @@ import {
   Track,
   formatCount,
   themeSelectors,
-  FeatureFlags
+  FeatureFlags,
+  combineStatuses,
+  useUSDCBalance
 } from '@audius/common'
 import cn from 'classnames'
 import { each } from 'lodash'
@@ -22,13 +24,14 @@ import lazyWithPreload from 'utils/lazyWithPreload'
 import { profilePage, TRENDING_PAGE } from 'utils/route'
 
 import styles from './ArtistDashboardPage.module.css'
+import { ArtistCard } from './components/ArtistCard'
 import ArtistProfile from './components/ArtistProfile'
 import {
   TracksTableContainer,
   DataSourceTrack,
   tablePageSize
 } from './components/TracksTableContainer'
-import { USDCTile } from './components/USDCTile'
+import { USDCCard } from './components/USDCCard'
 import {
   fetchDashboard,
   fetchDashboardListenData,
@@ -82,8 +85,10 @@ export const ArtistDashboardPage = () => {
     makeGetDashboard()
   )
   const listenData = useSelector(getDashboardListenData)
-  const status = useSelector(getDashboardStatus)
+  const dashboardStatus = useSelector(getDashboardStatus)
   const isMatrix = useSelector(getTheme) === Theme.MATRIX
+  const { data: balance, status: balanceStatus } = useUSDCBalance()
+  const status = combineStatuses([dashboardStatus, balanceStatus])
 
   const header = <Header primary='Dashboard' />
 
@@ -201,19 +206,29 @@ export const ArtistDashboardPage = () => {
       contentClassName={styles.pageContainer}
       header={header}
     >
-      {!account || status === Status.LOADING ? (
+      {!account || !balance || status === Status.LOADING ? (
         <LoadingSpinner className={styles.spinner} />
       ) : (
         <>
-          <ArtistProfile
-            userId={account.user_id}
-            profilePictureSizes={account._profile_picture_sizes}
-            isVerified={account.is_verified}
-            name={account.name}
-            handle={account.handle}
-            onViewProfile={() => goToRoute(profilePage(account.handle))}
-          />
-          {isUSDCEnabled ? <USDCTile balance={0} /> : null}
+          {isUSDCEnabled ? (
+            <div className={cn(styles.sectionContainer, styles.topSection)}>
+              <ArtistCard
+                userId={account.user_id}
+                handle={account.handle}
+                name={account.name}
+              />
+              <USDCCard balance={balance} />
+            </div>
+          ) : (
+            <ArtistProfile
+              userId={account.user_id}
+              profilePictureSizes={account._profile_picture_sizes}
+              isVerified={account.is_verified}
+              name={account.name}
+              handle={account.handle}
+              onViewProfile={() => goToRoute(profilePage(account.handle))}
+            />
+          )}
           {renderCreatorContent()}
         </>
       )}

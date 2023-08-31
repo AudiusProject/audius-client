@@ -5,7 +5,12 @@ import {
   TOKEN_PROGRAM_ID,
   AccountInfo
 } from '@solana/spl-token'
-import { PublicKey, Transaction, Keypair } from '@solana/web3.js'
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  Keypair
+} from '@solana/web3.js'
 
 import { getLibs } from 'services/audius-libs'
 
@@ -92,13 +97,21 @@ export const getTokenAccountInfo = async ({
 }
 
 /**
+ * Gets the recent blockhash.
+ */
+export const getRecentBlockhash = async () => {
+  const connection = await getSolanaConnection()
+  return (await connection.getLatestBlockhash()).blockhash
+}
+
+/**
  * Gets the fee for a transfer transaction.
  */
 export const getTransferTransactionFee = async (
   destinationPubkey: PublicKey
 ) => {
   const connection = await getSolanaConnection()
-  const recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+  const recentBlockhash = await getRecentBlockhash()
   const tx = new Transaction({ recentBlockhash })
   tx.feePayer = destinationPubkey
   return await tx.getEstimatedFee(connection)
@@ -109,8 +122,7 @@ export const getTransferTransactionFee = async (
  */
 export const getAssociatedTokenAccountRent = async () => {
   const connection = await getSolanaConnection()
-  const rent = await Token.getMinBalanceRentForExemptAccount(connection)
-  return rent
+  return await Token.getMinBalanceRentForExemptAccount(connection)
 }
 
 /**
@@ -125,5 +137,50 @@ export const getUSDCAssociatedTokenAccount = async (
     TOKEN_PROGRAM_ID,
     libs.solanaWeb3Manager!.mints.usdc,
     solanaRootAccountPubkey
+  )
+}
+
+/**
+ * Signs a set of instructions with the supplied signer and fee payer.
+ */
+export const getSignatureForTransaction = async ({
+  instructions,
+  signer,
+  feePayer,
+  recentBlockhash
+}: {
+  instructions: TransactionInstruction[]
+  signer: Keypair
+  feePayer: PublicKey
+  recentBlockhash: string
+}) => {
+  const transaction = new Transaction({ recentBlockhash })
+  transaction.add(...instructions)
+  transaction.feePayer = feePayer
+  transaction.partialSign(signer)
+  return transaction.signatures.filter((s) => s.signature !== null)
+}
+
+/**
+ * Creates an instruction for creating a new associated token account.
+ */
+export const createAssociatedTokenAccountInstruction = ({
+  associatedTokenAccount,
+  owner,
+  mint,
+  feePayer
+}: {
+  associatedTokenAccount: PublicKey
+  owner: PublicKey
+  mint: PublicKey
+  feePayer: PublicKey
+}) => {
+  return Token.createAssociatedTokenAccountInstruction(
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+    TOKEN_PROGRAM_ID,
+    mint,
+    associatedTokenAccount,
+    owner,
+    feePayer
   )
 }

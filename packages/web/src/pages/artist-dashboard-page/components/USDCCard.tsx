@@ -1,4 +1,8 @@
-import { formatCurrencyBalance } from '@audius/common'
+import {
+  BNUSDC,
+  formatCurrencyBalance,
+  formatUSDCWeiToNumber
+} from '@audius/common'
 import {
   IconNote,
   IconKebabHorizontal,
@@ -10,11 +14,12 @@ import {
   HarmonyPlainButton,
   HarmonyPlainButtonType
 } from '@audius/stems'
+import BN from 'bn.js'
 
 import { Icon } from 'components/Icon'
 import { Text } from 'components/typography'
 
-import styles from './USDCTile.module.css'
+import styles from './USDCCard.module.css'
 
 const messages = {
   usdc: 'USDC',
@@ -25,8 +30,9 @@ const messages = {
   withdrawalHistory: 'Withdrawal History'
 }
 
-export const USDCTile = ({ balance }: { balance: number }) => {
-  // TODO: wire up balance https://linear.app/audius/issue/PAY-1761/wire-up-usdc-balance-in-artist-dashboard
+export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
+  const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
+  const balanceFormatted = formatCurrencyBalance(balanceNumber)
 
   const menuItems: PopupMenuItem[] = [
     {
@@ -65,7 +71,7 @@ export const USDCTile = ({ balance }: { balance: number }) => {
             strength='strong'
             size='xxLarge'
           >
-            ${formatCurrencyBalance(balance)}
+            ${balanceFormatted}
           </Text>
         </div>
         <div className={styles.usdcInfo}>
@@ -80,13 +86,16 @@ export const USDCTile = ({ balance }: { balance: number }) => {
         </div>
       </div>
       <div className={styles.withdrawContainer}>
-        <HarmonyButton
-          variant={HarmonyButtonType.SECONDARY}
-          text={messages.withdraw}
-          // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
-          iconLeft={() => <Icon icon={IconNote} size='medium' />}
-          onClick={() => {}}
-        />
+        <div className={styles.withdrawButton}>
+          <HarmonyButton
+            variant={HarmonyButtonType.SECONDARY}
+            text={messages.withdraw}
+            fullWidth
+            // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
+            iconLeft={() => <Icon icon={IconNote} size='medium' />}
+            onClick={() => {}}
+          />
+        </div>
         <PopupMenu
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
