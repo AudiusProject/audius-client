@@ -556,6 +556,7 @@ export const TrackScreenDetailsTile = ({
       hideListenCount={is_unlisted && !field_visibility?.play_count}
       hideRepostCount={is_unlisted}
       isPlaying={isPlaying && isPlayingId}
+      isPreviewing={isPreviewing}
       isUnlisted={is_unlisted}
       onPressFavorites={handlePressFavorites}
       onPressOverflow={handlePressOverflow}

@@ -251,8 +251,16 @@ export const Audio = () => {
     [dispatch]
   )
   const updatePlayerInfo = useCallback(
-    ({ trackId, uid }: { trackId: number; uid: string }) => {
-      dispatch(playerActions.set({ trackId, uid }))
+    ({
+      previewing,
+      trackId,
+      uid
+    }: {
+      previewing: boolean
+      trackId: number
+      uid: string
+    }) => {
+      dispatch(playerActions.set({ previewing, trackId, uid }))
     },
     [dispatch]
   )
@@ -362,7 +370,7 @@ export const Audio = () => {
           // Figure out how to call next earlier
           next()
         } else {
-          const { track } = queueTracks[playerIndex]
+          const { track, isPreview } = queueTracks[playerIndex]
 
           // Skip track if user does not have access i.e. for an unlocked premium track
           const doesUserHaveAccess = (() => {
@@ -388,6 +396,7 @@ export const Audio = () => {
             // Update queue info and handle playback position updates
             updateQueueIndex(playerIndex)
             updatePlayerInfo({
+              previewing: !!isPreview,
               trackId: track.track_id,
               uid: queueTrackUids[playerIndex]
             })
