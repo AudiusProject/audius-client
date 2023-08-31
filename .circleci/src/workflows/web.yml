@@ -104,6 +104,9 @@ jobs:
       context: Audius Client
       requires:
         - web-build-staging
+      filters:
+        branches:
+          only: /(^main)$/
   - web-dist-win-staging:
       context: Audius Client
       requires:

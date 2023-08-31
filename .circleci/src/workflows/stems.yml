@@ -4,7 +4,13 @@ jobs:
   - stems-build-storybook:
       requires:
         - stems-init
+      filters:
+        branches:
+          only: /^main$/
   - stems-deploy-storybook:
       context: Audius Client
       requires:
         - stems-build-storybook
+      filters:
+        branches:
+          only: /^main$/
