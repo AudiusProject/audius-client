@@ -316,7 +316,7 @@ export const TrackScreenDetailsTile = ({
     ]
   )
 
-  const handlePressPlay = useCallback(() => play({ isPreview: false }), [play])
+  const handlePressPlay = useCallback(() => play(), [play])
   const handlePressPreview = useCallback(
     () => play({ isPreview: true }),
     [play]
