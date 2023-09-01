@@ -65,7 +65,8 @@ import { audiusBackendInstance } from 'services/audius-backend/audius-backend-in
 import {
   getRootAccountRentExemptionMinimum,
   getRootSolanaAccount,
-  getSolanaConnection
+  getSolanaConnection,
+  getTransferTransactionFee
 } from 'services/solana/solana'
 import { reportToSentry } from 'store/errors/reportToSentry'
 import { waitForWrite } from 'utils/sagaHelpers'
@@ -280,7 +281,13 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   const feesCache = yield* select(getFeesCache)
   const rootAccount = yield* call(getRootSolanaAccount)
 
-  const rootAccountMinBalance = yield* call(getRootAccountRentExemptionMinimum)
+  const transferFee = yield* call(
+    getTransferTransactionFee,
+    rootAccount.publicKey
+  )
+  // Allows for 3 transaction fees
+  const rootAccountMinBalance =
+    (yield* call(getRootAccountRentExemptionMinimum)) + transferFee * 3
 
   const associatedAccountCreationFees = yield* call(
     getAssociatedAccountCreationFees,
