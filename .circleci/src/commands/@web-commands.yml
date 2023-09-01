@@ -89,6 +89,9 @@ web-distribute:
     build-type:
       default: 'mac-publish-production'
       type: string
+    install-license:
+      default: false
+      type: boolean
   steps:
     - checkout
     - attach_workspace:
@@ -99,6 +102,7 @@ web-distribute:
     - run:
         name: Add dmg-license
         command: npm run install-dmg-license -w audius-client
+        when: << parameters.install-license >>
     - run:
         name: setup
         # https://github.com/nvm-sh/nvm#installing-and-updating
