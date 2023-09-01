@@ -1,5 +1,5 @@
-// @ts-nocheck
-// TODO(nkang) - convert to TS
+import { Favorite } from 'models/Favorite'
+import { UID } from 'models/Identifiers'
 
 import { LibraryCategory, LibraryCategoryType } from './types'
 
@@ -16,8 +16,24 @@ export const FETCH_MORE_SAVES_FAILED = 'SAVED/FETCH_MORE_SAVES_FAILED'
 // Usually when filtering
 export const END_FETCHING = 'SAVED/END_FETCHING'
 
-export const ADD_LOCAL_SAVE = 'SAVED/ADD_LOCAL_SAVE'
-export const REMOVE_LOCAL_SAVE = 'SAVED/REMOVE_LOCAL_SAVE'
+export const ADD_LOCAL_TRACK_FAVORITE = 'SAVED/ADD_LOCAL_TRACK_FAVORITE'
+export const REMOVE_LOCAL_TRACK_FAVORITE = 'SAVED/REMOVE_LOCAL_TRACK_FAVORITE'
+export const ADD_LOCAL_TRACK_REPOST = 'SAVED/ADD_LOCAL_TRACK_REPOST'
+export const REMOVE_LOCAL_TRACK_REPOST = 'SAVED/REMOVE_LOCAL_TRACK_REPOST'
+export const ADD_LOCAL_TRACK_PURCHASE = 'SAVED/ADD_LOCAL_TRACK_PURCHASE'
+
+export const ADD_LOCAL_COLLECTION_FAVORITE =
+  'SAVED/ADD_LOCAL_COLLECTION_FAVORITE'
+export const REMOVE_LOCAL_COLLECTION_FAVORITE =
+  'SAVED/REMOVE_LOCAL_COLLECTION_FAVORITE'
+export const ADD_LOCAL_COLLECTION_REPOST = 'SAVED/ADD_LOCAL_COLLECTION_REPOST'
+export const REMOVE_LOCAL_COLLECTION_REPOST =
+  'SAVED/REMOVE_LOCAL_COLLECTION_REPOST'
+export const ADD_LOCAL_COLLECTION_PURCHASE =
+  'SAVED/ADD_LOCAL_COLLECTION_PURCHASE'
+export const REMOVE_LOCAL_COLLECTION_PURCHASE =
+  'SAVED/REMOVE_LOCAL_COLLECTION_PURCHASE'
+
 export const SET_SELECTED_CATEGORY = 'SAVED/SET_SELECTED_CATEGORY'
 
 export const fetchSaves = (
@@ -68,7 +84,7 @@ export const fetchSavesRequested = () => ({
   type: FETCH_SAVES_REQUESTED
 })
 
-export const fetchSavesSucceeded = (saves) => ({
+export const fetchSavesSucceeded = (saves: Favorite[]) => ({
   type: FETCH_SAVES_SUCCEEDED,
   saves
 })
@@ -77,7 +93,7 @@ export const fetchSavesFailed = () => ({
   type: FETCH_SAVES_FAILED
 })
 
-export const fetchMoreSavesSucceeded = (saves, offset) => ({
+export const fetchMoreSavesSucceeded = (saves: Favorite[], offset: number) => ({
   type: FETCH_MORE_SAVES_SUCCEEDED,
   saves,
   offset
@@ -87,20 +103,80 @@ export const fetchMoreSavesFailed = () => ({
   type: FETCH_MORE_SAVES_FAILED
 })
 
-export const endFetching = (endIndex) => ({
+export const endFetching = (endIndex: number) => ({
   type: END_FETCHING,
   endIndex
 })
 
-export const addLocalSave = (trackId, uid) => ({
-  type: ADD_LOCAL_SAVE,
+export const addLocalTrackSave = (trackId: number, uid: UID) => ({
+  type: ADD_LOCAL_TRACK_FAVORITE,
   trackId,
   uid
 })
 
-export const removeLocalSave = (trackId) => ({
-  type: REMOVE_LOCAL_SAVE,
+export const removeLocalTrackSave = (trackId: number) => ({
+  type: REMOVE_LOCAL_TRACK_FAVORITE,
   trackId
+})
+
+export const addLocalTrackRepost = (trackId: number, uid: UID) => ({
+  type: ADD_LOCAL_TRACK_REPOST,
+  trackId,
+  uid
+})
+
+export const removeLocalTrackRepost = (trackId: number, uid: UID) => ({
+  type: REMOVE_LOCAL_TRACK_REPOST,
+  trackId,
+  uid
+})
+
+export const addLocalCollectionFavorite = ({
+  collectionId,
+  isAlbum
+}: {
+  collectionId: number
+  isAlbum: boolean
+}) => ({
+  type: ADD_LOCAL_COLLECTION_FAVORITE,
+  collectionId,
+  isAlbum
+})
+
+export const removeLocalCollectionFavorite = ({
+  collectionId,
+  isAlbum
+}: {
+  collectionId: number
+  isAlbum: boolean
+}) => ({
+  type: REMOVE_LOCAL_COLLECTION_FAVORITE,
+  collectionId,
+  isAlbum
+})
+
+export const addLocalCollectionRepost = ({
+  collectionId,
+  isAlbum
+}: {
+  collectionId: number
+  isAlbum: boolean
+}) => ({
+  type: ADD_LOCAL_COLLECTION_REPOST,
+  collectionId,
+  isAlbum
+})
+
+export const removeLocalCollectionRepost = ({
+  collectionId,
+  isAlbum
+}: {
+  collectionId: number
+  isAlbum: boolean
+}) => ({
+  type: REMOVE_LOCAL_COLLECTION_REPOST,
+  collectionId,
+  isAlbum
 })
 
 export const setSelectedCategory = (category: LibraryCategoryType) => ({

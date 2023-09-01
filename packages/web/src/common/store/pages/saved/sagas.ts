@@ -26,7 +26,7 @@ import { waitForRead } from 'utils/sagaHelpers'
 import tracksSagas from './lineups/sagas'
 const { signOut: signOutAction } = signOutActions
 
-const { getSaves } = savedPageSelectors
+const { getTrackSaves } = savedPageSelectors
 const { getAccountUser } = accountSelectors
 
 function* fetchLineupMetadatas(offset: number, limit: number) {
@@ -133,7 +133,7 @@ function* watchFetchSaves() {
     function* (rawParams: ReturnType<typeof actions.fetchSaves>) {
       yield* waitForRead()
       const account: User = yield* call(waitForValue, getAccountUser)
-      const saves = yield* select(getSaves)
+      const saves = yield* select(getTrackSaves)
       const params = prepareParams({ account, params: rawParams })
       const { query, sortDirection, sortMethod, offset, limit, category } =
         params

@@ -21,9 +21,24 @@ export function isLibraryCategory(value: string): value is LibraryCategoryType {
   return Object.values(LibraryCategory).includes(value as LibraryCategoryType)
 }
 export interface SavedPageState {
-  localSaves: { [id: number]: UID }
+  localTrackFavorites: { [id: number]: UID }
+  localTrackReposts: { [id: number]: UID }
+  localTrackPurchases: { [id: number]: UID }
+
+  localAlbumFavorites: ID[]
+  localAlbumReposts: ID[]
+  localAlbumPurchases: ID[]
+  localRemovedAlbumFavorites: ID[]
+  localRemovedAlbumReposts: ID[]
+
+  localPlaylistFavorites: ID[]
+  localPlaylistReposts: ID[]
+  localPlaylistPurchases: ID[]
+  localRemovedPlaylistFavorites: ID[]
+  localRemovedPlaylistResposts: ID[]
+
   tracks: LineupState<LineupTrack & { id: ID; dateSaved: string }>
-  saves: Favorite[]
+  trackSaves: Favorite[]
   hasReachedEnd: boolean
   initialFetch: boolean
   fetchingMore: boolean

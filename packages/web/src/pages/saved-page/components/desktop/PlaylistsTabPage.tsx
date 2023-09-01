@@ -1,27 +1,22 @@
 import { useCallback, useMemo } from 'react'
 
 import {
-  accountSelectors,
   cacheCollectionsActions,
   CreatePlaylistSource,
-  statusIsNotFinalized,
-  useGetLibraryPlaylists,
-  useAllPaginatedQuery,
-  savedPageSelectors
+  statusIsNotFinalized
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import UploadChip from 'components/upload/UploadChip'
 
+import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 const { createPlaylist } = cacheCollectionsActions
-const { getUserId } = accountSelectors
-const { getSelectedCategory } = savedPageSelectors
 
 const messages = {
   emptyPlaylistsHeader: 'You haven’t created or favorited any playlists yet.',
@@ -32,28 +27,10 @@ const messages = {
 
 export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
-  const currentUserId = useSelector(getUserId)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const { status, hasMore, fetchMore, collections } =
+    useCollectionsData('playlist')
 
-  const {
-    data: fetchedPlaylists,
-    status,
-    hasMore,
-    loadMore: fetchMore
-  } = useAllPaginatedQuery(
-    useGetLibraryPlaylists,
-    {
-      userId: currentUserId!,
-      category: selectedCategory
-    },
-    {
-      pageSize: 20,
-      disabled: currentUserId == null
-    }
-  )
-
-  const noFetchedResults =
-    !statusIsNotFinalized(status) && fetchedPlaylists?.length === 0
+  const noResults = !statusIsNotFinalized(status) && collections?.length === 0
 
   const handleCreatePlaylist = useCallback(() => {
     dispatch(
@@ -74,11 +51,11 @@ export const PlaylistsTabPage = () => {
     )
     return [
       createPlaylistCard,
-      ...fetchedPlaylists?.map(({ playlist_id: id }, i) => {
+      ...collections?.map(({ playlist_id: id }, i) => {
         return <CollectionCard index={i} key={id} albumId={id} />
       })
     ]
-  }, [fetchedPlaylists, handleCreatePlaylist])
+  }, [collections, handleCreatePlaylist])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
@@ -86,7 +63,7 @@ export const PlaylistsTabPage = () => {
   }
 
   // TODO(nkang) - Add separate error state
-  if (noFetchedResults || !fetchedPlaylists) {
+  if (noResults || !collections) {
     return (
       <EmptyTable
         primaryText={messages.emptyPlaylistsHeader}

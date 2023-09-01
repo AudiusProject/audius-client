@@ -20,9 +20,15 @@ import { LineupSagas } from 'common/store/lineup/sagas'
 
 const { getUid: getPlayerUid } = playerSelectors
 const { getSource } = queueSelectors
-const { SAVE_TRACK, UNSAVE_TRACK } = tracksSocialActions
-const { getLocalSaves, getLocalSave, getSavedTracksLineupUid, getSaves } =
-  savedPageSelectors
+const { SAVE_TRACK, UNSAVE_TRACK, REPOST_TRACK, UNDO_REPOST_TRACK } =
+  tracksSocialActions
+const {
+  getLocalTrackFavorite,
+  getLocalTrackRepost,
+  getSavedTracksLineupUid,
+  getTrackSaves,
+  getSelectedCategoryLocalAdds
+} = savedPageSelectors
 const { getTracks: getCacheTracks } = cacheTracksSelectors
 
 const getSavedTracks = (state) => state.pages.savedPage.tracks
@@ -31,7 +37,7 @@ const PREFIX = savedTracksActions.prefix
 
 function* getTracks({ offset, limit }) {
   const isNativeMobile = yield getContext('isNativeMobile')
-  const allSavedTracks = yield select(getSaves)
+  const allSavedTracks = yield select(getTrackSaves)
   // Mobile currently uses infinite scroll instead of a virtualized list
   // so we need to apply the offset & limit
   const savedTracks = isNativeMobile
@@ -44,18 +50,21 @@ function* getTracks({ offset, limit }) {
     return map
   }, {})
 
-  const localSaves = yield select(getLocalSaves)
-  const localSavedTrackIds = Object.keys(localSaves).filter(
-    (savedTrackId) => !savedTrackTimestamps[savedTrackId]
+  const localLibraryAdditions = yield select(getSelectedCategoryLocalAdds)
+  const localLibraryAdditionsTrackIds = Object.keys(
+    localLibraryAdditions
+  ).filter((savedTrackId) => !savedTrackTimestamps[savedTrackId])
+  const localLibraryAdditionsTimestamps = localLibraryAdditionsTrackIds.reduce(
+    (map, saveId) => {
+      map[saveId] = Date.now()
+      return map
+    },
+    {}
   )
-  const localSavedTrackTimestamps = localSavedTrackIds.reduce((map, saveId) => {
-    map[saveId] = Date.now()
-    return map
-  }, {})
 
-  const allSavedTrackIds = [...localSavedTrackIds, ...savedTrackIds]
+  const allSavedTrackIds = [...localLibraryAdditionsTrackIds, ...savedTrackIds]
   const allSavedTrackTimestamps = {
-    ...localSavedTrackTimestamps,
+    ...localLibraryAdditionsTimestamps,
     ...savedTrackTimestamps
   }
 
@@ -100,9 +109,9 @@ class SavedTracksSagas extends LineupSagas {
 }
 
 // If a local save is being done and the user is on the saved page route, make sure to update the lineup.
-function* watchSave() {
-  yield takeEvery(SAVE_TRACK, function* (action) {
-    const { trackId } = action
+function* watchAddToLibrary() {
+  yield takeEvery([SAVE_TRACK, REPOST_TRACK], function* (action) {
+    const { trackId, type } = action
 
     const tracks = yield select(getCacheTracks, { ids: [trackId] })
     const track = tracks[trackId]
@@ -120,7 +129,13 @@ function* watchSave() {
       id: trackId,
       dateSaved: moment().format()
     }
-    yield put(saveActions.addLocalSave(trackId, localSaveUid))
+
+    if (type === SAVE_TRACK) {
+      yield put(saveActions.addLocalTrackSave(trackId, localSaveUid))
+    } else {
+      // action.type === REPOST_TRACK
+      yield put(saveActions.addLocalRepost(trackId, localSaveUid))
+    }
     yield put(savedTracksActions.add(newEntry, trackId, undefined, true))
 
     const queueSource = yield select(getSource)
@@ -140,21 +155,23 @@ function* watchSave() {
   })
 }
 
-function* watchUnsave() {
-  yield takeEvery(UNSAVE_TRACK, function* (action) {
-    const { trackId } = action
-    const localSaveUid = yield select(getLocalSave, { id: trackId })
+function* watchRemoveFromLibrary() {
+  yield takeEvery([UNSAVE_TRACK, UNDO_REPOST_TRACK], function* (action) {
+    const { trackId, type } = action
+    const removedTrackSelector =
+      type === UNSAVE_TRACK ? getLocalTrackFavorite : getLocalTrackRepost
+    const removedTrackUid = yield select(removedTrackSelector, { id: trackId })
     const playerUid = yield select(getPlayerUid)
     const queueSource = yield select(getSource)
 
-    yield put(saveActions.removeLocalSave(action.trackId))
-    if (localSaveUid) {
-      yield put(savedTracksActions.remove(Kind.TRACKS, localSaveUid))
+    yield put(saveActions.removeLocalTrackSave(action.trackId))
+    if (removedTrackUid) {
+      yield put(savedTracksActions.remove(Kind.TRACKS, removedTrackUid))
       if (
-        localSaveUid !== playerUid &&
+        removedTrackUid !== playerUid &&
         queueSource === QueueSource.SAVED_TRACKS
       ) {
-        yield put(queueActions.remove({ uid: localSaveUid }))
+        yield put(queueActions.remove({ uid: removedTrackUid }))
       }
     }
     const lineupSaveUid = yield select(getSavedTracksLineupUid, { id: trackId })
@@ -168,5 +185,7 @@ function* watchUnsave() {
 }
 
 export default function sagas() {
-  return new SavedTracksSagas().getSagas().concat(watchSave, watchUnsave)
+  return new SavedTracksSagas()
+    .getSagas()
+    .concat(watchAddToLibrary, watchRemoveFromLibrary)
 }

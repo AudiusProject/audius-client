@@ -1,24 +1,15 @@
 import { useMemo } from 'react'
 
-import {
-  accountSelectors,
-  statusIsNotFinalized,
-  useGetLibraryAlbums,
-  useAllPaginatedQuery,
-  savedPageSelectors
-} from '@audius/common'
-import { useSelector } from 'react-redux'
+import { statusIsNotFinalized } from '@audius/common'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import { useGoToRoute } from 'hooks/useGoToRoute'
+import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
 
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
-
-const { getUserId } = accountSelectors
-const { getSelectedCategory } = savedPageSelectors
 
 const messages = {
   emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
@@ -28,36 +19,22 @@ const messages = {
 
 export const AlbumsTabPage = () => {
   const goToRoute = useGoToRoute()
-  const currentUserId = useSelector(getUserId)
-  const selectedCategory = useSelector(getSelectedCategory)
-
   const {
-    data: fetchedAlbums,
     status,
     hasMore,
-    loadMore: fetchMore
-  } = useAllPaginatedQuery(
-    useGetLibraryAlbums,
-    {
-      userId: currentUserId!,
-      category: selectedCategory
-    },
-    {
-      pageSize: 20,
-      disabled: currentUserId == null
-    }
-  )
+    fetchMore,
+    collections: albums
+  } = useCollectionsData('album')
 
-  const noFetchedResults =
-    !statusIsNotFinalized(status) && fetchedAlbums?.length === 0
+  const noResults = !statusIsNotFinalized(status) && albums?.length === 0
 
   const cards = useMemo(() => {
-    return fetchedAlbums?.map(({ playlist_id }, i) => {
+    return albums?.map(({ playlist_id }, i) => {
       return (
         <CollectionCard index={i} key={playlist_id} albumId={playlist_id} />
       )
     })
-  }, [fetchedAlbums])
+  }, [albums])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
@@ -65,7 +42,7 @@ export const AlbumsTabPage = () => {
   }
 
   // TODO(nkang) - Add separate error state
-  if (noFetchedResults || !fetchedAlbums) {
+  if (noResults || !albums) {
     return (
       <EmptyTable
         primaryText={messages.emptyAlbumsHeader}
