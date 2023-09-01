@@ -1,7 +1,8 @@
 import {
   BNUSDC,
   formatCurrencyBalance,
-  formatUSDCWeiToNumber
+  formatUSDCWeiToNumber,
+  useWithdrawUSDCModal
 } from '@audius/common'
 import {
   IconNote,
@@ -31,6 +32,8 @@ const messages = {
 }
 
 export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
+  const { onOpen: openWithdrawUSDCModal } = useWithdrawUSDCModal()
+
   const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
   const balanceFormatted = formatCurrencyBalance(balanceNumber)
 
@@ -93,7 +96,7 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
             fullWidth
             // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
             iconLeft={() => <Icon icon={IconNote} size='medium' />}
-            onClick={() => {}}
+            onClick={() => openWithdrawUSDCModal({})}
           />
         </div>
         <PopupMenu
