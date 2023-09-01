@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react'
 
-import { Modal, ModalContent, ModalHeader, ModalTitle } from '@audius/stems'
+import {
+  HarmonyButton,
+  HarmonyButtonType,
+  Modal,
+  ModalContent,
+  ModalHeader
+} from '@audius/stems'
+import cn from 'classnames'
 import { Location } from 'history'
 import { Prompt } from 'react-router-dom'
 
-import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
+import layoutStyles from 'components/layout/layout.module.css'
+import { Text } from 'components/typography'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
+
+import styles from './NavigationPrompt.module.css'
 
 interface Props {
   when?: boolean | undefined
@@ -21,7 +31,7 @@ interface Props {
 /**
  * Adapted from https://gist.github.com/michchan/0b142324b2a924a108a689066ad17038#file-routeleavingguard-function-ts-ca839f5faf39-tsx
  */
-const RouteLeavingGuard = (props: Props) => {
+export const NavigationPrompt = (props: Props) => {
   const { when, shouldBlockNavigation, messages } = props
   const [modalVisible, setModalVisible] = useState(false)
   const [lastLocation, setLastLocation] = useState<Location | null>(null)
@@ -32,10 +42,11 @@ const RouteLeavingGuard = (props: Props) => {
     setModalVisible(false)
   }
 
+  // Returning false blocks navigation; true allows it
   const handleBlockedNavigation = (nextLocation: Location): boolean => {
     if (
       !confirmedNavigation &&
-      (!shouldBlockNavigation || shouldBlockNavigation?.(nextLocation))
+      (!shouldBlockNavigation || shouldBlockNavigation(nextLocation))
     ) {
       setModalVisible(true)
       setLastLocation(nextLocation)
@@ -61,19 +72,38 @@ const RouteLeavingGuard = (props: Props) => {
       <Prompt when={when} message={handleBlockedNavigation} />
       <Modal isOpen={modalVisible} onClose={closeModal} size='small'>
         <ModalHeader>
-          <ModalTitle title={messages.title} />
+          <Text
+            className={styles.title}
+            size='xLarge'
+            variant='label'
+            strength='strong'
+            color='neutralLight2'
+          >
+            {messages.title}
+          </Text>
         </ModalHeader>
         <ModalContent>
-          <ConfirmationBox
-            text={messages.body}
-            leftText={messages.cancel}
-            rightText={messages.proceed}
-            leftClick={closeModal}
-            rightClick={handleConfirmNavigationClick}
-          />
+          <div className={cn(layoutStyles.col, layoutStyles.gap6)}>
+            <Text className={styles.body} size='large'>
+              {messages.body}
+            </Text>
+            <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
+              <HarmonyButton
+                className={styles.button}
+                text={messages.cancel}
+                variant={HarmonyButtonType.SECONDARY}
+                onClick={closeModal}
+              />
+              <HarmonyButton
+                className={styles.button}
+                text={messages.proceed}
+                variant={HarmonyButtonType.DESTRUCTIVE}
+                onClick={handleConfirmNavigationClick}
+              />
+            </div>
+          </div>
         </ModalContent>
       </Modal>
     </>
   )
 }
-export default RouteLeavingGuard

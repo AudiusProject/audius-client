@@ -15,7 +15,7 @@ import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import layoutStyles from 'components/layout/layout.module.css'
-import NavigationPrompt from 'components/navigation-prompt/NavigationPrompt'
+import { NavigationPrompt } from 'components/navigation-prompt/NavigationPrompt'
 import { Text } from 'components/typography'
 import PreviewButton from 'components/upload/PreviewButton'
 
