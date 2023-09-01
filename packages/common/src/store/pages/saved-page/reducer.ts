@@ -79,8 +79,8 @@ const getLocalCollectionStateKeys = ({
   ) as keyof SavedPageState
   const removalKey = (
     isAlbum
-      ? `localAlbumRemoved${categoryKeySuffix}`
-      : `localPlaylistRemoved${categoryKeySuffix}`
+      ? `localRemovedAlbum${categoryKeySuffix}`
+      : `localRemovedPlaylist${categoryKeySuffix}`
   ) as keyof SavedPageState
   return { additionKey, removalKey }
 }

@@ -33,10 +33,10 @@ import { useFavoritesLineup } from './useFavoritesLineup'
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
 const {
-  getSaves,
-  getLocalSaves,
+  getTrackSaves,
   getSavedTracksStatus,
   getInitialFetchStatus,
+  getSelectedCategoryLocalAdds,
   getIsFetchingMore,
   getSelectedCategory
 } = savedPageSelectors
@@ -78,12 +78,12 @@ export const TracksTab = () => {
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
-  const saves = useSelector(getSaves)
-  const localSaves = useSelector(getLocalSaves)
+  const saves = useSelector(getTrackSaves)
+  const localAdditions = useSelector(getSelectedCategoryLocalAdds)
 
   const saveCount = useMemo(
-    () => saves.length + Object.keys(localSaves).length,
-    [saves, localSaves]
+    () => saves.length + Object.keys(localAdditions).length,
+    [saves, localAdditions]
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS

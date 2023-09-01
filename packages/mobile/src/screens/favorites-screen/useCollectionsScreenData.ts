@@ -1,4 +1,4 @@
-import type { CollectionType } from '@audius/common'
+import type { CollectionType, CommonState } from '@audius/common'
 import {
   accountSelectors,
   cacheCollectionsSelectors,
@@ -24,7 +24,13 @@ import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 const { getIsReachable } = reachabilitySelectors
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
-const { getSelectedCategory } = savedPageSelectors
+const {
+  getSelectedCategory,
+  getSelectedCategoryLocalAlbumAdds,
+  getSelectedCategoryLocalAlbumRemovals,
+  getSelectedCategoryLocalPlaylistAdds,
+  getSelectedCategoryLocalPlaylistRemovals
+} = savedPageSelectors
 
 type UseCollectionsScreenDataConfig = {
   filterValue?: string
@@ -40,6 +46,22 @@ export const useCollectionsScreenData = ({
   const selectedCategory = useSelector(getSelectedCategory)
   const currentUserId = useSelector(getUserId)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
+
+  const locallyAddedCollections = useSelector((state: CommonState) => {
+    const ids =
+      collectionType === 'albums'
+        ? getSelectedCategoryLocalAlbumAdds(state)
+        : getSelectedCategoryLocalPlaylistAdds(state)
+    return ids
+  })
+
+  const locallyRemovedCollections = useSelector((state: CommonState) => {
+    const ids =
+      collectionType === 'albums'
+        ? getSelectedCategoryLocalAlbumRemovals(state)
+        : getSelectedCategoryLocalPlaylistRemovals(state)
+    return new Set(ids)
+  })
 
   const {
     data: collectionsData,
@@ -65,7 +87,9 @@ export const useCollectionsScreenData = ({
   const availableCollectionIds = useProxySelector(
     (state: AppState) => {
       if (isReachable) {
-        return fetchedCollectionIds
+        return [...locallyAddedCollections, ...fetchedCollectionIds].filter(
+          (id) => !locallyRemovedCollections.has(id)
+        )
       }
 
       if (!isDoneLoadingFromDisk) {
