@@ -19,7 +19,7 @@
     "start": "rollup -c -w",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
-    "lint": "eslint src .storybook --ext=js,jsxts,tsx",
+    "lint": "eslint src --ext=js,jsxts,tsx",
     "lint:fix": "npm run lint -- --fix",
     "typecheck": "tsc --allowJs",
     "storybook": "storybook dev -p 6006",
