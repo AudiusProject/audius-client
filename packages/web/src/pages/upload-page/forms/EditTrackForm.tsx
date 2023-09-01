@@ -10,12 +10,12 @@ import {
 import cn from 'classnames'
 import { Form, Formik, FormikProps, useField } from 'formik'
 import moment from 'moment'
-import { Prompt } from 'react-router-dom'
 import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import layoutStyles from 'components/layout/layout.module.css'
+import NavigationPrompt from 'components/navigation-prompt/NavigationPrompt'
 import { Text } from 'components/typography'
 import PreviewButton from 'components/upload/PreviewButton'
 
@@ -36,12 +36,16 @@ const messages = {
   titleError: 'Your track must have a name.',
   artworkError: 'Artwork is required.',
   genreError: 'Genre is required.',
-  navigationWarning:
-    'You have unsaved changes. Do you want to leave this page?',
   multiTrackCount: (index: number, total: number) =>
     `TRACK ${index} of ${total}`,
   prev: 'Prev',
-  next: 'Next Track'
+  next: 'Next Track',
+  navigationPrompt: {
+    title: 'Discard upload?',
+    body: "Are you sure you want to leave this page?\nAny changes you've made will be lost.",
+    cancel: 'Cancel',
+    proceed: 'Discard'
+  }
 }
 
 type EditTrackFormProps = {
@@ -115,7 +119,7 @@ const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
 
   return (
     <Form>
-      <Prompt message={messages.navigationWarning} when={dirty} />
+      <NavigationPrompt when={dirty} messages={messages.navigationPrompt} />
       <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
         <div className={cn(styles.formContainer, layoutStyles.col)}>
           {isMultiTrack ? <MultiTrackHeader /> : null}
