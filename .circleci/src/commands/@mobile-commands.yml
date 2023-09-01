@@ -106,7 +106,7 @@ mobile-release-ios:
   steps:
     - run:
         name: Symlink react-native binary
-        command: ln -s node_modules/.bin/react-native packages/mobile/node_modules/.bin/react-native
+        command: ln -s $PWD/node_modules/.bin/react-native $PWD/packages/mobile/node_modules/.bin/react-native
     - run:
         name: fastlane build and upload
         command: cd packages/mobile/ios && bundle exec fastlane build_and_upload bundle_id:<<parameters.bundle-id>>
