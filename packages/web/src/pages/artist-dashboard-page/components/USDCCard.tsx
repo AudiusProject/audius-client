@@ -1,5 +1,6 @@
 import {
   BNUSDC,
+  WithdrawUSDCModalPages,
   formatCurrencyBalance,
   formatUSDCWeiToNumber,
   useWithdrawUSDCModal
@@ -96,7 +97,11 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
             fullWidth
             // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
             iconLeft={() => <Icon icon={IconNote} size='medium' />}
-            onClick={() => openWithdrawUSDCModal({})}
+            onClick={() =>
+              openWithdrawUSDCModal({
+                page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS
+              })
+            }
           />
         </div>
         <PopupMenu

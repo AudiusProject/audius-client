@@ -18,7 +18,6 @@ const messages = {
 export const WithdrawUSDCModal = () => {
   const { isOpen, onClose, onClosed, data } = useWithdrawUSDCModal()
   const { page } = data
-  console.log(data)
 
   return (
     <Modal
