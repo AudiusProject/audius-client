@@ -1,4 +1,3 @@
-import { Favorite } from 'models/Favorite'
 import { UID } from 'models/Identifiers'
 
 import { LibraryCategory, LibraryCategoryType } from './types'
@@ -84,7 +83,7 @@ export const fetchSavesRequested = () => ({
   type: FETCH_SAVES_REQUESTED
 })
 
-export const fetchSavesSucceeded = (saves: Favorite[]) => ({
+export const fetchSavesSucceeded = (saves: any[]) => ({
   type: FETCH_SAVES_SUCCEEDED,
   saves
 })
@@ -93,7 +92,7 @@ export const fetchSavesFailed = () => ({
   type: FETCH_SAVES_FAILED
 })
 
-export const fetchMoreSavesSucceeded = (saves: Favorite[], offset: number) => ({
+export const fetchMoreSavesSucceeded = (saves: any[], offset: number) => ({
   type: FETCH_MORE_SAVES_SUCCEEDED,
   saves,
   offset
