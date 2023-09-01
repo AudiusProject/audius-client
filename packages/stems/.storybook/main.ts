@@ -24,7 +24,15 @@ module.exports = {
     config.module.rules = [
       {
         test: /\.svg$/,
-        use: [require.resolve('@svgr/webpack')]
+        use: [
+          {
+            loader: '@svgr/webpack'
+          }
+        ],
+        type: 'javascript/auto',
+        issuer: {
+          and: [/\.(ts|tsx|js|jsx|md|mdx)$/]
+        }
       },
       {
         test: /\.module\.css$/,
