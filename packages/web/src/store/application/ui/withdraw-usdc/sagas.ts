@@ -107,6 +107,9 @@ function* doSetDestinationAddress({
 function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
   try {
     const libs = yield* call(getLibs)
+    if (!libs.solanaWeb3Manager) {
+      throw new Error('Failed to get solana web3 manager')
+    }
     // Assume destinationAddress and amount have already been validated
     const destinationAddress = yield* select(getWithdrawDestinationAddress)
     const amount = yield* select(getWithdrawAmount)
@@ -117,8 +120,8 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     if (feePayer === null) {
       throw new Error('Fee payer not set')
     }
-    const transactionHandler = libs.solanaWeb3Manager?.transactionHandler
-    const connection = libs.solanaWeb3Manager?.connection
+    const transactionHandler = libs.solanaWeb3Manager.transactionHandler
+    const connection = libs.solanaWeb3Manager.connection
     if (!connection) {
       throw new Error('Failed to get connection')
     }
@@ -141,7 +144,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
         [Token, Token.getAssociatedTokenAddress],
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
-        libs.solanaWeb3Manager!.mints.usdc,
+        libs.solanaWeb3Manager.mints.usdc,
         destinationPubkey
       )
       const tokenAccountInfo = yield* call(getTokenAccountInfo, {
@@ -187,6 +190,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
         // Then create and fund the destination associated token account
         // using funds from the root solana account that we just swapped for.
         // TODO: use existing funds if possible
+        // https://linear.app/audius/issue/PAY-1793/use-existing-sol-funds-for-withdraw-usdc-fees
         const createRecentBlockhash = yield* call(getRecentBlockhash)
         const tx = new Transaction({ recentBlockhash: createRecentBlockhash })
         const createTokenAccountInstruction = yield* call(
@@ -194,14 +198,14 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
           {
             associatedTokenAccount: destinationTokenAccountPubkey,
             owner: destinationPubkey,
-            mint: libs.solanaWeb3Manager!.mints.usdc,
+            mint: libs.solanaWeb3Manager.mints.usdc,
             feePayer: rootSolanaAccount.publicKey
           }
         )
         yield* call([tx, tx.add], createTokenAccountInstruction)
         yield* call(
           sendAndConfirmTransaction,
-          libs.solanaWeb3Manager!.connection,
+          libs.solanaWeb3Manager.connection,
           tx,
           [rootSolanaAccount]
         )
@@ -211,13 +215,14 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
       }
     }
     // TODO: math.min(amount, balance)
+    // https://linear.app/audius/issue/PAY-1794/account-for-usdc-used-for-fees-before-withdrawing
     let destinationTokenAccount = destinationAddress
     if (isDestinationSolAddress) {
       const destinationTokenAccountPubkey = yield* call(
         [Token, Token.getAssociatedTokenAddress],
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
-        libs.solanaWeb3Manager!.mints.usdc,
+        libs.solanaWeb3Manager.mints.usdc,
         destinationPubkey
       )
       destinationTokenAccount = destinationTokenAccountPubkey.toString()
@@ -229,7 +234,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     const transferInstructions = yield* call(
       [
         libs.solanaWeb3Manager,
-        libs.solanaWeb3Manager!.createTransferInstructionsFromCurrentUser
+        libs.solanaWeb3Manager.createTransferInstructionsFromCurrentUser
       ],
       {
         amount: amountWei,
@@ -246,7 +251,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     }
     const transferSignature = yield* call(
       sendAndConfirmTransaction,
-      libs.solanaWeb3Manager!.connection,
+      libs.solanaWeb3Manager.connection,
       tx,
       [rootSolanaAccount]
     )

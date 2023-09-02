@@ -101,6 +101,7 @@ const { fetchTransactionDetailsSucceeded } = transactionDetailsActions
 
 const DEFAULT_SLIPPAGE = 3 // The default slippage amount to allow for exchanges, overridden in optimizely
 const BUY_AUDIO_LOCAL_STORAGE_KEY = 'buy-audio-transaction-details'
+const NUM_TRANSFER_TRANSACTIONS = 3
 
 const MEMO_MESSAGES = {
   [OnRampProvider.COINBASE]: 'In-App $AUDIO Purchase: Coinbase Pay',
@@ -287,7 +288,8 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   )
   // Allows for 3 transaction fees
   const rootAccountMinBalance =
-    (yield* call(getRootAccountRentExemptionMinimum)) + transferFee * 3
+    (yield* call(getRootAccountRentExemptionMinimum)) +
+    transferFee * NUM_TRANSFER_TRANSACTIONS
 
   const associatedAccountCreationFees = yield* call(
     getAssociatedAccountCreationFees,
