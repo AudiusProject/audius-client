@@ -1,18 +1,21 @@
 import {
   BNUSDC,
+  WithdrawUSDCModalPages,
   formatCurrencyBalance,
-  formatUSDCWeiToNumber
+  formatUSDCWeiToNumber,
+  useWithdrawUSDCModal
 } from '@audius/common'
 import {
-  IconNote,
   IconKebabHorizontal,
   IconQuestionCircle,
+  IconWithdraw,
   HarmonyButton,
   HarmonyButtonType,
   PopupMenu,
   PopupMenuItem,
   HarmonyPlainButton,
-  HarmonyPlainButtonType
+  HarmonyPlainButtonType,
+  LogoUSDC
 } from '@audius/stems'
 import BN from 'bn.js'
 
@@ -31,6 +34,8 @@ const messages = {
 }
 
 export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
+  const { onOpen: openWithdrawUSDCModal } = useWithdrawUSDCModal()
+
   const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
   const balanceFormatted = formatCurrencyBalance(balanceNumber)
 
@@ -52,8 +57,7 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
       <div className={styles.backgroundBlueGradient}>
         <div className={styles.usdcTitleContainer}>
           <div className={styles.usdcTitle}>
-            {/* TODO: update icon https://linear.app/audius/issue/PAY-1764/update-icons-in-usdc-tile */}
-            <Icon icon={IconNote} size='xxxLarge' color='staticWhite' />
+            <Icon icon={LogoUSDC} size='xxxLarge' color='staticWhite' />
             <div className={styles.usdc}>
               <Text
                 variant='heading'
@@ -91,9 +95,12 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
             variant={HarmonyButtonType.SECONDARY}
             text={messages.withdraw}
             fullWidth
-            // TODO: update leftIcon and wire up withdraw modal https://linear.app/audius/issue/PAY-1754/usdc-withdrawal-flow-ui
-            iconLeft={() => <Icon icon={IconNote} size='medium' />}
-            onClick={() => {}}
+            iconLeft={() => <Icon icon={IconWithdraw} size='medium' />}
+            onClick={() =>
+              openWithdrawUSDCModal({
+                page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS
+              })
+            }
           />
         </div>
         <PopupMenu
