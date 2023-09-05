@@ -86,13 +86,10 @@ export const Text = (props: TextProps) => {
     ]
   )
 
-  const children = useMemo(
-    () =>
-      typeof childrenProp === 'string'
-        ? childrenProp.replace('\n', ' ')
-        : childrenProp,
-    [childrenProp]
-  )
+  const children =
+    typeof childrenProp === 'string'
+      ? childrenProp.replace('\n', ' ')
+      : childrenProp
 
   return (
     <RNText style={[styles.root, customStyles, style]} {...other}>
