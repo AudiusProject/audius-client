@@ -41,6 +41,7 @@ export const Text = (props: TextProps) => {
     weight,
     fontSize: fontSizeProp,
     textTransform,
+    children: childrenProp,
     ...other
   } = props
   const variant = variantProp ?? 'body'
@@ -85,5 +86,17 @@ export const Text = (props: TextProps) => {
     ]
   )
 
-  return <RNText style={[styles.root, customStyles, style]} {...other} />
+  const children = useMemo(
+    () =>
+      typeof childrenProp === 'string'
+        ? childrenProp.replace('\n', ' ')
+        : childrenProp,
+    [childrenProp]
+  )
+
+  return (
+    <RNText style={[styles.root, customStyles, style]} {...other}>
+      {children}
+    </RNText>
+  )
 }
