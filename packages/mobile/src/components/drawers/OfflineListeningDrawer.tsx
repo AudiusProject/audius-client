@@ -16,34 +16,20 @@ import { requestDownloadAllFavorites } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
+import { HarmonyModalHeader } from '../core/HarmonyModalHeader'
 import { NativeDrawer } from '../drawer'
 
 const useDrawerStyles = makeStyles(({ spacing, palette, typography }) => ({
   container: {
-    paddingTop: spacing(4),
-    paddingBottom: spacing(10),
+    paddingVertical: spacing(6),
     flexDirection: 'column',
     paddingHorizontal: spacing(4),
     rowGap: spacing(6),
     alignItems: 'center'
   },
-  title: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: spacing(2)
-  },
-  titleText: {
-    textTransform: 'uppercase',
-    marginTop: spacing(4)
-  },
   descriptionText: {
     textAlign: 'center',
     lineHeight: typography.fontSize.large * 1.3
-  },
-  descriptionContainer: {
-    width: '100%'
   },
   titleIcon: {
     position: 'relative',
@@ -77,19 +63,21 @@ const messages = {
   saveChanges: 'Save Changes'
 }
 
+type OfflineListeningOptionToggleProps = {
+  title: string
+  icon: ComponentType<SvgProps>
+  value: boolean
+  onValueChange?: (value: boolean) => void | Promise<void>
+  disabled?: boolean
+}
+
 const OfflineListeningOptionToggle = ({
   title,
   icon: Icon,
   value,
   onValueChange,
   disabled
-}: {
-  title: string
-  icon: ComponentType<SvgProps>
-  value: boolean
-  onValueChange?: (value: boolean) => void | Promise<void>
-  disabled?: boolean
-}) => {
+}: OfflineListeningOptionToggleProps) => {
   const styles = useToggleStyles()
   const { neutral, neutralLight4 } = useThemeColors()
 
@@ -116,7 +104,6 @@ const OfflineListeningOptionToggle = ({
 
 export const OfflineListeningDrawer = () => {
   const styles = useDrawerStyles()
-  const { neutralLight2 } = useThemeColors()
   const dispatch = useDispatch()
   const { data, onClose } = useDrawer('OfflineListening')
   const { isFavoritesMarkedForDownload, onSaveChanges } = data
@@ -126,23 +113,19 @@ export const OfflineListeningDrawer = () => {
   )
 
   const handleSaveChanges = useCallback(() => {
-    if (isFavoritesMarkedForDownload) {
-      if (!isFavoritesOn) {
-        dispatch(
-          setVisibility({
-            drawer: 'RemoveDownloadedFavorites',
-            visible: true
-          })
-        )
-        onSaveChanges(isFavoritesOn)
-      }
-    } else {
-      // Favorites not already marked for download prior to opening drawer
-      if (isFavoritesOn) {
-        dispatch(requestDownloadAllFavorites())
-        onSaveChanges(isFavoritesOn)
-      }
+    if (isFavoritesMarkedForDownload && !isFavoritesOn) {
+      dispatch(
+        setVisibility({
+          drawer: 'RemoveDownloadedFavorites',
+          visible: true
+        })
+      )
+      onSaveChanges(isFavoritesOn)
+    } else if (!isFavoritesMarkedForDownload && isFavoritesOn) {
+      dispatch(requestDownloadAllFavorites())
+      onSaveChanges(isFavoritesOn)
     }
+
     onClose()
   }, [
     dispatch,
@@ -159,33 +142,13 @@ export const OfflineListeningDrawer = () => {
   return (
     <NativeDrawer drawerName='OfflineListening'>
       <View style={styles.container}>
-        <View style={styles.title}>
-          <IconDownload
-            style={styles.titleIcon}
-            fill={neutralLight2}
-            height={20}
-            width={24}
-          />
-          <View>
-            <Text
-              weight='heavy'
-              color='neutralLight2'
-              fontSize={'xl'}
-              style={styles.titleText}
-            >
-              {messages.offlineListeningTitle}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.descriptionContainer}>
-          <Text
-            weight='medium'
-            fontSize={'large'}
-            style={styles.descriptionText}
-          >
-            {messages.offlineListeningDescription}
-          </Text>
-        </View>
+        <HarmonyModalHeader
+          icon={IconDownload}
+          title={messages.offlineListeningTitle}
+        />
+        <Text weight='medium' fontSize='large' style={styles.descriptionText}>
+          {messages.offlineListeningDescription}
+        </Text>
         <OfflineListeningOptionToggle
           title={messages.favorites}
           icon={IconFavorite}
