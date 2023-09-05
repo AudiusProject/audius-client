@@ -4,7 +4,12 @@ import {
   LibraryCategory,
   LibraryCategoryType
 } from '@audius/common'
-import { HarmonySelectablePill } from '@audius/stems'
+import {
+  HarmonySelectablePill,
+  IconHeart,
+  IconCart,
+  IconRepost
+} from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import styles from './LibraryCategorySelectionMenu.module.css'
@@ -19,15 +24,18 @@ const CATEGORIES = [
   },
   {
     label: 'Favorites',
-    value: LibraryCategory.Favorite
+    value: LibraryCategory.Favorite,
+    icon: IconHeart
   },
   {
     label: 'Reposts',
-    value: LibraryCategory.Repost
+    value: LibraryCategory.Repost,
+    icon: IconRepost
   },
   {
     label: 'Purchased',
-    value: LibraryCategory.Purchase
+    value: LibraryCategory.Purchase,
+    icon: IconCart
   }
 ]
 
@@ -45,6 +53,7 @@ export const LibraryCategorySelectionMenu = () => {
           role='radio'
           size='large'
           aria-checked={selectedCategory === c.value ? 'true' : 'false'}
+          icon={c.icon}
           key={c.value}
           isSelected={selectedCategory === c.value}
           onClick={() => handleClick(c.value)}
