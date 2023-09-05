@@ -11,7 +11,7 @@ import { SettingsRowDescription } from './SettingsRowDescription'
 
 const messages = {
   label: 'Download All Favorites',
-  body: "Download your library so you can listen offline! Albums and playlists you've favorited, reposted, or purchased can also be downloaded individually"
+  body: "Download your favorites so you can listen offline! Albums and playlists you've favorited can also be downloaded individually"
 }
 
 const useStyles = makeStyles(({ palette }) => ({
