@@ -3,8 +3,10 @@ import { useCallback, useState } from 'react'
 import {
   CreatePlaylistSource,
   FeatureFlags,
+  LibraryCategory,
   reachabilitySelectors,
-  statusIsNotFinalized
+  statusIsNotFinalized,
+  savedPageSelectors
 } from '@audius/common'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
@@ -25,9 +27,13 @@ import { OfflineContentBanner } from './OfflineContentBanner'
 import { useCollectionsScreenData } from './useCollectionsScreenData'
 
 const { getIsReachable } = reachabilitySelectors
+const { getSelectedCategory } = savedPageSelectors
 
 const messages = {
-  emptyTabText: "You haven't favorited any playlists yet.",
+  emptyPlaylistFavoritesText: "You haven't favorited any playlists yet.",
+  emptyPlaylistRepostsText: "You haven't reposted any playlists yet.",
+  emptyPlaylistAllText:
+    "You haven't favorited, reposted, or purchased any playlists yet.",
   inputPlaceholder: 'Filter Playlists'
 }
 
@@ -39,7 +45,6 @@ export const PlaylistsTab = () => {
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
     FeatureFlags.PLAYLIST_UPDATES_POST_QA
   )
-
   const [filterValue, setFilterValue] = useState('')
   const {
     collectionIds: userPlaylists,
@@ -62,13 +67,24 @@ export const PlaylistsTab = () => {
   const noItemsLoaded =
     !statusIsNotFinalized(status) && !userPlaylists?.length && !filterValue
 
+  const selectedCategory = useSelector(getSelectedCategory)
+  let emptyTabText: string
+
+  if (selectedCategory === LibraryCategory.All) {
+    emptyTabText = messages.emptyPlaylistAllText
+  } else if (selectedCategory === LibraryCategory.Favorite) {
+    emptyTabText = messages.emptyPlaylistFavoritesText
+  } else {
+    emptyTabText = messages.emptyPlaylistRepostsText
+  }
+
   return (
     <VirtualizedScrollView>
       {noItemsLoaded ? (
         !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
+          <EmptyTileCTA message={emptyTabText} />
         )
       ) : (
         <>

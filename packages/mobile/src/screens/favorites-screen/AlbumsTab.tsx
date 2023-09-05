@@ -1,6 +1,11 @@
 import { useCallback, useState } from 'react'
 
-import { reachabilitySelectors, statusIsNotFinalized } from '@audius/common'
+import {
+  reachabilitySelectors,
+  statusIsNotFinalized,
+  savedPageSelectors,
+  LibraryCategory
+} from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
@@ -13,10 +18,15 @@ import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
 import { useCollectionsScreenData } from './useCollectionsScreenData'
 
+const { getSelectedCategory } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
-  emptyTabText: "You haven't favorited any albums yet.",
+  emptyAlbumFavoritesText: "You haven't favorited any albums yet.",
+  emptyAlbumRepostsText: "You haven't reposted any albums yet.",
+  emptyAlbumPurchasedText: "You haven't purchased any albums yet.",
+  emptyAlbumAllText:
+    "You haven't favorited, reposted, or purchased any albums yet.",
   inputPlaceholder: 'Filter Albums'
 }
 
@@ -39,6 +49,18 @@ export const AlbumsTab = () => {
     }
   }, [isReachable, hasMore, fetchMore])
 
+  const selectedCategory = useSelector(getSelectedCategory)
+  let emptyTabText: string
+  if (selectedCategory === LibraryCategory.All) {
+    emptyTabText = messages.emptyAlbumAllText
+  } else if (selectedCategory === LibraryCategory.Favorite) {
+    emptyTabText = messages.emptyAlbumFavoritesText
+  } else if (selectedCategory === LibraryCategory.Repost) {
+    emptyTabText = messages.emptyAlbumRepostsText
+  } else {
+    emptyTabText = messages.emptyAlbumPurchasedText
+  }
+
   const loadingSpinner = <LoadingMoreSpinner />
 
   return (
@@ -47,7 +69,7 @@ export const AlbumsTab = () => {
         !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
+          <EmptyTileCTA message={emptyTabText} />
         )
       ) : (
         <>

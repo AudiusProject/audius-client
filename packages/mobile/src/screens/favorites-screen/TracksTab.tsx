@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
+  LibraryCategory,
   FavoriteSource,
   PlaybackSource,
   Status,
@@ -45,7 +46,11 @@ const { getTrack } = cacheTracksSelectors
 const { getUserFromTrack } = cacheUsersSelectors
 
 const messages = {
-  emptyTabText: "You haven't favorited any tracks yet.",
+  emptyTracksFavoritesText: "You haven't favorited any tracks yet.",
+  emptyTracksRepostsText: "You haven't reposted any tracks yet.",
+  emptyTracksPurchasedText: "You haven't purchased any tracks yet.",
+  emptyTracksAllText:
+    "You haven't favorited, reposted, or purchased any tracks yet.",
   inputPlaceholder: 'Filter Tracks'
 }
 
@@ -87,6 +92,17 @@ export const TracksTab = () => {
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
+
+  let emptyTabText: string
+  if (selectedCategory === LibraryCategory.All) {
+    emptyTabText = messages.emptyTracksAllText
+  } else if (selectedCategory === LibraryCategory.Favorite) {
+    emptyTabText = messages.emptyTracksFavoritesText
+  } else if (selectedCategory === LibraryCategory.Repost) {
+    emptyTabText = messages.emptyTracksRepostsText
+  } else {
+    emptyTabText = messages.emptyTracksPurchasedText
+  }
 
   const fetchSaves = useCallback(() => {
     dispatch(
@@ -196,7 +212,7 @@ export const TracksTab = () => {
         !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
+          <EmptyTileCTA message={emptyTabText} />
         )
       ) : (
         <>
