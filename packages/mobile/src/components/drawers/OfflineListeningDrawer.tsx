@@ -33,7 +33,6 @@ const useDrawerStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: spacing(2)
-    // paddingBottom: spacing(4)
   },
   titleText: {
     textTransform: 'uppercase',
@@ -125,7 +124,6 @@ export const OfflineListeningDrawer = () => {
   const [isFavoritesOn, setIsFavoritesOn] = useState(
     isFavoritesMarkedForDownload
   )
-  console.log('isFavoritesOn', isFavoritesOn)
 
   const handleSaveChanges = useCallback(() => {
     if (isFavoritesMarkedForDownload) {
