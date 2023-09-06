@@ -18,7 +18,7 @@ import { requiresAccount } from 'common/utils/requiresAccount'
 import { DASHBOARD_PAGE } from 'utils/route'
 import { waitForRead } from 'utils/sagaHelpers'
 
-import { actions as dashboardActions, fetchListenData } from './slice'
+import { actions as dashboardActions } from './slice'
 import ArtistDashboardState from './types'
 const { getBalance } = walletActions
 const getAccountUser = accountSelectors.getAccountUser
