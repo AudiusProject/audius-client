@@ -14,7 +14,7 @@ import { requiresAccount } from 'common/utils/requiresAccount'
 import { DASHBOARD_PAGE } from 'utils/route'
 import { waitForRead } from 'utils/sagaHelpers'
 
-import * as dashboardActions from './actions'
+import { actions as dashboardActions } from './slice'
 const { getBalance } = walletActions
 const getAccountUser = accountSelectors.getAccountUser
 
@@ -30,18 +30,10 @@ function* fetchDashboardTracksAsync(action) {
       limit,
       getUnlisted: true
     })
-    const listedTracks = tracks.filter((t) => t.is_unlisted === false)
-    const unlistedTracks = tracks.filter((t) => t.is_unlisted === true)
-
-    yield put(
-      dashboardActions.fetchDashboardTracksSucceeded(
-        listedTracks,
-        unlistedTracks
-      )
-    )
+    yield put(dashboardActions.fetchTracksSucceeded({ tracks }))
   } catch (error) {
     console.error(error)
-    yield put(dashboardActions.fetchDashboardTracksFailed())
+    yield put(dashboardActions.fetchTracksFailed({}))
   }
 }
 
@@ -63,10 +55,8 @@ function* fetchDashboardAsync(action) {
       }),
       call(audiusBackendInstance.getPlaylists, account.user_id, [])
     ])
-    const listedTracks = tracks.filter((t) => t.is_unlisted === false)
-    const unlistedTracks = tracks.filter((t) => t.is_unlisted === true)
 
-    const trackIds = listedTracks.map((t) => t.track_id)
+    const trackIds = tracks.map((t) => t.track_id)
     const now = moment()
 
     yield call(fetchDashboardListenDataAsync, {
@@ -76,25 +66,20 @@ function* fetchDashboardAsync(action) {
       period: 'month'
     })
 
-    if (
-      listedTracks.length > 0 ||
-      playlists.length > 0 ||
-      unlistedTracks.length > 0
-    ) {
+    if (tracks.length > 0 || playlists.length > 0) {
       yield put(
-        dashboardActions.fetchDashboardSucceeded(
-          listedTracks,
-          playlists,
-          unlistedTracks
-        )
+        dashboardActions.fetchSucceeded({
+          tracks,
+          collections: playlists
+        })
       )
       yield call(pollForBalance)
     } else {
-      yield put(dashboardActions.fetchDashboardFailed())
+      yield put(dashboardActions.fetchFailed({}))
     }
   } catch (error) {
     console.error(error)
-    yield put(dashboardActions.fetchDashboardFailed())
+    yield put(dashboardActions.fetchFailed({}))
   }
 }
 
@@ -144,10 +129,12 @@ function* fetchDashboardListenDataAsync(action) {
 
   if (listenData) {
     yield put(
-      dashboardActions.fetchDashboardListenDataSucceeded(formattedListenData)
+      dashboardActions.fetchListenDataSucceeded({
+        listenData: formattedListenData
+      })
     )
   } else {
-    yield put(dashboardActions.fetchDashboardListenDataFailed())
+    yield put(dashboardActions.fetchListenDataFailed({}))
   }
 }
 
@@ -159,27 +146,27 @@ function* pollForBalance() {
   const chan = yield call(doEvery, pollingFreq, function* () {
     yield put(getBalance())
   })
-  yield take(dashboardActions.RESET_DASHBOARD)
+  yield take(dashboardActions.reset.type)
   chan.close()
 }
 
 function* watchFetchDashboardTracks() {
   yield takeEvery(
-    dashboardActions.FETCH_DASHBOARD_TRACKS,
+    dashboardActions.fetchTracks.type,
     requiresAccount(fetchDashboardTracksAsync, DASHBOARD_PAGE)
   )
 }
 
 function* watchFetchDashboard() {
   yield takeEvery(
-    dashboardActions.FETCH_DASHBOARD,
+    dashboardActions.fetch.type,
     requiresAccount(fetchDashboardAsync, DASHBOARD_PAGE)
   )
 }
 
 function* watchFetchDashboardListenData() {
   yield takeEvery(
-    dashboardActions.FETCH_DASHBOARD_LISTEN_DATA,
+    dashboardActions.fetchListenData.type,
     fetchDashboardListenDataAsync
   )
 }
