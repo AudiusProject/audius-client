@@ -45,7 +45,7 @@ const slice = createSlice({
       state.tracks = tracks
       state.tracksStatus = Status.SUCCESS
     },
-    fetchTrackFailed: (state, _) => {
+    fetchTracksFailed: (state, _) => {
       state.tracksStatus = Status.ERROR
     },
     fetchListenData: (
@@ -78,7 +78,7 @@ export const {
   fetchFailed,
   fetchTracks,
   fetchTracksSucceeded,
-  fetchTrackFailed,
+  fetchTracksFailed,
   fetchListenData,
   fetchListenDataSucceeded,
   fetchListenDataFailed
