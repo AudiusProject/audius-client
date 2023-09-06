@@ -35,7 +35,8 @@ import {
   getRootSolanaAccount,
   getSignatureForTransaction,
   createAssociatedTokenAccountInstruction,
-  getRecentBlockhash
+  getRecentBlockhash,
+  ROOT_ACCOUNT_SIZE
 } from 'services/solana/solana'
 
 const {
@@ -165,14 +166,19 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
           getFundDestinationTokenAccountFees,
           new PublicKey(destinationAddress)
         )
-        console.debug('REED feeAmount: ', feeAmount)
         const existingBalance =
           (yield* call(
             [connection, connection.getBalance],
             rootSolanaAccount.publicKey
           )) / LAMPORTS_PER_SOL
-        console.debug('REED existingBalance: ', existingBalance)
-        if (feeAmount > existingBalance) {
+        // Need to maintain a minimum balance to pay rent for root solana account
+        const rootSolanaAccountRent =
+          (yield* call(
+            [connection, connection.getMinimumBalanceForRentExemption],
+            ROOT_ACCOUNT_SIZE
+          )) / LAMPORTS_PER_SOL
+
+        if (feeAmount > existingBalance - rootSolanaAccountRent) {
           // Swap USDC for SOL to fund the destination associated token account
           console.debug(
             'Withdraw USDC - not enough SOL to fund destination account, attempting to swap USDC for SOL'
