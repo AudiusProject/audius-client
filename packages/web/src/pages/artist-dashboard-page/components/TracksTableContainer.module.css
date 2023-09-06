@@ -38,8 +38,8 @@
 
 .close {
   cursor: pointer;
-  height: 24px;
-  width: 24px;
+  height: var(--unit-6);
+  width: var(--unit-6);
 }
 
 .trackName {

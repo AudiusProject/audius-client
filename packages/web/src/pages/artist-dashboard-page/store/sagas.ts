@@ -11,7 +11,7 @@ import {
 } from '@audius/common'
 import { each } from 'lodash'
 import moment from 'moment'
-import { all, call, put, take, takeEvery } from 'typed-redux-saga'
+import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga'
 
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
 import { requiresAccount } from 'common/utils/requiresAccount'
@@ -54,8 +54,9 @@ function* fetchDashboardAsync(
   yield* call(waitForRead)
 
   const account = yield* call(waitForValue, getAccountUser)
-  const { offset, limit } = action.payload
+  yield* fork(pollForBalance)
 
+  const { offset, limit } = action.payload
   try {
     const data = yield* all([
       call(retrieveUserTracks, {
@@ -90,7 +91,6 @@ function* fetchDashboardAsync(
           collections: playlists
         })
       )
-      yield* call(pollForBalance)
     } else {
       yield* put(dashboardActions.fetchFailed({}))
     }
