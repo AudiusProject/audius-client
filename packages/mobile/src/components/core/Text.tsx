@@ -21,6 +21,7 @@ export type TextProps = RNTextProps & {
   weight?: FontWeight
   fontSize?: FontSize | 'inherit'
   textTransform?: TextStyle['textTransform']
+  allowNewline?: boolean
 }
 
 const useStyles = makeStyles(({ typography, palette }) => ({
@@ -42,6 +43,7 @@ export const Text = (props: TextProps) => {
     fontSize: fontSizeProp,
     textTransform,
     children: childrenProp,
+    allowNewline,
     ...other
   } = props
   const variant = variantProp ?? 'body'
@@ -87,7 +89,7 @@ export const Text = (props: TextProps) => {
   )
 
   const children =
-    typeof childrenProp === 'string'
+    typeof childrenProp === 'string' && !allowNewline
       ? childrenProp.replace('\n', ' ')
       : childrenProp
 
