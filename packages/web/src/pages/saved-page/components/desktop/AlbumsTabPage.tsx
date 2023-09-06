@@ -1,6 +1,12 @@
 import { useMemo } from 'react'
 
-import { statusIsNotFinalized } from '@audius/common'
+import {
+  LibraryCategory,
+  statusIsNotFinalized,
+  savedPageSelectors,
+  CommonState
+} from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -8,11 +14,14 @@ import EmptyTable from 'components/tracks-table/EmptyTable'
 import { useGoToRoute } from 'hooks/useGoToRoute'
 import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
 
+import { emptyStateMessages } from '../emptyStateMessages'
+
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
+const { getSelectedCategory } = savedPageSelectors
+
 const messages = {
-  emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
   emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
   goToTrending: 'Go to Trending'
 }
@@ -25,6 +34,18 @@ export const AlbumsTabPage = () => {
     fetchMore,
     collections: albums
   } = useCollectionsData('album')
+  const emptyAlbumsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyAlbumAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyAlbumFavoritesHeader
+    } else if (selectedCategory === LibraryCategory.Purchase) {
+      return emptyStateMessages.emptyAlbumPurchasedHeader
+    } else {
+      return emptyStateMessages.emptyAlbumRepostsHeader
+    }
+  })
 
   const noResults = !statusIsNotFinalized(status) && albums?.length === 0
 
@@ -45,7 +66,7 @@ export const AlbumsTabPage = () => {
   if (noResults || !albums) {
     return (
       <EmptyTable
-        primaryText={messages.emptyAlbumsHeader}
+        primaryText={emptyAlbumsHeader}
         secondaryText={messages.emptyAlbumsBody}
         buttonLabel={messages.goToTrending}
         onClick={() => goToRoute('/trending')}

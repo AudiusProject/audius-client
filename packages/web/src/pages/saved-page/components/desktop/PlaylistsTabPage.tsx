@@ -3,23 +3,28 @@ import { useCallback, useMemo } from 'react'
 import {
   cacheCollectionsActions,
   CreatePlaylistSource,
-  statusIsNotFinalized
+  statusIsNotFinalized,
+  savedPageSelectors,
+  LibraryCategory,
+  CommonState
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import UploadChip from 'components/upload/UploadChip'
-
 import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
+
+import { emptyStateMessages } from '../emptyStateMessages'
+
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 const { createPlaylist } = cacheCollectionsActions
+const { getSelectedCategory } = savedPageSelectors
 
 const messages = {
-  emptyPlaylistsHeader: 'You haven’t created or favorited any playlists yet.',
   emptyPlaylistsBody: 'Once you have, this is where you’ll find them!',
   createPlaylist: 'Create Playlist',
   newPlaylist: 'New Playlist'
@@ -29,6 +34,16 @@ export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
   const { status, hasMore, fetchMore, collections } =
     useCollectionsData('playlist')
+  const emptyPlaylistsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyPlaylistAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyPlaylistFavoritesHeader
+    } else {
+      return emptyStateMessages.emptyPlaylistRepostsHeader
+    }
+  })
 
   const noResults = !statusIsNotFinalized(status) && collections?.length === 0
 
@@ -66,7 +81,7 @@ export const PlaylistsTabPage = () => {
   if (noResults || !collections) {
     return (
       <EmptyTable
-        primaryText={messages.emptyPlaylistsHeader}
+        primaryText={emptyPlaylistsHeader}
         secondaryText={messages.emptyPlaylistsBody}
         buttonLabel={messages.createPlaylist}
         buttonIcon={<IconPlus />}

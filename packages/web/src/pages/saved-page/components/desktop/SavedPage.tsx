@@ -1,7 +1,9 @@
 import { useContext } from 'react'
 
 import {
+  CommonState,
   ID,
+  LibraryCategory,
   Lineup,
   QueueItem,
   SavedPageCollection,
@@ -28,17 +30,18 @@ import EmptyTable from 'components/tracks-table/EmptyTable'
 import useTabs from 'hooks/useTabs/useTabs'
 import { MainContentContext } from 'pages/MainContentContext'
 
+import { emptyStateMessages } from '../emptyStateMessages'
+
 import { AlbumsTabPage } from './AlbumsTabPage'
 import { LibraryCategorySelectionMenu } from './LibraryCategorySelectionMenu'
 import { PlaylistsTabPage } from './PlaylistsTabPage'
 import styles from './SavedPage.module.css'
 
-const { getInitialFetchStatus } = savedPageSelectors
+const { getInitialFetchStatus, getSelectedCategory } = savedPageSelectors
 
 const messages = {
   libraryHeader: 'Library',
   filterPlaceholder: 'Filter Tracks',
-  emptyTracksHeader: 'You haven’t favorited any tracks yet.',
   emptyTracksBody: 'Once you have, this is where you’ll find them!',
   goToTrending: 'Go to Trending'
 }
@@ -117,6 +120,19 @@ const SavedPage = ({
 }: SavedPageProps) => {
   const { mainContentRef } = useContext(MainContentContext)
   const initFetch = useSelector(getInitialFetchStatus)
+  const emptyTracksHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyTrackAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyTrackFavoritesHeader
+    } else if (selectedCategory === LibraryCategory.Repost) {
+      return emptyStateMessages.emptyTrackRepostsHeader
+    } else {
+      return emptyStateMessages.emptyTrackPurchasedHeader
+    }
+  })
+
   const [dataSource, playingIndex] =
     status === Status.SUCCESS || entries.length
       ? getFilteredData(entries)
@@ -196,7 +212,7 @@ const SavedPage = ({
     elements: [
       isEmpty && !tracksLoading ? (
         <EmptyTable
-          primaryText={messages.emptyTracksHeader}
+          primaryText={emptyTracksHeader}
           secondaryText={messages.emptyTracksBody}
           buttonLabel={messages.goToTrending}
           onClick={() => goToRoute('/trending')}
