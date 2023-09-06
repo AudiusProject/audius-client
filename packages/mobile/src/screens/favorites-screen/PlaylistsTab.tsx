@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import type { CommonState } from '@audius/common'
 import {
   CreatePlaylistSource,
   FeatureFlags,
@@ -67,16 +68,16 @@ export const PlaylistsTab = () => {
   const noItemsLoaded =
     !statusIsNotFinalized(status) && !userPlaylists?.length && !filterValue
 
-  const selectedCategory = useSelector(getSelectedCategory)
-  let emptyTabText: string
-
-  if (selectedCategory === LibraryCategory.All) {
-    emptyTabText = messages.emptyPlaylistAllText
-  } else if (selectedCategory === LibraryCategory.Favorite) {
-    emptyTabText = messages.emptyPlaylistFavoritesText
-  } else {
-    emptyTabText = messages.emptyPlaylistRepostsText
-  }
+  const emptyTabText = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return messages.emptyPlaylistAllText
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return messages.emptyPlaylistFavoritesText
+    } else {
+      return messages.emptyPlaylistRepostsText
+    }
+  })
 
   return (
     <VirtualizedScrollView>

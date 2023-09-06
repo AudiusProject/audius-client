@@ -5,7 +5,8 @@ import {
   CreatePlaylistSource,
   statusIsNotFinalized,
   savedPageSelectors,
-  LibraryCategory
+  LibraryCategory,
+  CommonState
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
@@ -33,16 +34,16 @@ export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
   const { status, hasMore, fetchMore, collections } =
     useCollectionsData('playlist')
-  const selectedCategory = useSelector(getSelectedCategory)
-  let emptyPlaylistsHeader: string
-
-  if (selectedCategory === LibraryCategory.All) {
-    emptyPlaylistsHeader = emptyStateMessages.emptyPlaylistAllHeader
-  } else if (selectedCategory === LibraryCategory.Favorite) {
-    emptyPlaylistsHeader = emptyStateMessages.emptyPlaylistFavoritesHeader
-  } else {
-    emptyPlaylistsHeader = emptyStateMessages.emptyPlaylistRepostsHeader
-  }
+  const emptyPlaylistsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyPlaylistAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyPlaylistFavoritesHeader
+    } else {
+      return emptyStateMessages.emptyPlaylistRepostsHeader
+    }
+  })
 
   const noResults = !statusIsNotFinalized(status) && collections?.length === 0
 

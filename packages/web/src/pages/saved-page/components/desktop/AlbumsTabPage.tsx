@@ -3,7 +3,8 @@ import { useMemo } from 'react'
 import {
   LibraryCategory,
   statusIsNotFinalized,
-  savedPageSelectors
+  savedPageSelectors,
+  CommonState
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -33,16 +34,18 @@ export const AlbumsTabPage = () => {
     fetchMore,
     collections: albums
   } = useCollectionsData('album')
-  const selectedCategory = useSelector(getSelectedCategory)
-  let emptyAlbumsHeader: string
-
-  if (selectedCategory === LibraryCategory.All) {
-    emptyAlbumsHeader = emptyStateMessages.emptyAlbumAllHeader
-  } else if (selectedCategory === LibraryCategory.Favorite) {
-    emptyAlbumsHeader = emptyStateMessages.emptyAlbumFavoritesHeader
-  } else {
-    emptyAlbumsHeader = emptyStateMessages.emptyAlbumRepostsHeader
-  }
+  const emptyAlbumsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyAlbumAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyAlbumFavoritesHeader
+    } else if (selectedCategory === LibraryCategory.Purchase) {
+      return emptyStateMessages.emptyAlbumPurchasedHeader
+    } else {
+      return emptyStateMessages.emptyAlbumRepostsHeader
+    }
+  })
 
   const noResults = !statusIsNotFinalized(status) && albums?.length === 0
 

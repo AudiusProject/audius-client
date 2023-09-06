@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import type { CommonState } from '@audius/common'
 import {
   reachabilitySelectors,
   statusIsNotFinalized,
@@ -49,17 +50,18 @@ export const AlbumsTab = () => {
     }
   }, [isReachable, hasMore, fetchMore])
 
-  const selectedCategory = useSelector(getSelectedCategory)
-  let emptyTabText: string
-  if (selectedCategory === LibraryCategory.All) {
-    emptyTabText = messages.emptyAlbumAllText
-  } else if (selectedCategory === LibraryCategory.Favorite) {
-    emptyTabText = messages.emptyAlbumFavoritesText
-  } else if (selectedCategory === LibraryCategory.Repost) {
-    emptyTabText = messages.emptyAlbumRepostsText
-  } else {
-    emptyTabText = messages.emptyAlbumPurchasedText
-  }
+  const emptyTabText = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return messages.emptyAlbumAllText
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return messages.emptyAlbumFavoritesText
+    } else if (selectedCategory === LibraryCategory.Purchase) {
+      return messages.emptyAlbumPurchasedText
+    } else {
+      return messages.emptyAlbumRepostsText
+    }
+  })
 
   const loadingSpinner = <LoadingMoreSpinner />
 

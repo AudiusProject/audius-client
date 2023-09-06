@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 
 import {
+  CommonState,
   ID,
   LibraryCategory,
   Lineup,
@@ -119,17 +120,18 @@ const SavedPage = ({
 }: SavedPageProps) => {
   const { mainContentRef } = useContext(MainContentContext)
   const initFetch = useSelector(getInitialFetchStatus)
-  const selectedCategory = useSelector(getSelectedCategory)
-  let emptyTracksHeader: string
-  if (selectedCategory === LibraryCategory.All) {
-    emptyTracksHeader = emptyStateMessages.emptyTrackAllHeader
-  } else if (selectedCategory === LibraryCategory.Favorite) {
-    emptyTracksHeader = emptyStateMessages.emptyTrackFavoritesHeader
-  } else if (selectedCategory === LibraryCategory.Repost) {
-    emptyTracksHeader = emptyStateMessages.emptyTrackRepostsHeader
-  } else {
-    emptyTracksHeader = emptyStateMessages.emptyTrackPurchasedHeader
-  }
+  const emptyTracksHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getSelectedCategory(state)
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyTrackAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyTrackFavoritesHeader
+    } else if (selectedCategory === LibraryCategory.Repost) {
+      return emptyStateMessages.emptyTrackRepostsHeader
+    } else {
+      return emptyStateMessages.emptyTrackPurchasedHeader
+    }
+  })
 
   const [dataSource, playingIndex] =
     status === Status.SUCCESS || entries.length
