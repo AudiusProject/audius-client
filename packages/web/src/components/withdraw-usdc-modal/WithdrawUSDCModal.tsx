@@ -73,7 +73,11 @@ export const WithdrawUSDCModal = () => {
   const handleSubmit = useCallback(
     ({ amount, address }: { amount: number; address: string }) => {
       dispatch(
-        beginWithdrawUSDC({ amount, destinationAddress: address, onSuccess })
+        beginWithdrawUSDC({
+          amount,
+          destinationAddress: address,
+          onSuccess
+        })
       )
     },
     [dispatch, onSuccess]
@@ -116,7 +120,11 @@ export const WithdrawUSDCModal = () => {
       </ModalHeader>
       <ModalContent>
         <Formik
-          initialValues={{ [AMOUNT]: balance, [ADDRESS]: '', [CONFIRM]: false }}
+          initialValues={{
+            [AMOUNT]: balance?.toNumber() ?? 0,
+            [ADDRESS]: '',
+            [CONFIRM]: false
+          }}
           validationSchema={toFormikValidationSchema(
             WithdrawUSDCFormSchema(balance?.toNumber() ?? 0)
           )}

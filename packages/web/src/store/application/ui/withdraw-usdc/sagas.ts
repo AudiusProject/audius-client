@@ -254,9 +254,11 @@ function* doWithdrawUSDC({
       )
       destinationTokenAccount = destinationTokenAccountPubkey.toString()
     }
-    const amountWei = new BN(amount).mul(
-      new BN(TOKEN_LISTING_MAP.USDC.decimals)
-    )
+    // Multiply by 10^6 to account for USDC decimals, but also convert from cents to dollars
+    const amountWei = new BN(amount)
+      .mul(new BN(10 ** TOKEN_LISTING_MAP.USDC.decimals))
+      .div(new BN(100))
+    console.debug('REED amountWei: ', amountWei)
     const usdcUserBank = yield* call(getUSDCUserBank)
     const transferInstructions = yield* call(
       [
