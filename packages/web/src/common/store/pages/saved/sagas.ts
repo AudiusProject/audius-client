@@ -115,7 +115,7 @@ function prepareParams({
     userId: account.user_id,
     offset: params.offset ?? 0,
     limit: params.limit ?? account.track_save_count,
-    query: params.query ?? '',
+    query: params.query,
     sortMethod: params.sortMethod || 'added_date',
     sortDirection: params.sortDirection || 'desc',
     category: params.category
