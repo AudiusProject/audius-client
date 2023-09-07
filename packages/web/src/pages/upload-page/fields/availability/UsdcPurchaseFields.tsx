@@ -1,6 +1,8 @@
 import {
+  ChangeEvent,
   ChangeEventHandler,
   FocusEventHandler,
+  FocusEvent,
   useCallback,
   useState
 } from 'react'
@@ -40,7 +42,7 @@ export enum UsdcPurchaseType {
   FOLLOW = 'follow'
 }
 
-const PRECISION = 2
+export const PRECISION = 2
 
 type TrackAvailabilityFieldsProps = {
   disabled?: boolean
@@ -87,6 +89,29 @@ const PreviewField = (props: TrackAvailabilityFieldsProps) => {
   )
 }
 
+export const calculatePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const input = e.target.value.replace(/[^0-9.]+/g, '')
+  // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
+  const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
+  const { whole, decimal, dot } = match?.groups || {}
+
+  // Conditionally render the decimal part, and only for the number of decimals specified
+  const stringAmount = dot
+    ? `${whole}.${(decimal ?? '').substring(0, PRECISION)}`
+    : whole
+  return { human: stringAmount, field: Number(stringAmount) * 100 }
+}
+
+export const calculatePriceBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const precision = 2
+  const [whole, decimal] = e.target.value.split('.')
+
+  const paddedDecimal = (decimal ?? '')
+    .substring(0, precision)
+    .padEnd(precision, '0')
+  return `${whole.length > 0 ? whole : '0'}.${paddedDecimal}`
+}
+
 const PriceField = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
   const [{ value }, , { setValue: setPrice }] = useField<number>(PRICE)
@@ -96,30 +121,16 @@ const PriceField = (props: TrackAvailabilityFieldsProps) => {
 
   const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      const input = e.target.value.replace(/[^0-9.]+/g, '')
-      // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
-      const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
-      const { whole, decimal, dot } = match?.groups || {}
-
-      // Conditionally render the decimal part, and only for the number of decimals specified
-      const stringAmount = dot
-        ? `${whole}.${(decimal ?? '').substring(0, PRECISION)}`
-        : whole
-      setHumanizedValue(stringAmount)
-      setPrice(Number(stringAmount) * 100)
+      const { human, field } = calculatePriceChange(e)
+      setHumanizedValue(human)
+      setPrice(field)
     },
-    [setPrice]
+    [setPrice, setHumanizedValue]
   )
 
   const handlePriceBlur: FocusEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      const precision = 2
-      const [whole, decimal] = e.target.value.split('.')
-
-      const paddedDecimal = (decimal ?? '')
-        .substring(0, precision)
-        .padEnd(precision, '0')
-      setHumanizedValue(`${whole.length > 0 ? whole : '0'}.${paddedDecimal}`)
+      setHumanizedValue(calculatePriceBlur(e))
     },
     []
   )
