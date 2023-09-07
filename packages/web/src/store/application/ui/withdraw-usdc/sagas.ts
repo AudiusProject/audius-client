@@ -1,6 +1,5 @@
 import {
   withdrawUSDCActions,
-  withdrawUSDCSelectors,
   solanaSelectors,
   ErrorLevel,
   SolanaWalletAddress,
@@ -47,10 +46,9 @@ const {
   setDestinationAddress,
   setDestinationAddressFailed,
   setDestinationAddressSucceeded,
-  withdrawUSDCFailed
+  withdrawUSDCFailed,
+  withdrawUSDCSucceeded
 } = withdrawUSDCActions
-const { getWithdrawDestinationAddress, getWithdrawAmount } =
-  withdrawUSDCSelectors
 const { getFeePayer } = solanaSelectors
 
 function* doSetAmount({ payload: { amount } }: ReturnType<typeof setAmount>) {
@@ -109,15 +107,15 @@ function* doSetDestinationAddress({
   }
 }
 
-function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
+function* doWithdrawUSDC({
+  payload: { amount, destinationAddress, onSuccess }
+}: ReturnType<typeof beginWithdrawUSDC>) {
   try {
     const libs = yield* call(getLibs)
     if (!libs.solanaWeb3Manager) {
       throw new Error('Failed to get solana web3 manager')
     }
     // Assume destinationAddress and amount have already been validated
-    const destinationAddress = yield* select(getWithdrawDestinationAddress)
-    const amount = yield* select(getWithdrawAmount)
     if (!destinationAddress || !amount) {
       throw new Error('Please enter a valid destination address and amount')
     }
@@ -288,6 +286,8 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
       'Withdraw USDC - successfully transferred USDC - tx hash',
       transferSignature
     )
+    yield* call(onSuccess, transferSignature)
+    yield* put(withdrawUSDCSucceeded())
   } catch (e: unknown) {
     console.error('Withdraw USDC failed', e)
     const reportToSentry = yield* getContext('reportToSentry')
