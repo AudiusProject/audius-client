@@ -91,16 +91,17 @@ export const useCollectionsScreenData = ({
   const availableCollectionIds = useProxySelector(
     (state: AppState) => {
       if (isReachable) {
-        const filteredLocallyAddedCollections = filterCollections(
+        const filteredLocallyAddedCollectionIds = filterCollections(
           locallyAddedCollections
             .map((c) => getCollectionWithUser(state, { id: c }))
             .filter(removeNullable),
           { filterText: filterValue }
         ).map((p) => p.playlist_id)
         return uniq(
-          [...filteredLocallyAddedCollections, ...fetchedCollectionIds].filter(
-            (id) => !locallyRemovedCollections.has(id)
-          )
+          [
+            ...filteredLocallyAddedCollectionIds,
+            ...fetchedCollectionIds
+          ].filter((id) => !locallyRemovedCollections.has(id))
         )
       }
 
