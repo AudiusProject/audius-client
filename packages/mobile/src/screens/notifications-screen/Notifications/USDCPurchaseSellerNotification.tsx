@@ -5,7 +5,10 @@ import type {
   TrackEntity,
   USDCPurchaseSellerNotification as USDCPurchaseSellerNotificationType
 } from '@audius/common'
-import { formatUSDCWeiToUSDString, notificationsSelectors } from '@audius/common'
+import {
+  formatUSDCWeiToUSDString,
+  notificationsSelectors
+} from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import IconCart from 'app/assets/images/iconCart.svg'
