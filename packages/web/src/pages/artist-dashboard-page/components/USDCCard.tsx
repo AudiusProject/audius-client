@@ -35,8 +35,6 @@ const messages = {
   withdrawalHistory: 'Withdrawal History'
 }
 
-const MediumWithdrawIcon = () => <Icon icon={IconWithdraw} size='medium' />
-
 export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
   const goToRoute = useGoToRoute()
   const { onOpen: openWithdrawUSDCModal } = useWithdrawUSDCModal()
@@ -100,7 +98,7 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
             variant={HarmonyButtonType.SECONDARY}
             text={messages.withdraw}
             fullWidth
-            iconLeft={MediumWithdrawIcon}
+            iconLeft={IconWithdraw}
             onClick={() =>
               openWithdrawUSDCModal({
                 page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS
