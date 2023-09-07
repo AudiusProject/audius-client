@@ -1,8 +1,6 @@
 import {
-  ChangeEvent,
   ChangeEventHandler,
   FocusEventHandler,
-  FocusEvent,
   useCallback,
   useState
 } from 'react'
@@ -13,6 +11,11 @@ import { useField } from 'formik'
 import { TextField, TextFieldProps } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
+import {
+  PRECISION,
+  onTokenInputBlur,
+  onTokenInputChange
+} from 'utils/tokenInput'
 
 import { PREVIEW, PRICE } from '../AccessAndSaleField'
 
@@ -41,8 +44,6 @@ export enum UsdcPurchaseType {
   TIP = 'tip',
   FOLLOW = 'follow'
 }
-
-export const PRECISION = 2
 
 type TrackAvailabilityFieldsProps = {
   disabled?: boolean
@@ -89,29 +90,6 @@ const PreviewField = (props: TrackAvailabilityFieldsProps) => {
   )
 }
 
-export const calculatePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-  const input = e.target.value.replace(/[^0-9.]+/g, '')
-  // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
-  const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
-  const { whole, decimal, dot } = match?.groups || {}
-
-  // Conditionally render the decimal part, and only for the number of decimals specified
-  const stringAmount = dot
-    ? `${whole}.${(decimal ?? '').substring(0, PRECISION)}`
-    : whole
-  return { human: stringAmount, field: Number(stringAmount) * 100 }
-}
-
-export const calculatePriceBlur = (e: FocusEvent<HTMLInputElement>) => {
-  const precision = 2
-  const [whole, decimal] = e.target.value.split('.')
-
-  const paddedDecimal = (decimal ?? '')
-    .substring(0, precision)
-    .padEnd(precision, '0')
-  return `${whole.length > 0 ? whole : '0'}.${paddedDecimal}`
-}
-
 const PriceField = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
   const [{ value }, , { setValue: setPrice }] = useField<number>(PRICE)
@@ -121,16 +99,16 @@ const PriceField = (props: TrackAvailabilityFieldsProps) => {
 
   const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      const { human, field } = calculatePriceChange(e)
+      const { human, value } = onTokenInputChange(e)
       setHumanizedValue(human)
-      setPrice(field)
+      setPrice(value)
     },
     [setPrice, setHumanizedValue]
   )
 
   const handlePriceBlur: FocusEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      setHumanizedValue(calculatePriceBlur(e))
+      setHumanizedValue(onTokenInputBlur(e))
     },
     []
   )

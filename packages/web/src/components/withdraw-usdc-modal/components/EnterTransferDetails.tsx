@@ -9,7 +9,9 @@ import {
   useUSDCBalance,
   formatUSDCWeiToNumber,
   formatCurrencyBalance,
-  BNUSDC
+  BNUSDC,
+  useWithdrawUSDCModal,
+  WithdrawUSDCModalPages
 } from '@audius/common'
 import {
   HarmonyButton,
@@ -20,15 +22,18 @@ import {
 import BN from 'bn.js'
 import { useField } from 'formik'
 
-import { InputV2, InputV2Variant } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
 import { TextField } from 'components/form-fields'
 import { Text } from 'components/typography'
 import {
+  ADDRESS,
+  AMOUNT
+} from 'components/withdraw-usdc-modal/WithdrawUSDCModal'
+import {
   PRECISION,
-  calculatePriceBlur,
-  calculatePriceChange
-} from 'pages/upload-page/fields/availability/UsdcPurchaseFields'
+  onTokenInputBlur,
+  onTokenInputChange
+} from 'utils/tokenInput'
 
 import styles from './EnterTransferDetails.module.css'
 import { Hint } from './Hint'
@@ -46,35 +51,45 @@ const messages = {
   notSure: `Not sure what you’re doing? Visit the help center for guides & more info.`,
   guide: 'Guide to USDC Transfers on Audius',
   dollars: '$',
-  usdc: 'USDC'
+  usdc: '(USDC)'
 }
 
 export const EnterTransferDetails = () => {
   const { data: balance } = useUSDCBalance()
+  const { setData } = useWithdrawUSDCModal()
+
   const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
   const balanceFormatted = formatCurrencyBalance(balanceNumber)
 
-  const [{ value }, , { setValue: setAmount }] = useField<number>(
-    messages.amountToWithdraw
-  )
+  const [
+    { value },
+    { error: amountError },
+    { setValue: setAmount, setTouched: setAmountTouched }
+  ] = useField(AMOUNT)
   const [humanizedValue, setHumanizedValue] = useState(
     ((value || balanceNumber) / 100).toFixed(PRECISION)
   )
   const handleAmountChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      const { human, field } = calculatePriceChange(e)
+      const { human, value } = onTokenInputChange(e)
       setHumanizedValue(human)
-      setAmount(field)
+      setAmount(value)
     },
     [setAmount, setHumanizedValue]
   )
-
   const handleAmountBlur: FocusEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      setHumanizedValue(calculatePriceBlur(e))
+      setHumanizedValue(onTokenInputBlur(e))
+      setAmountTouched(true)
     },
-    [setHumanizedValue]
+    [setHumanizedValue, setAmountTouched]
   )
+
+  const [, { error: addressError }] = useField(ADDRESS)
+
+  const handleContinue = useCallback(() => {
+    setData({ page: WithdrawUSDCModalPages.CONFIRM_TRANSFER_DETAILS })
+  }, [setData])
 
   return (
     <div className={styles.root}>
@@ -90,10 +105,9 @@ export const EnterTransferDetails = () => {
         <TextField
           title={messages.amountToWithdraw}
           label={messages.amountToWithdraw}
-          aria-label={messages.amountInputLabel}
-          name={messages.amountToWithdraw}
+          aria-label={messages.amountToWithdraw}
+          name={AMOUNT}
           value={humanizedValue}
-          placeholder={messages.amountToWithdraw}
           onChange={handleAmountChange}
           onBlur={handleAmountBlur}
           startAdornment={messages.dollars}
@@ -112,8 +126,8 @@ export const EnterTransferDetails = () => {
           title={messages.destinationAddress}
           label={messages.solanaWallet}
           aria-label={messages.destinationAddress}
-          name={messages.destinationAddress}
-          placeholder={''}
+          name={ADDRESS}
+          placeholder=''
         />
       </div>
       <HarmonyButton
@@ -121,6 +135,8 @@ export const EnterTransferDetails = () => {
         size={HarmonyButtonSize.DEFAULT}
         fullWidth
         text={messages.continue}
+        disabled={amountError || addressError}
+        onClick={handleContinue}
       />
       <Hint
         text={messages.notSure}
