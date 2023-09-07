@@ -107,6 +107,9 @@ function* doSetDestinationAddress({
   }
 }
 
+/**
+ * Handles all logic for withdrawing USDC to a given destination. Expects amount in dollars.
+ */
 function* doWithdrawUSDC({
   payload: { amount, destinationAddress, onSuccess }
 }: ReturnType<typeof beginWithdrawUSDC>) {
@@ -258,7 +261,6 @@ function* doWithdrawUSDC({
     const amountWei = new BN(amount)
       .mul(new BN(10 ** TOKEN_LISTING_MAP.USDC.decimals))
       .div(new BN(100))
-    console.debug('REED amountWei: ', amountWei)
     const usdcUserBank = yield* call(getUSDCUserBank)
     const transferInstructions = yield* call(
       [
