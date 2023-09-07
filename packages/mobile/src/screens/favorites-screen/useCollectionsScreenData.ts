@@ -1,6 +1,7 @@
 import type { CollectionType, CommonState } from '@audius/common'
 import {
   removeNullable,
+  SavedPageTabs,
   accountSelectors,
   cacheCollectionsSelectors,
   reachabilitySelectors,
@@ -28,7 +29,7 @@ const { getIsReachable } = reachabilitySelectors
 const { getUserId } = accountSelectors
 const { getCollection, getCollectionWithUser } = cacheCollectionsSelectors
 const {
-  getSelectedCategory,
+  getCategory,
   getSelectedCategoryLocalAlbumAdds,
   getSelectedCategoryLocalAlbumRemovals,
   getSelectedCategoryLocalPlaylistAdds,
@@ -46,7 +47,14 @@ export const useCollectionsScreenData = ({
 }: UseCollectionsScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const selectedCategory = useSelector((state) =>
+    getCategory(state, {
+      currentTab:
+        collectionType === 'albums'
+          ? SavedPageTabs.ALBUMS
+          : SavedPageTabs.PLAYLISTS
+    })
+  )
   const currentUserId = useSelector(getUserId)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
 

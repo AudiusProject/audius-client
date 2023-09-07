@@ -8,7 +8,7 @@ import {
   QueueItem,
   SavedPageCollection,
   savedPageSelectors,
-  SavedPageTabs as ProfileTabs,
+  SavedPageTabs,
   SavedPageTrack,
   Status,
   TrackRecord,
@@ -74,11 +74,11 @@ export type SavedPageProps = {
   onClickRepost: (record: TrackRecord) => void
   onPlay: () => void
   onSortTracks: (sorters: any) => void
-  onChangeTab: (tab: ProfileTabs) => void
+  onChangeTab: (tab: SavedPageTabs) => void
   allTracksFetched: boolean
   filterText: string
   initialOrder: UID[] | null
-  currentTab: ProfileTabs
+  currentTab: SavedPageTabs
   account: (User & { albums: SavedPageCollection[] }) | undefined
   tracks: Lineup<SavedPageTrack>
   currentQueueItem: QueueItem
@@ -146,7 +146,7 @@ const SavedPage = ({
   const queuedAndPlaying = playing && isQueued
 
   // Setup play button
-  const playButtonActive = currentTab === ProfileTabs.TRACKS && !tracksLoading
+  const playButtonActive = currentTab === SavedPageTabs.TRACKS && !tracksLoading
   const playAllButton = (
     <div
       className={styles.playButtonContainer}
@@ -168,7 +168,7 @@ const SavedPage = ({
   )
 
   // Setup filter
-  const filterActive = currentTab === ProfileTabs.TRACKS
+  const filterActive = currentTab === SavedPageTabs.TRACKS
   const filter = (
     <div
       className={styles.filterContainer}
@@ -188,25 +188,25 @@ const SavedPage = ({
   const { tabs, body } = useTabs({
     isMobile: false,
     didChangeTabsFrom: (_, to) => {
-      onChangeTab(to as ProfileTabs)
+      onChangeTab(to as SavedPageTabs)
     },
     bodyClassName: styles.tabBody,
     elementClassName: styles.tabElement,
     tabs: [
       {
         icon: <IconNote />,
-        text: ProfileTabs.TRACKS,
-        label: ProfileTabs.TRACKS
+        text: SavedPageTabs.TRACKS,
+        label: SavedPageTabs.TRACKS
       },
       {
         icon: <IconAlbum />,
-        text: ProfileTabs.ALBUMS,
-        label: ProfileTabs.ALBUMS
+        text: SavedPageTabs.ALBUMS,
+        label: SavedPageTabs.ALBUMS
       },
       {
         icon: <IconPlaylists />,
-        text: ProfileTabs.PLAYLISTS,
-        label: ProfileTabs.PLAYLISTS
+        text: SavedPageTabs.PLAYLISTS,
+        label: SavedPageTabs.PLAYLISTS
       }
     ],
     elements: [
@@ -257,7 +257,7 @@ const SavedPage = ({
     <Header
       primary={messages.libraryHeader}
       secondary={isEmpty ? null : playAllButton}
-      rightDecorator={<LibraryCategorySelectionMenu />}
+      rightDecorator={<LibraryCategorySelectionMenu currentTab={currentTab} />}
       containerStyles={styles.savedPageHeader}
       bottomBar={headerBottomBar}
     />

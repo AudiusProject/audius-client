@@ -1,6 +1,6 @@
 import { UID } from 'models/Identifiers'
 
-import { LibraryCategory, LibraryCategoryType } from './types'
+import { LibraryCategory, LibraryCategoryType, SavedPageTabs } from './types'
 
 export const FETCH_SAVES = 'SAVED/FETCH_SAVES'
 export const FETCH_SAVES_REQUESTED = 'SAVED/FETCH_SAVES_REQUESTED'
@@ -34,6 +34,10 @@ export const REMOVE_LOCAL_COLLECTION_PURCHASE =
   'SAVED/REMOVE_LOCAL_COLLECTION_PURCHASE'
 
 export const SET_SELECTED_CATEGORY = 'SAVED/SET_SELECTED_CATEGORY'
+export const INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE =
+  'SAVED/INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE'
+export const INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE =
+  'SAVED/INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE'
 
 export const fetchSaves = (
   // the filter query for the "get tracks" query
@@ -178,7 +182,28 @@ export const removeLocalCollectionRepost = ({
   isAlbum
 })
 
-export const setSelectedCategory = (category: LibraryCategoryType) => ({
-  type: SET_SELECTED_CATEGORY,
+export const initializeTracksCategoryFromLocalStorage = (
+  category: LibraryCategoryType
+) => ({
+  type: INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE,
   category
+})
+
+export const initializeCollectionsCategoryFromLocalStorage = (
+  category: LibraryCategoryType
+) => ({
+  type: INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE,
+  category
+})
+
+export const setSelectedCategory = ({
+  category,
+  currentTab
+}: {
+  category: LibraryCategoryType
+  currentTab: SavedPageTabs
+}) => ({
+  type: SET_SELECTED_CATEGORY,
+  category,
+  currentTab
 })

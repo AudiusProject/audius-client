@@ -20,7 +20,9 @@ import {
   ADD_LOCAL_TRACK_FAVORITE,
   REMOVE_LOCAL_TRACK_FAVORITE,
   END_FETCHING,
-  SET_SELECTED_CATEGORY
+  SET_SELECTED_CATEGORY,
+  INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE,
+  INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE
 } from 'store/pages/saved-page/actions'
 import tracksReducer, {
   initialState as initialLineupState
@@ -30,6 +32,7 @@ import { ActionsMap } from 'utils/reducer'
 
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
 import { LibraryCategory, LibraryCategoryType, SavedPageState } from './types'
+import { calculateNewLibraryCategories } from './utils'
 
 const initialState = {
   // id => uid
@@ -51,7 +54,8 @@ const initialState = {
   hasReachedEnd: false,
   fetchingMore: false,
   tracks: initialLineupState,
-  selectedCategory: LibraryCategory.Favorite
+  tracksCategory: LibraryCategory.Favorite,
+  collectionsCategory: LibraryCategory.Favorite
 } as SavedPageState
 
 /** Utility to get the name of key in which locally added or removed collections are stored in SavedPageState.
@@ -241,7 +245,23 @@ const actionsMap: ActionsMap<SavedPageState> = {
   [SET_SELECTED_CATEGORY](state, action) {
     return {
       ...state,
-      selectedCategory: action.category
+      ...calculateNewLibraryCategories({
+        currentTab: action.currentTab,
+        chosenCategory: action.category,
+        prevTracksCategory: state.tracksCategory
+      })
+    }
+  },
+  [INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE](state, action) {
+    return {
+      ...state,
+      tracksCategory: action.category
+    }
+  },
+  [INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE](state, action) {
+    return {
+      ...state,
+      collectionsCategory: action.category
     }
   },
   [signOut.type]() {

@@ -24,7 +24,8 @@ import {
   LineupTrack,
   playlistUpdatesActions,
   playlistUpdatesSelectors,
-  LibraryCategoryType
+  LibraryCategoryType,
+  SavedPageTabs
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { debounce, isEqual } from 'lodash'
@@ -41,8 +42,12 @@ import { SavedPageProps as DesktopSavedPageProps } from './components/desktop/Sa
 import { SavedPageProps as MobileSavedPageProps } from './components/mobile/SavedPage'
 const { makeGetCurrent } = queueSelectors
 const { getPlaying, getBuffering } = playerSelectors
-const { getSavedTracksLineup, hasReachedEnd, getSelectedCategory } =
-  savedPageSelectors
+const {
+  getSavedTracksLineup,
+  hasReachedEnd,
+  getTracksCategory,
+  getCollectionsCategory
+} = savedPageSelectors
 const { updatedPlaylistViewed } = playlistUpdatesActions
 const { makeGetTableMetadatas } = lineupSelectors
 
@@ -85,6 +90,7 @@ type SavedPageState = {
   initialOrder: UID[] | null
   reordering?: UID[] | null
   allowReordering?: boolean
+  shouldReturnToTrackPurchases: boolean
 }
 
 class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
@@ -94,13 +100,14 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     sortDirection: '',
     initialOrder: null,
     allTracksFetched: false,
-    currentTab: ProfileTabs.TRACKS
+    currentTab: ProfileTabs.TRACKS,
+    shouldReturnToTrackPurchases: false
   }
 
   handleFetchSavedTracks = debounce(() => {
     this.props.fetchSavedTracks(
       this.state.filterText,
-      this.props.selectedCategory,
+      this.props.tracksCategory,
       this.state.sortMethod,
       this.state.sortDirection
     )
@@ -111,7 +118,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     const { filterText, sortMethod, sortDirection } = this.state
     this.props.fetchMoreSavedTracks(
       filterText,
-      this.props.selectedCategory,
+      this.props.tracksCategory,
       sortMethod,
       sortDirection,
       offset,
@@ -122,7 +129,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
   componentDidMount() {
     this.props.fetchSavedTracks(
       this.state.filterText,
-      this.props.selectedCategory,
+      this.props.tracksCategory,
       this.state.sortMethod,
       this.state.sortDirection
     )
@@ -136,8 +143,8 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
   }
 
   componentDidUpdate(prevProps: SavedPageProps) {
-    const { selectedCategory: prevSelectedCategory } = prevProps
-    const { tracks, selectedCategory } = this.props
+    const { tracksCategory: prevTracksCategory } = prevProps
+    const { tracks, tracksCategory } = this.props
     const allTracksFetched = tracks.entries.every(
       (track) => track.kind === Kind.TRACKS
     )
@@ -160,7 +167,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       })
     }
 
-    if (prevSelectedCategory !== selectedCategory) {
+    if (prevTracksCategory !== tracksCategory) {
       this.handleFetchSavedTracks()
     }
   }
@@ -420,7 +427,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     if (updatedOrder) this.props.updateLineupOrder(updatedOrder)
   }
 
-  onChangeTab = (tab: ProfileTabs) => {
+  onChangeTab = (tab: SavedPageTabs) => {
     this.setState({
       currentTab: tab
     })
@@ -532,7 +539,8 @@ function makeMapStateToProps() {
       buffering: getBuffering(state),
       playlistUpdates: selectAllPlaylistUpdateIds(state),
       hasReachedEnd: hasReachedEnd(state),
-      selectedCategory: getSelectedCategory(state)
+      tracksCategory: getTracksCategory(state),
+      collectionsCategory: getCollectionsCategory(state)
     }
   }
   return mapStateToProps

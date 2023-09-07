@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux'
 
 const { getUserId } = accountSelectors
 const {
-  getSelectedCategory,
+  getCollectionsCategory,
   getSelectedCategoryLocalAlbumAdds,
   getSelectedCategoryLocalAlbumRemovals,
   getSelectedCategoryLocalPlaylistAdds,
@@ -24,7 +24,7 @@ const { getCollections } = cacheCollectionsSelectors
 
 export const useCollectionsData = (collectionType: 'album' | 'playlist') => {
   const currentUserId = useSelector(getUserId)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const selectedCategory = useSelector(getCollectionsCategory)
 
   const locallyAddedCollections = useSelector((state: CommonState) => {
     const ids =

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
   LibraryCategory,
+  SavedPageTabs,
   FavoriteSource,
   PlaybackSource,
   Status,
@@ -39,7 +40,7 @@ const {
   getInitialFetchStatus,
   getSelectedCategoryLocalAdds,
   getIsFetchingMore,
-  getSelectedCategory
+  getCategory
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
@@ -79,7 +80,9 @@ export const TracksTab = () => {
 
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const selectedCategory = useSelector((state) =>
+    getCategory(state, { currentTab: SavedPageTabs.TRACKS })
+  )
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
