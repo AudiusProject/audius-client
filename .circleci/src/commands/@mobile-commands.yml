@@ -225,9 +225,7 @@ mobile-release-saga-dapp-store:
         name: Install dependencies
         command: |
           cd packages/mobile/dapp-store
-          corepack enable
-          corepack prepare pnpm@`npm info pnpm --json | jq -r .version` --activate
-          pnpm install
+          npm install
     - run:
         name: Install solana
         command: |
