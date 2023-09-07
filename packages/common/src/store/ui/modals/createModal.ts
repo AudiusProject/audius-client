@@ -31,7 +31,7 @@ export const createModal = <T>({
         return { ...action.payload, isOpen: true }
       },
       set: (state, action: PayloadAction<T>) => {
-        return { ...action.payload, isOpen: state.isOpen }
+        return { ...state, ...action.payload }
       },
       close: (state) => {
         state.isOpen = 'closing'
@@ -92,7 +92,7 @@ export const createModal = <T>({
     }, [dispatch])
 
     const setData = useCallback(
-      (state?: T) => {
+      (state?: Partial<T>) => {
         dispatch(set({ ...state }))
       },
       [dispatch]

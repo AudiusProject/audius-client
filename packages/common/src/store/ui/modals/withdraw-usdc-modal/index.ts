@@ -1,5 +1,3 @@
-import { Nullable } from 'utils/typeUtils'
-
 import { createModal } from '../createModal'
 
 export enum WithdrawUSDCModalPages {
@@ -12,15 +10,14 @@ export enum WithdrawUSDCModalPages {
 export type WithdrawUSDCModalState = {
   page: WithdrawUSDCModalPages
   // Completed transaction signature
-  signature: Nullable<string>
+  signature?: string
 }
 
 const withdrawUSDCModal = createModal<WithdrawUSDCModalState>({
   reducerPath: 'WithdrawUSDCModal',
   initialState: {
     isOpen: false,
-    page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS,
-    signature: null
+    page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS
   },
   sliceSelector: (state) => state.ui.modals
 })

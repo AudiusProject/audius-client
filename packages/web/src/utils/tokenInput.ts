@@ -2,6 +2,10 @@ import { ChangeEvent, FocusEvent } from 'react'
 
 export const PRECISION = 2
 
+/**
+ * Helper to parse change events on a token input and give numeric values and human readable values out
+ * @param e HTMLInputElement change event
+ */
 export const onTokenInputChange = (e: ChangeEvent<HTMLInputElement>) => {
   const input = e.target.value.replace(/[^0-9.]+/g, '')
   // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
@@ -15,12 +19,14 @@ export const onTokenInputChange = (e: ChangeEvent<HTMLInputElement>) => {
   return { human: stringAmount, value: Number(stringAmount) * 100 }
 }
 
+/**
+ * Helper to parse blur/focus events on a token input and pad the value to precision
+ */
 export const onTokenInputBlur = (e: FocusEvent<HTMLInputElement>) => {
-  const precision = 2
   const [whole, decimal] = e.target.value.split('.')
 
   const paddedDecimal = (decimal ?? '')
-    .substring(0, precision)
-    .padEnd(precision, '0')
+    .substring(0, PRECISION)
+    .padEnd(PRECISION, '0')
   return `${whole.length > 0 ? whole : '0'}.${paddedDecimal}`
 }
