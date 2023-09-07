@@ -1,6 +1,9 @@
 import { MouseEvent, useCallback, useMemo } from 'react'
 
-import { USDCTransactionDetails } from '@audius/common'
+import {
+  USDCTransactionDetails,
+  formatUSDCWeiToUSDString
+} from '@audius/common'
 import moment from 'moment'
 
 import { Table } from 'components/table'
@@ -55,7 +58,7 @@ const renderDateCell = (cellInfo: TransactionCell) => {
 
 const renderAmountCell = (cellInfo: TransactionCell) => {
   const transaction = cellInfo.row.original
-  return transaction.change
+  return `-$${formatUSDCWeiToUSDString(transaction.change)}`
 }
 
 // Columns
