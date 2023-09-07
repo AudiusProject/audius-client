@@ -17,7 +17,7 @@ export const launchSelectImageActionSheet = (
   const theme = selectSystemTheme(store.getState())
   const { primary, secondary } = theme
 
-  const pickerThemeOptions: Options = {
+  const themeOptions: Options = {
     cropperActiveWidgetColor: secondary,
     cropperStatusBarColor: secondary,
     cropperToolbarColor: secondary,
@@ -36,7 +36,7 @@ export const launchSelectImageActionSheet = (
   const selectPhotoFromLibrary = () => {
     openPicker({
       ...options,
-      ...pickerThemeOptions,
+      ...themeOptions,
       cropping: true,
       mediaType: 'photo'
     }).then(handleSelectImage)
@@ -45,7 +45,7 @@ export const launchSelectImageActionSheet = (
   const takePhoto = () => {
     openCamera({
       ...options,
-      ...pickerThemeOptions,
+      ...themeOptions,
       cropping: true,
       mediaType: 'photo'
     }).then(handleSelectImage)
