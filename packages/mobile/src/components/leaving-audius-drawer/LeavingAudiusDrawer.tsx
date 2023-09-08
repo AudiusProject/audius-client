@@ -46,14 +46,8 @@ export const LeavingAudiusDrawer = () => {
           content={link}
           icon={IconExternalLink}
         />
+        <Button title={messages.visit} onPress={onLinkPress} fullWidth />
         <Button
-          style={styles.button}
-          title={messages.visit}
-          onPress={onLinkPress}
-          fullWidth
-        />
-        <Button
-          style={styles.button}
           variant='common'
           title={messages.back}
           onPress={onClose}

@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 import type { ImageSourcePropType } from 'react-native'
 import { TouchableOpacity, View, Image } from 'react-native'
@@ -11,13 +11,13 @@ import { useColor } from 'app/utils/theme'
 
 type DrawerHeaderProps = {
   onClose: () => void
-  title?: string
+  title?: ReactNode
   titleIcon?: ComponentType<SvgProps>
   titleImage?: ImageSourcePropType
   isFullscreen?: boolean
 }
 
-export const useStyles = makeStyles(({ palette, typography, spacing }) => ({
+export const useStyles = makeStyles(({ spacing }) => ({
   titleBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
