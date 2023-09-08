@@ -2,10 +2,12 @@ import type { ComponentProps } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  getPathFromAudiusUrl,
   isAllowedExternalLink,
-  isAudiusUrl,
+  isInteralAudiusUrl,
   useLeavingAudiusModal
 } from '@audius/common'
+import { useLinkTo } from '@react-navigation/native'
 import type { Match } from 'autolinker/dist/es2015'
 import type { LayoutRectangle, TextStyle } from 'react-native'
 import { Text, View } from 'react-native'
@@ -59,6 +61,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
     ...other
   } = props
   const styles = useStyles()
+  const linkTo = useLinkTo()
 
   const linkContainerRef = useRef<View>(null)
   const [linkRefs, setLinkRefs] = useState<Record<number, Text>>({})
@@ -101,14 +104,19 @@ export const Hyperlink = (props: HyperlinkProps) => {
   const { onOpen: openLeavingAudiusModal } = useLeavingAudiusModal()
 
   const handlePress = useCallback(
-    (url) => {
-      if (isAudiusUrl(url) || isAllowedExternalLink(url)) {
+    (url: string) => {
+      if (isInteralAudiusUrl(url)) {
+        const path = getPathFromAudiusUrl(url)
+        if (path) {
+          linkTo(path)
+        }
+      } else if (isAllowedExternalLink(url)) {
         openLink(url)
       } else {
         openLeavingAudiusModal({ link: url })
       }
     },
-    [openLink, openLeavingAudiusModal]
+    [linkTo, openLink, openLeavingAudiusModal]
   )
 
   const renderLink = useCallback(

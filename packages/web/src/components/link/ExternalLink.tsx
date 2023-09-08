@@ -32,7 +32,7 @@ export const ExternalLink = (props: ExternalLinkProps) => {
           })
         )
       }
-      if (typeof to === 'string' && isAllowedExternalLink(to)) {
+      if (typeof to === 'string' && !isAllowedExternalLink(to)) {
         event.preventDefault()
         openLeavingAudiusModal({ link: to as string })
       }
