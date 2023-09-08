@@ -1,3 +1,5 @@
+import { uniq } from 'lodash'
+
 import { CommonState } from 'store/commonStore'
 
 import { ID } from '../../../models/Identifiers'
@@ -119,17 +121,16 @@ const getSelectedCategoryLocalCollectionUpdates = (
         : getLocalRemovedPlaylistReposts(state)
   }
 
-  if (selectedCategory === LibraryCategory.Favorite) {
-    return localFavorites
-  } else if (selectedCategory === LibraryCategory.Purchase) {
-    return localPurchases
-  } else if (selectedCategory === LibraryCategory.Repost) {
-    return localReposts
-  } else {
-    // Category = ALL
-    return Array.from(
-      new Set([...localReposts, ...localFavorites, ...localPurchases])
-    )
+  switch (selectedCategory) {
+    case LibraryCategory.Favorite:
+      return localFavorites
+    case LibraryCategory.Purchase:
+      return localPurchases
+    case LibraryCategory.Repost:
+      return localReposts
+    default:
+      // Category = ALL
+      return uniq([...localReposts, ...localFavorites, ...localPurchases])
   }
 }
 
