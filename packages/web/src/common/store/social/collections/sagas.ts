@@ -20,7 +20,8 @@ import {
   playlistUpdatesActions,
   confirmerActions,
   confirmTransaction,
-  savedPageActions
+  savedPageActions,
+  LibraryCategory
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -40,12 +41,7 @@ const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { removeFromPlaylistLibrary } = playlistLibraryHelpers
 const { getUser } = cacheUsersSelectors
 const { getCollections, getCollection } = cacheCollectionsSelectors
-const {
-  addLocalCollectionRepost,
-  removeLocalCollectionRepost,
-  addLocalCollectionFavorite,
-  removeLocalCollectionFavorite
-} = savedPageActions
+const { addLocalCollection, removeLocalCollection } = savedPageActions
 const { getPlaylistLibrary, getUserId } = accountSelectors
 
 /* REPOST COLLECTION */
@@ -96,9 +92,10 @@ export function* repostCollectionAsync(
       { is_repost_of_repost: collection.followee_reposts.length !== 0 }
     : { is_repost_of_repost: false }
   yield* put(
-    addLocalCollectionRepost({
+    addLocalCollection({
       collectionId: action.collectionId,
-      isAlbum: collection.is_album
+      isAlbum: collection.is_album,
+      category: LibraryCategory.Repost
     })
   )
   yield* call(
@@ -204,9 +201,10 @@ export function* undoRepostCollectionAsync(
   const collection = collections[action.collectionId]
 
   yield* put(
-    removeLocalCollectionRepost({
+    removeLocalCollection({
       collectionId: action.collectionId,
-      isAlbum: collection.is_album
+      isAlbum: collection.is_album,
+      category: LibraryCategory.Repost
     })
   )
 
@@ -404,9 +402,10 @@ export function* saveCollectionAsync(
   yield* call(addPlaylistsNotInLibrary)
 
   yield* put(
-    addLocalCollectionFavorite({
+    addLocalCollection({
       collectionId: action.collectionId,
-      isAlbum: collection.is_album
+      isAlbum: collection.is_album,
+      category: LibraryCategory.Favorite
     })
   )
 
@@ -518,9 +517,10 @@ export function* unsaveCollectionAsync(
   const collection = collections[action.collectionId]
 
   yield* put(
-    removeLocalCollectionFavorite({
+    removeLocalCollection({
       collectionId: action.collectionId,
-      isAlbum: collection.is_album
+      isAlbum: collection.is_album,
+      category: LibraryCategory.Favorite
     })
   )
 

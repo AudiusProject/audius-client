@@ -1,28 +1,21 @@
-// @ts-nocheck
-// TODO(nkang) - convert to TS
 import { ID } from 'models/Identifiers'
 import { asLineup } from 'store/lineup/reducer'
 import {
+  ADD_LOCAL_COLLECTION,
+  ADD_LOCAL_TRACK,
+  END_FETCHING,
+  FETCH_MORE_SAVES,
+  FETCH_MORE_SAVES_FAILED,
+  FETCH_MORE_SAVES_SUCCEEDED,
   FETCH_SAVES,
+  FETCH_SAVES_FAILED,
   FETCH_SAVES_REQUESTED,
   FETCH_SAVES_SUCCEEDED,
-  FETCH_SAVES_FAILED,
-  FETCH_MORE_SAVES,
-  FETCH_MORE_SAVES_SUCCEEDED,
-  FETCH_MORE_SAVES_FAILED,
-  ADD_LOCAL_TRACK_REPOST,
-  REMOVE_LOCAL_TRACK_REPOST,
-  ADD_LOCAL_TRACK_PURCHASE,
-  ADD_LOCAL_COLLECTION_FAVORITE,
-  ADD_LOCAL_COLLECTION_REPOST,
-  REMOVE_LOCAL_COLLECTION_FAVORITE,
-  REMOVE_LOCAL_COLLECTION_REPOST,
-  ADD_LOCAL_TRACK_FAVORITE,
-  REMOVE_LOCAL_TRACK_FAVORITE,
-  END_FETCHING,
-  SET_SELECTED_CATEGORY,
+  INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE,
   INIT_TRACKS_CATEGORY_FROM_LOCAL_STORAGE,
-  INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE
+  REMOVE_LOCAL_COLLECTION,
+  REMOVE_LOCAL_TRACK,
+  SET_SELECTED_CATEGORY
 } from 'store/pages/saved-page/actions'
 import tracksReducer, {
   initialState as initialLineupState
@@ -35,101 +28,65 @@ import { LibraryCategory, LibraryCategoryType, SavedPageState } from './types'
 import { calculateNewLibraryCategories } from './utils'
 
 const initialState = {
-  // id => uid
-  localTrackFavorites: {},
-  localTrackPurchases: {},
-  localTrackReposts: {},
-  localAlbumFavorites: [],
-  localAlbumPurchases: [],
-  localAlbumReposts: [],
-  localRemovedAlbumFavorites: [],
-  localRemovedAlbumReposts: [],
-  localPlaylistFavorites: [],
-  localPlaylistReposts: [],
-  localPlaylistPurchases: [],
-  localRemovedPlaylistFavorites: [],
-  localRemovedPlaylistResposts: [],
   trackSaves: [],
   initialFetch: false,
   hasReachedEnd: false,
   fetchingMore: false,
   tracks: initialLineupState,
   tracksCategory: LibraryCategory.Favorite,
-  collectionsCategory: LibraryCategory.Favorite
+  collectionsCategory: LibraryCategory.Favorite,
+  local: {
+    track: {
+      favorites: {
+        added: {},
+        removed: {}
+      },
+      reposts: {
+        added: {},
+        removed: {}
+      },
+      purchased: {
+        added: {}
+      }
+    },
+    album: {
+      favorites: {
+        added: [],
+        removed: []
+      },
+      reposts: {
+        added: [],
+        removed: []
+      },
+      purchased: {
+        added: []
+      }
+    },
+    playlist: {
+      favorites: {
+        added: [],
+        removed: []
+      },
+      reposts: {
+        added: [],
+        removed: []
+      }
+    }
+  }
 } as SavedPageState
 
-/** Utility to get the name of key in which locally added or removed collections are stored in SavedPageState.
- * For example, playlists that are favorited/unfavorited locally go into `localPlaylistFavorites`/`localPlaylistRemovedFavorites`.
- */
-const getLocalCollectionStateKeys = ({
-  isAlbum,
-  type
-}: {
-  isAlbum: boolean
-  type: Omit<LibraryCategoryType, 'All'>
-}) => {
-  let categoryKeySuffix
-  if (type === 'favorite') {
-    categoryKeySuffix = 'Favorites'
-  } else if (type === 'repost') {
-    categoryKeySuffix = 'Reposts'
-  } else if (type === 'purchase') {
-    categoryKeySuffix = 'Purchases'
-  }
-  const additionKey = (
-    isAlbum
-      ? `localAlbum${categoryKeySuffix}`
-      : `localPlaylist${categoryKeySuffix}`
-  ) as keyof SavedPageState
-  const removalKey = (
-    isAlbum
-      ? `localRemovedAlbum${categoryKeySuffix}`
-      : `localRemovedPlaylist${categoryKeySuffix}`
-  ) as keyof SavedPageState
-  return { additionKey, removalKey }
-}
-
-const removeCollectionLocally = ({
-  state,
-  action,
-  type
-}: {
-  state: SavedPageState
-  action: { collectionId: ID; isAlbum: boolean }
-  type: Omit<LibraryCategoryType, 'All'>
-}) => {
-  const { additionKey, removalKey } = getLocalCollectionStateKeys({
-    isAlbum: action.isAlbum,
-    type
-  })
-  return {
-    ...state,
-    [additionKey]: (state[additionKey] as ID[]).filter(
-      (id) => id !== action.collectionId
-    ),
-    [removalKey]: [action.collectionId, ...(state[removalKey] as ID[])]
-  }
-}
-
-const addCollectionLocally = ({
-  state,
-  action,
-  type
-}: {
-  state: SavedPageState
-  action: { collectionId: ID; isAlbum: boolean }
-  type: 'repost' | 'favorite'
-}) => {
-  const { additionKey, removalKey } = getLocalCollectionStateKeys({
-    isAlbum: action.isAlbum,
-    type
-  })
-  return {
-    ...state,
-    [additionKey]: [action.collectionId, ...(state[additionKey] as ID[])],
-    [removalKey]: (state[removalKey] as ID[]).filter(
-      (id) => id !== action.collectionId
-    )
+const getCategoryLocalStateKey = (
+  category: Omit<LibraryCategoryType, 'all'>
+) => {
+  switch (category) {
+    case LibraryCategory.Favorite:
+      return 'favorites'
+    case LibraryCategory.Purchase:
+      return 'purchased'
+    case LibraryCategory.Repost:
+      return 'reposts'
+    default:
+      return 'favorites'
   }
 }
 
@@ -187,60 +144,52 @@ const actionsMap: ActionsMap<SavedPageState> = {
       hasReachedEnd: true
     }
   },
-  [ADD_LOCAL_TRACK_FAVORITE](state, action) {
-    return {
-      ...state,
-      localTrackFavorites: {
-        ...state.localTrackFavorites,
-        [action.trackId]: action.uid
-      }
-    }
-  },
-  [REMOVE_LOCAL_TRACK_FAVORITE](state, action) {
+  [ADD_LOCAL_TRACK](state, action) {
+    const categoryKey = getCategoryLocalStateKey(action.category)
     const newState = { ...state }
-    delete newState.localTrackFavorites[action.trackId]
+    newState.local.track[categoryKey].added = {
+      ...newState.local.track[categoryKey].added,
+      [action.trackId]: action.uid
+    }
+    return newState
+  },
+  [REMOVE_LOCAL_TRACK](state, action) {
+    const categoryKey = getCategoryLocalStateKey(action.category)
+    const newState = { ...state }
+    delete newState.local.track[categoryKey].added[action.trackId]
+
     newState.trackSaves = newState.trackSaves.filter(
       ({ save_item_id: id }) => id !== action.trackId
     )
     return newState
   },
-  [ADD_LOCAL_TRACK_REPOST](state, action) {
-    return {
-      ...state,
-      localTrackReposts: {
-        ...state.localTrackReposts,
-        [action.trackId]: action.uid
-      }
-    }
-  },
-  [REMOVE_LOCAL_TRACK_REPOST](state, action) {
+  [ADD_LOCAL_COLLECTION](state, action) {
+    const kindKey = action.isAlbum ? 'album' : 'playlist'
+    const categoryKey = getCategoryLocalStateKey(action.category)
     const newState = { ...state }
-    delete newState.localTrackReposts[action.trackId]
-    newState.trackSaves = newState.trackSaves.filter(
-      ({ save_item_id: id }) => id !== action.trackId
-    )
+    newState.local[kindKey][categoryKey].added = [
+      action.collectionId,
+      ...newState.local[kindKey][categoryKey].added
+    ]
+    newState.local[kindKey][categoryKey].removed = newState.local[kindKey][
+      categoryKey
+    ].removed.filter((id: ID) => id !== action.collectionId)
+
     return newState
   },
-  [ADD_LOCAL_TRACK_PURCHASE](state, action) {
-    return {
-      ...state,
-      localTrackPurchases: {
-        ...state.localTrackPurchases,
-        [action.trackId]: action.uid
-      }
-    }
-  },
-  [ADD_LOCAL_COLLECTION_FAVORITE](state, action) {
-    return addCollectionLocally({ state, action, type: 'favorite' })
-  },
-  [REMOVE_LOCAL_COLLECTION_FAVORITE](state, action) {
-    return removeCollectionLocally({ state, action, type: 'favorite' })
-  },
-  [ADD_LOCAL_COLLECTION_REPOST](state, action) {
-    return addCollectionLocally({ state, action, type: 'repost' })
-  },
-  [REMOVE_LOCAL_COLLECTION_REPOST](state, action) {
-    return removeCollectionLocally({ state, action, type: 'repost' })
+  [REMOVE_LOCAL_COLLECTION](state, action) {
+    const kindKey = action.isAlbum ? 'album' : 'playlist'
+    const categoryKey = getCategoryLocalStateKey(action.category)
+    const newState = { ...state }
+    newState.local[kindKey][categoryKey].removed = [
+      action.collectionId,
+      ...newState.local[kindKey][categoryKey].removed
+    ]
+    newState.local[kindKey][categoryKey].added = newState.local[kindKey][
+      categoryKey
+    ].added.filter((id: ID) => id !== action.collectionId)
+
+    return newState
   },
   [SET_SELECTED_CATEGORY](state, action) {
     return {
@@ -271,8 +220,8 @@ const actionsMap: ActionsMap<SavedPageState> = {
 
 const tracksLineupReducer = asLineup(tracksPrefix, tracksReducer)
 
-const reducer = (state = initialState, action) => {
-  const tracks = tracksLineupReducer(state.tracks, action)
+const reducer = (state = initialState, action: any) => {
+  const tracks = tracksLineupReducer(state.tracks as any, action)
   if (tracks !== state.tracks) return { ...state, tracks }
 
   const matchingReduceFunction = actionsMap[action.type]

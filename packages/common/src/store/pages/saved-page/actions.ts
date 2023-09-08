@@ -1,4 +1,4 @@
-import { UID } from 'models/Identifiers'
+import { Favorite } from 'models/Favorite'
 
 import { LibraryCategory, LibraryCategoryType, SavedPageTabs } from './types'
 
@@ -15,23 +15,10 @@ export const FETCH_MORE_SAVES_FAILED = 'SAVED/FETCH_MORE_SAVES_FAILED'
 // Usually when filtering
 export const END_FETCHING = 'SAVED/END_FETCHING'
 
-export const ADD_LOCAL_TRACK_FAVORITE = 'SAVED/ADD_LOCAL_TRACK_FAVORITE'
-export const REMOVE_LOCAL_TRACK_FAVORITE = 'SAVED/REMOVE_LOCAL_TRACK_FAVORITE'
-export const ADD_LOCAL_TRACK_REPOST = 'SAVED/ADD_LOCAL_TRACK_REPOST'
-export const REMOVE_LOCAL_TRACK_REPOST = 'SAVED/REMOVE_LOCAL_TRACK_REPOST'
-export const ADD_LOCAL_TRACK_PURCHASE = 'SAVED/ADD_LOCAL_TRACK_PURCHASE'
-
-export const ADD_LOCAL_COLLECTION_FAVORITE =
-  'SAVED/ADD_LOCAL_COLLECTION_FAVORITE'
-export const REMOVE_LOCAL_COLLECTION_FAVORITE =
-  'SAVED/REMOVE_LOCAL_COLLECTION_FAVORITE'
-export const ADD_LOCAL_COLLECTION_REPOST = 'SAVED/ADD_LOCAL_COLLECTION_REPOST'
-export const REMOVE_LOCAL_COLLECTION_REPOST =
-  'SAVED/REMOVE_LOCAL_COLLECTION_REPOST'
-export const ADD_LOCAL_COLLECTION_PURCHASE =
-  'SAVED/ADD_LOCAL_COLLECTION_PURCHASE'
-export const REMOVE_LOCAL_COLLECTION_PURCHASE =
-  'SAVED/REMOVE_LOCAL_COLLECTION_PURCHASE'
+export const ADD_LOCAL_TRACK = 'SAVED/ADD_LOCAL_TRACK'
+export const REMOVE_LOCAL_TRACK = 'SAVED/REMOVE_LOCAL_TRACK'
+export const ADD_LOCAL_COLLECTION = 'SAVED/ADD_LOCAL_COLLECTION'
+export const REMOVE_LOCAL_COLLECTION = 'SAVED/REMOVE_LOCAL_COLLECTION'
 
 export const SET_SELECTED_CATEGORY = 'SAVED/SET_SELECTED_CATEGORY'
 export const INIT_COLLECTIONS_CATEGORY_FROM_LOCAL_STORAGE =
@@ -87,7 +74,7 @@ export const fetchSavesRequested = () => ({
   type: FETCH_SAVES_REQUESTED
 })
 
-export const fetchSavesSucceeded = (saves: any[]) => ({
+export const fetchSavesSucceeded = (saves: Favorite[]) => ({
   type: FETCH_SAVES_SUCCEEDED,
   saves
 })
@@ -96,7 +83,7 @@ export const fetchSavesFailed = () => ({
   type: FETCH_SAVES_FAILED
 })
 
-export const fetchMoreSavesSucceeded = (saves: any[], offset: number) => ({
+export const fetchMoreSavesSucceeded = (saves: Favorite[], offset: number) => ({
   type: FETCH_MORE_SAVES_SUCCEEDED,
   saves,
   offset
@@ -111,75 +98,61 @@ export const endFetching = (endIndex: number) => ({
   endIndex
 })
 
-export const addLocalTrackSave = (trackId: number, uid: UID) => ({
-  type: ADD_LOCAL_TRACK_FAVORITE,
+export const addLocalTrack = ({
   trackId,
-  uid
-})
-
-export const removeLocalTrackSave = (trackId: number) => ({
-  type: REMOVE_LOCAL_TRACK_FAVORITE,
-  trackId
-})
-
-export const addLocalTrackRepost = (trackId: number, uid: UID) => ({
-  type: ADD_LOCAL_TRACK_REPOST,
+  uid,
+  category
+}: {
+  trackId: number
+  uid: number
+  category: LibraryCategoryType
+}) => ({
+  type: ADD_LOCAL_TRACK,
   trackId,
-  uid
+  uid,
+  category
 })
 
-export const removeLocalTrackRepost = (trackId: number, uid: UID) => ({
-  type: REMOVE_LOCAL_TRACK_REPOST,
+export const removeLocalTrack = ({
   trackId,
-  uid
+  category
+}: {
+  trackId: number
+  category: LibraryCategoryType
+}) => ({
+  type: REMOVE_LOCAL_TRACK,
+  trackId,
+  category
 })
 
-export const addLocalCollectionFavorite = ({
+export const addLocalCollection = ({
   collectionId,
-  isAlbum
+  isAlbum,
+  category
 }: {
   collectionId: number
   isAlbum: boolean
+  category: LibraryCategoryType
 }) => ({
-  type: ADD_LOCAL_COLLECTION_FAVORITE,
+  type: ADD_LOCAL_COLLECTION,
   collectionId,
-  isAlbum
+  isAlbum,
+  category
 })
 
-export const removeLocalCollectionFavorite = ({
+export const removeLocalCollection = ({
   collectionId,
-  isAlbum
+  isAlbum,
+  category
 }: {
   collectionId: number
   isAlbum: boolean
+  category: LibraryCategoryType
 }) => ({
-  type: REMOVE_LOCAL_COLLECTION_FAVORITE,
+  type: REMOVE_LOCAL_COLLECTION,
   collectionId,
-  isAlbum
-})
-
-export const addLocalCollectionRepost = ({
-  collectionId,
-  isAlbum
-}: {
-  collectionId: number
-  isAlbum: boolean
-}) => ({
-  type: ADD_LOCAL_COLLECTION_REPOST,
-  collectionId,
-  isAlbum
-})
-
-export const removeLocalCollectionRepost = ({
-  collectionId,
-  isAlbum
-}: {
-  collectionId: number
-  isAlbum: boolean
-}) => ({
-  type: REMOVE_LOCAL_COLLECTION_REPOST,
-  collectionId,
-  isAlbum
+  isAlbum,
+  category
 })
 
 export const initializeTracksCategoryFromLocalStorage = (

@@ -18,7 +18,9 @@ import {
   isLibraryCategory,
   LibraryCategoryType,
   Nullable,
-  calculateNewLibraryCategories
+  calculateNewLibraryCategories,
+  Favorite,
+  FavoriteType
 } from '@audius/common'
 import { call, fork, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -96,9 +98,11 @@ function* sendLibraryRequest({
   const saves = savedTracksResponseData
     .filter((save) => Boolean(save.timestamp && save.item))
     .map((save) => ({
-      created_at: save.timestamp,
-      save_item_id: decodeHashId(save.item!.id!)
-    }))
+      created_at: save.timestamp!,
+      save_item_id: decodeHashId(save.item!.id!),
+      save_type: FavoriteType.TRACK,
+      user_id: userId
+    })) as Favorite[]
 
   return {
     saves,
@@ -161,7 +165,7 @@ function* watchFetchSaves() {
 
           const fullSaves = Array(account.track_save_count)
             .fill(0)
-            .map((_) => ({}))
+            .map((_) => ({})) as Favorite[]
 
           fullSaves.splice(offset, saves.length, ...saves)
           yield* put(actions.fetchSavesSucceeded(fullSaves))

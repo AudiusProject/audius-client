@@ -10,7 +10,8 @@ import {
   tracksSocialActions,
   playerSelectors,
   QueueSource,
-  getContext
+  getContext,
+  LibraryCategory
 } from '@audius/common'
 import moment from 'moment'
 import { call, select, put, takeEvery } from 'redux-saga/effects'
@@ -27,7 +28,7 @@ const {
   getLocalTrackRepost,
   getSavedTracksLineupUid,
   getTrackSaves,
-  getSelectedCategoryLocalAdds
+  getSelectedCategoryLocalTrackAdds
 } = savedPageSelectors
 const { getTracks: getCacheTracks } = cacheTracksSelectors
 
@@ -50,7 +51,7 @@ function* getTracks({ offset, limit }) {
     return map
   }, {})
 
-  const localLibraryAdditions = yield select(getSelectedCategoryLocalAdds)
+  const localLibraryAdditions = yield select(getSelectedCategoryLocalTrackAdds)
   const localLibraryAdditionsTrackIds = Object.keys(
     localLibraryAdditions
   ).filter((savedTrackId) => !savedTrackTimestamps[savedTrackId])
@@ -130,12 +131,16 @@ function* watchAddToLibrary() {
       dateSaved: moment().format()
     }
 
-    if (type === SAVE_TRACK) {
-      yield put(saveActions.addLocalTrackSave(trackId, localSaveUid))
-    } else {
-      // action.type === REPOST_TRACK
-      yield put(saveActions.addLocalTrackRepost(trackId, localSaveUid))
-    }
+    yield put(
+      saveActions.addLocalTrack({
+        trackId,
+        uid: localSaveUid,
+        category:
+          type === SAVE_TRACK
+            ? LibraryCategory.Favorite
+            : LibraryCategory.Repost
+      })
+    )
     yield put(savedTracksActions.add(newEntry, trackId, undefined, true))
 
     const queueSource = yield select(getSource)
@@ -164,7 +169,15 @@ function* watchRemoveFromLibrary() {
     const playerUid = yield select(getPlayerUid)
     const queueSource = yield select(getSource)
 
-    yield put(saveActions.removeLocalTrackSave(action.trackId))
+    yield put(
+      saveActions.removeLocalTrack({
+        trackId: action.trackId,
+        category:
+          type === UNSAVE_TRACK
+            ? LibraryCategory.Favorite
+            : LibraryCategory.Repost
+      })
+    )
     if (removedTrackUid) {
       yield put(savedTracksActions.remove(Kind.TRACKS, removedTrackUid))
       if (

@@ -30,40 +30,40 @@ export const getCategory = (
 }
 
 export const getLocalTrackFavorites = (state: CommonState) =>
-  state.pages.savedPage.localTrackFavorites
+  state.pages.savedPage.local.track.favorites.added
 export const getLocalTrackFavorite = (state: CommonState, props: { id: ID }) =>
-  state.pages.savedPage.localTrackFavorites[props.id]
+  state.pages.savedPage.local.track.favorites.added[props.id]
 export const getLocalTrackReposts = (state: CommonState) =>
-  state.pages.savedPage.localTrackReposts
+  state.pages.savedPage.local.track.reposts.added
 export const getLocalTrackRepost = (state: CommonState, props: { id: ID }) =>
-  state.pages.savedPage.localTrackReposts[props.id]
+  state.pages.savedPage.local.track.reposts.added[props.id]
 export const getLocalTrackPurchases = (state: CommonState) =>
-  state.pages.savedPage.localTrackPurchases
+  state.pages.savedPage.local.track.purchased.added
 export const getLocalTrackPurchase = (state: CommonState, props: { id: ID }) =>
-  state.pages.savedPage.localTrackPurchases[props.id]
+  state.pages.savedPage.local.track.purchased.added[props.id]
 
 export const getLocalAlbumFavorites = (state: CommonState) =>
-  state.pages.savedPage.localAlbumFavorites
+  state.pages.savedPage.local.album.favorites.added
 export const getLocalAlbumReposts = (state: CommonState) =>
-  state.pages.savedPage.localAlbumReposts
+  state.pages.savedPage.local.album.reposts.added
 export const getLocalAlbumPurchases = (state: CommonState) =>
-  state.pages.savedPage.localAlbumPurchases
+  state.pages.savedPage.local.album.purchased.added
 export const getLocalRemovedAlbumFavorites = (state: CommonState) =>
-  state.pages.savedPage.localRemovedAlbumFavorites
+  state.pages.savedPage.local.album.favorites.removed
 export const getLocalRemovedAlbumReposts = (state: CommonState) =>
-  state.pages.savedPage.localRemovedAlbumReposts
+  state.pages.savedPage.local.album.reposts.removed
 
 export const getLocalPlaylistFavorites = (state: CommonState) =>
-  state.pages.savedPage.localPlaylistFavorites
+  state.pages.savedPage.local.playlist.favorites.added
 export const getLocalPlaylistReposts = (state: CommonState) =>
-  state.pages.savedPage.localPlaylistReposts
+  state.pages.savedPage.local.playlist.reposts.added
 export const getLocalRemovedPlaylistFavorites = (state: CommonState) =>
-  state.pages.savedPage.localRemovedPlaylistFavorites
+  state.pages.savedPage.local.playlist.favorites.removed
 export const getLocalRemovedPlaylistReposts = (state: CommonState) =>
-  state.pages.savedPage.localRemovedPlaylistResposts
+  state.pages.savedPage.local.playlist.favorites.removed
 
 /** Get the tracks in currently selected category that have been added to the library in current session */
-export const getSelectedCategoryLocalAdds = (state: CommonState) => {
+export const getSelectedCategoryLocalTrackAdds = (state: CommonState) => {
   const selectedCategory = getCategory(state, {
     currentTab: SavedPageTabs.TRACKS
   })
@@ -107,7 +107,7 @@ const getSelectedCategoryLocalCollectionUpdates = (
       collectionType === 'album' ? getLocalAlbumPurchases(state) : [] // Can't buy playlists
     localReposts =
       collectionType === 'album'
-        ? getLocalAlbumFavorites(state)
+        ? getLocalAlbumReposts(state)
         : getLocalPlaylistReposts(state)
   } else {
     localFavorites =
@@ -117,7 +117,7 @@ const getSelectedCategoryLocalCollectionUpdates = (
     localPurchases = [] // Can't remove purchases
     localReposts =
       collectionType === 'album'
-        ? getLocalRemovedAlbumFavorites(state)
+        ? getLocalRemovedAlbumReposts(state)
         : getLocalRemovedPlaylistReposts(state)
   }
 
