@@ -134,7 +134,7 @@ function* watchAddToLibrary() {
       yield put(saveActions.addLocalTrackSave(trackId, localSaveUid))
     } else {
       // action.type === REPOST_TRACK
-      yield put(saveActions.addLocalRepost(trackId, localSaveUid))
+      yield put(saveActions.addLocalTrackRepost(trackId, localSaveUid))
     }
     yield put(savedTracksActions.add(newEntry, trackId, undefined, true))
 
