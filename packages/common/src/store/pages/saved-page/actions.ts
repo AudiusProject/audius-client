@@ -104,7 +104,7 @@ export const addLocalTrack = ({
   category
 }: {
   trackId: number
-  uid: number
+  uid: string
   category: LibraryCategoryType
 }) => ({
   type: ADD_LOCAL_TRACK,
