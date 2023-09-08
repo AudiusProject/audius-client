@@ -13,10 +13,14 @@ import {
   User,
   UserTrackMetadata,
   waitForValue,
-  LIBRARY_SELECTED_CATEGORY_LS_KEY,
+  LIBRARY_TRACKS_CATEGORY_LS_KEY,
+  LIBRARY_COLLECTIONS_CATEGORY_LS_KEY,
   isLibraryCategory,
   LibraryCategoryType,
-  Nullable
+  Nullable,
+  calculateNewLibraryCategories,
+  Favorite,
+  FavoriteType
 } from '@audius/common'
 import { call, fork, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -26,7 +30,7 @@ import { waitForRead } from 'utils/sagaHelpers'
 import tracksSagas from './lineups/sagas'
 const { signOut: signOutAction } = signOutActions
 
-const { getSaves } = savedPageSelectors
+const { getTrackSaves } = savedPageSelectors
 const { getAccountUser } = accountSelectors
 
 function* fetchLineupMetadatas(offset: number, limit: number) {
@@ -94,9 +98,11 @@ function* sendLibraryRequest({
   const saves = savedTracksResponseData
     .filter((save) => Boolean(save.timestamp && save.item))
     .map((save) => ({
-      created_at: save.timestamp,
-      save_item_id: decodeHashId(save.item!.id!)
-    }))
+      created_at: save.timestamp!,
+      save_item_id: decodeHashId(save.item!.id!),
+      save_type: FavoriteType.TRACK,
+      user_id: userId
+    })) as Favorite[]
 
   return {
     saves,
@@ -115,7 +121,7 @@ function prepareParams({
     userId: account.user_id,
     offset: params.offset ?? 0,
     limit: params.limit ?? account.track_save_count,
-    query: params.query ?? '',
+    query: params.query,
     sortMethod: params.sortMethod || 'added_date',
     sortDirection: params.sortDirection || 'desc',
     category: params.category
@@ -133,7 +139,7 @@ function* watchFetchSaves() {
     function* (rawParams: ReturnType<typeof actions.fetchSaves>) {
       yield* waitForRead()
       const account: User = yield* call(waitForValue, getAccountUser)
-      const saves = yield* select(getSaves)
+      const saves = yield* select(getTrackSaves)
       const params = prepareParams({ account, params: rawParams })
       const { query, sortDirection, sortMethod, offset, limit, category } =
         params
@@ -159,7 +165,7 @@ function* watchFetchSaves() {
 
           const fullSaves = Array(account.track_save_count)
             .fill(0)
-            .map((_) => ({}))
+            .map((_) => ({})) as Favorite[]
 
           fullSaves.splice(offset, saves.length, ...saves)
           yield* put(actions.fetchSavesSucceeded(fullSaves))
@@ -206,40 +212,70 @@ function* watchFetchMoreSaves() {
 function* setInitialSelectedCategory() {
   const getLocalStorageItem = yield* getContext('getLocalStorageItem')
 
-  const categoryFromLocalStorage = yield* call(
+  const tracksCategoryFromLocalStorage = yield* call(
     getLocalStorageItem,
-    LIBRARY_SELECTED_CATEGORY_LS_KEY
+    LIBRARY_TRACKS_CATEGORY_LS_KEY
+  )
+  if (
+    tracksCategoryFromLocalStorage != null &&
+    isLibraryCategory(tracksCategoryFromLocalStorage)
+  ) {
+    yield* put(
+      actions.initializeTracksCategoryFromLocalStorage(
+        tracksCategoryFromLocalStorage
+      )
+    )
+  }
+
+  const collectionsCategoryFromLocalStorage = yield* call(
+    getLocalStorageItem,
+    LIBRARY_COLLECTIONS_CATEGORY_LS_KEY
   )
 
   if (
-    categoryFromLocalStorage != null &&
-    isLibraryCategory(categoryFromLocalStorage)
+    collectionsCategoryFromLocalStorage != null &&
+    isLibraryCategory(collectionsCategoryFromLocalStorage)
   ) {
-    yield* put(actions.setSelectedCategory(categoryFromLocalStorage))
+    yield* put(
+      actions.initializeCollectionsCategoryFromLocalStorage(
+        collectionsCategoryFromLocalStorage
+      )
+    )
   }
 }
 
-function* setLocalStorageSelectedCategory(
+function* setLocalStorageCategory(
   rawParams: ReturnType<typeof actions.setSelectedCategory>
 ) {
   const setLocalStorageItem = yield* getContext('setLocalStorageItem')
-  setLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY, rawParams.category)
+  const getLocalStorageItem = yield* getContext('getLocalStorageItem')
+  const tracksCategoryFromLocalStorage = yield* call(
+    getLocalStorageItem,
+    LIBRARY_TRACKS_CATEGORY_LS_KEY
+  )
+  const { collectionsCategory, tracksCategory } = calculateNewLibraryCategories(
+    {
+      currentTab: rawParams.currentTab,
+      chosenCategory: rawParams.category,
+      prevTracksCategory: tracksCategoryFromLocalStorage
+    }
+  )
+  setLocalStorageItem(LIBRARY_TRACKS_CATEGORY_LS_KEY, tracksCategory)
+  setLocalStorageItem(LIBRARY_COLLECTIONS_CATEGORY_LS_KEY, collectionsCategory)
 }
 
 function* watchSetSelectedCategory() {
-  yield* takeLatest(
-    actions.SET_SELECTED_CATEGORY,
-    setLocalStorageSelectedCategory
-  )
+  yield* takeLatest(actions.SET_SELECTED_CATEGORY, setLocalStorageCategory)
 }
 
-function* clearLocalStorageSelectedCategory() {
+function* clearLocalStorageLibraryCategories() {
   const removeLocalStorageItem = yield* getContext('removeLocalStorageItem')
-  removeLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY)
+  removeLocalStorageItem(LIBRARY_COLLECTIONS_CATEGORY_LS_KEY)
+  removeLocalStorageItem(LIBRARY_TRACKS_CATEGORY_LS_KEY)
 }
 
 function* watchSignOut() {
-  yield* takeLatest(signOutAction.type, clearLocalStorageSelectedCategory)
+  yield* takeLatest(signOutAction.type, clearLocalStorageLibraryCategories)
 }
 
 export default function sagas() {

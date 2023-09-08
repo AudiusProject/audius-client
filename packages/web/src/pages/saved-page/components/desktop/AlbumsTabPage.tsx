@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
 import {
-  accountSelectors,
+  LibraryCategory,
   statusIsNotFinalized,
-  useGetLibraryAlbums,
-  useAllPaginatedQuery,
-  savedPageSelectors
+  savedPageSelectors,
+  CommonState,
+  SavedPageTabs
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -13,51 +13,52 @@ import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import { useGoToRoute } from 'hooks/useGoToRoute'
+import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
+
+import { emptyStateMessages } from '../emptyStateMessages'
 
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
-const { getUserId } = accountSelectors
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 
 const messages = {
-  emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
   emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
   goToTrending: 'Go to Trending'
 }
 
 export const AlbumsTabPage = () => {
   const goToRoute = useGoToRoute()
-  const currentUserId = useSelector(getUserId)
-  const selectedCategory = useSelector(getSelectedCategory)
-
   const {
-    data: fetchedAlbums,
     status,
     hasMore,
-    loadMore: fetchMore
-  } = useAllPaginatedQuery(
-    useGetLibraryAlbums,
-    {
-      userId: currentUserId!,
-      category: selectedCategory
-    },
-    {
-      pageSize: 20,
-      disabled: currentUserId == null
+    fetchMore,
+    collections: albums
+  } = useCollectionsData('album')
+  const emptyAlbumsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.ALBUMS
+    })
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyAlbumAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyAlbumFavoritesHeader
+    } else if (selectedCategory === LibraryCategory.Purchase) {
+      return emptyStateMessages.emptyAlbumPurchasedHeader
+    } else {
+      return emptyStateMessages.emptyAlbumRepostsHeader
     }
-  )
+  })
 
-  const noFetchedResults =
-    !statusIsNotFinalized(status) && fetchedAlbums?.length === 0
+  const noResults = !statusIsNotFinalized(status) && albums?.length === 0
 
   const cards = useMemo(() => {
-    return fetchedAlbums?.map(({ playlist_id }, i) => {
+    return albums?.map(({ playlist_id }, i) => {
       return (
         <CollectionCard index={i} key={playlist_id} albumId={playlist_id} />
       )
     })
-  }, [fetchedAlbums])
+  }, [albums])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
@@ -65,10 +66,10 @@ export const AlbumsTabPage = () => {
   }
 
   // TODO(nkang) - Add separate error state
-  if (noFetchedResults || !fetchedAlbums) {
+  if (noResults || !albums) {
     return (
       <EmptyTable
-        primaryText={messages.emptyAlbumsHeader}
+        primaryText={emptyAlbumsHeader}
         secondaryText={messages.emptyAlbumsBody}
         buttonLabel={messages.goToTrending}
         onClick={() => goToRoute('/trending')}

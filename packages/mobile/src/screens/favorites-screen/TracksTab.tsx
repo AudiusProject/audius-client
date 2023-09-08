@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
+  LibraryCategory,
+  SavedPageTabs,
   FavoriteSource,
   PlaybackSource,
   Status,
@@ -33,19 +35,23 @@ import { useFavoritesLineup } from './useFavoritesLineup'
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
 const {
-  getSaves,
-  getLocalSaves,
+  getTrackSaves,
   getSavedTracksStatus,
   getInitialFetchStatus,
+  getSelectedCategoryLocalTrackAdds,
   getIsFetchingMore,
-  getSelectedCategory
+  getCategory
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
 const { getUserFromTrack } = cacheUsersSelectors
 
 const messages = {
-  emptyTabText: "You haven't favorited any tracks yet.",
+  emptyTracksFavoritesText: "You haven't favorited any tracks yet.",
+  emptyTracksRepostsText: "You haven't reposted any tracks yet.",
+  emptyTracksPurchasedText: "You haven't purchased any tracks yet.",
+  emptyTracksAllText:
+    "You haven't favorited, reposted, or purchased any tracks yet.",
   inputPlaceholder: 'Filter Tracks'
 }
 
@@ -74,19 +80,32 @@ export const TracksTab = () => {
 
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const selectedCategory = useSelector((state) =>
+    getCategory(state, { currentTab: SavedPageTabs.TRACKS })
+  )
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
-  const saves = useSelector(getSaves)
-  const localSaves = useSelector(getLocalSaves)
+  const saves = useSelector(getTrackSaves)
+  const localAdditions = useSelector(getSelectedCategoryLocalTrackAdds)
 
   const saveCount = useMemo(
-    () => saves.length + Object.keys(localSaves).length,
-    [saves, localSaves]
+    () => saves.length + Object.keys(localAdditions).length,
+    [saves, localAdditions]
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
+
+  let emptyTabText: string
+  if (selectedCategory === LibraryCategory.All) {
+    emptyTabText = messages.emptyTracksAllText
+  } else if (selectedCategory === LibraryCategory.Favorite) {
+    emptyTabText = messages.emptyTracksFavoritesText
+  } else if (selectedCategory === LibraryCategory.Repost) {
+    emptyTabText = messages.emptyTracksRepostsText
+  } else {
+    emptyTabText = messages.emptyTracksPurchasedText
+  }
 
   const fetchSaves = useCallback(() => {
     dispatch(
@@ -196,7 +215,7 @@ export const TracksTab = () => {
         !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
+          <EmptyTileCTA message={emptyTabText} />
         )
       ) : (
         <>

@@ -1,5 +1,7 @@
-import type { CollectionType } from '@audius/common'
+import type { CollectionType, CommonState } from '@audius/common'
 import {
+  removeNullable,
+  SavedPageTabs,
   accountSelectors,
   cacheCollectionsSelectors,
   reachabilitySelectors,
@@ -9,8 +11,10 @@ import {
   useGetLibraryAlbums,
   useGetLibraryPlaylists,
   useProxySelector,
-  savedPageSelectors
+  savedPageSelectors,
+  filterCollections
 } from '@audius/common'
+import uniq from 'lodash/uniq'
 import { useSelector } from 'react-redux'
 
 import { useOfflineTracksStatus } from 'app/hooks/useOfflineTrackStatus'
@@ -23,8 +27,14 @@ import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
 const { getIsReachable } = reachabilitySelectors
 const { getUserId } = accountSelectors
-const { getCollection } = cacheCollectionsSelectors
-const { getSelectedCategory } = savedPageSelectors
+const { getCollection, getCollectionWithUser } = cacheCollectionsSelectors
+const {
+  getCategory,
+  getSelectedCategoryLocalAlbumAdds,
+  getSelectedCategoryLocalAlbumRemovals,
+  getSelectedCategoryLocalPlaylistAdds,
+  getSelectedCategoryLocalPlaylistRemovals
+} = savedPageSelectors
 
 type UseCollectionsScreenDataConfig = {
   filterValue?: string
@@ -33,13 +43,36 @@ type UseCollectionsScreenDataConfig = {
 
 export const useCollectionsScreenData = ({
   collectionType,
-  filterValue = ''
+  filterValue
 }: UseCollectionsScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
-  const selectedCategory = useSelector(getSelectedCategory)
+  const selectedCategory = useSelector((state) =>
+    getCategory(state, {
+      currentTab:
+        collectionType === 'albums'
+          ? SavedPageTabs.ALBUMS
+          : SavedPageTabs.PLAYLISTS
+    })
+  )
   const currentUserId = useSelector(getUserId)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
+
+  const locallyAddedCollections = useSelector((state: CommonState) => {
+    const ids =
+      collectionType === 'albums'
+        ? getSelectedCategoryLocalAlbumAdds(state)
+        : getSelectedCategoryLocalPlaylistAdds(state)
+    return ids
+  })
+
+  const locallyRemovedCollections = useSelector((state: CommonState) => {
+    const ids =
+      collectionType === 'albums'
+        ? getSelectedCategoryLocalAlbumRemovals(state)
+        : getSelectedCategoryLocalPlaylistRemovals(state)
+    return new Set(ids)
+  })
 
   const {
     data: collectionsData,
@@ -51,6 +84,7 @@ export const useCollectionsScreenData = ({
     collectionType === 'albums' ? useGetLibraryAlbums : useGetLibraryPlaylists,
     {
       category: selectedCategory,
+      query: filterValue,
       userId: currentUserId!
     },
     {
@@ -65,7 +99,18 @@ export const useCollectionsScreenData = ({
   const availableCollectionIds = useProxySelector(
     (state: AppState) => {
       if (isReachable) {
-        return fetchedCollectionIds
+        const filteredLocallyAddedCollectionIds = filterCollections(
+          locallyAddedCollections
+            .map((c) => getCollectionWithUser(state, { id: c }))
+            .filter(removeNullable),
+          { filterText: filterValue }
+        ).map((p) => p.playlist_id)
+        return uniq(
+          [
+            ...filteredLocallyAddedCollectionIds,
+            ...fetchedCollectionIds
+          ].filter((id) => !locallyRemovedCollections.has(id))
+        )
       }
 
       if (!isDoneLoadingFromDisk) {

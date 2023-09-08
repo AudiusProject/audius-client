@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react'
 
 import {
-  accountSelectors,
   cacheCollectionsActions,
+  CommonState,
   CreatePlaylistSource,
-  statusIsNotFinalized,
-  useGetLibraryPlaylists,
-  useAllPaginatedQuery,
-  savedPageSelectors
+  LibraryCategory,
+  savedPageSelectors,
+  SavedPageTabs,
+  statusIsNotFinalized
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,15 +16,17 @@ import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import UploadChip from 'components/upload/UploadChip'
+import { useCollectionsData } from 'pages/saved-page/hooks/useCollectionsData'
+
+import { emptyStateMessages } from '../emptyStateMessages'
 
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
+
 const { createPlaylist } = cacheCollectionsActions
-const { getUserId } = accountSelectors
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 
 const messages = {
-  emptyPlaylistsHeader: 'You haven’t created or favorited any playlists yet.',
   emptyPlaylistsBody: 'Once you have, this is where you’ll find them!',
   createPlaylist: 'Create Playlist',
   newPlaylist: 'New Playlist'
@@ -32,28 +34,22 @@ const messages = {
 
 export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
-  const currentUserId = useSelector(getUserId)
-  const selectedCategory = useSelector(getSelectedCategory)
-
-  const {
-    data: fetchedPlaylists,
-    status,
-    hasMore,
-    loadMore: fetchMore
-  } = useAllPaginatedQuery(
-    useGetLibraryPlaylists,
-    {
-      userId: currentUserId!,
-      category: selectedCategory
-    },
-    {
-      pageSize: 20,
-      disabled: currentUserId == null
+  const { status, hasMore, fetchMore, collections } =
+    useCollectionsData('playlist')
+  const emptyPlaylistsHeader = useSelector((state: CommonState) => {
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.PLAYLISTS
+    })
+    if (selectedCategory === LibraryCategory.All) {
+      return emptyStateMessages.emptyPlaylistAllHeader
+    } else if (selectedCategory === LibraryCategory.Favorite) {
+      return emptyStateMessages.emptyPlaylistFavoritesHeader
+    } else {
+      return emptyStateMessages.emptyPlaylistRepostsHeader
     }
-  )
+  })
 
-  const noFetchedResults =
-    !statusIsNotFinalized(status) && fetchedPlaylists?.length === 0
+  const noResults = !statusIsNotFinalized(status) && collections?.length === 0
 
   const handleCreatePlaylist = useCallback(() => {
     dispatch(
@@ -74,11 +70,11 @@ export const PlaylistsTabPage = () => {
     )
     return [
       createPlaylistCard,
-      ...fetchedPlaylists?.map(({ playlist_id: id }, i) => {
+      ...collections?.map(({ playlist_id: id }, i) => {
         return <CollectionCard index={i} key={id} albumId={id} />
       })
     ]
-  }, [fetchedPlaylists, handleCreatePlaylist])
+  }, [collections, handleCreatePlaylist])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
@@ -86,10 +82,10 @@ export const PlaylistsTabPage = () => {
   }
 
   // TODO(nkang) - Add separate error state
-  if (noFetchedResults || !fetchedPlaylists) {
+  if (noResults || !collections) {
     return (
       <EmptyTable
-        primaryText={messages.emptyPlaylistsHeader}
+        primaryText={emptyPlaylistsHeader}
         secondaryText={messages.emptyPlaylistsBody}
         buttonLabel={messages.createPlaylist}
         buttonIcon={<IconPlus />}
