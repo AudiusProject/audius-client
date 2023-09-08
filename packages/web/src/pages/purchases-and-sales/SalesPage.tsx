@@ -29,7 +29,7 @@ import {
   SalesTableSortDirection,
   SalesTableSortMethod
 } from './SalesTable'
-import { NoPurchasesContent } from './components/NoPurchasesContent'
+import { NoTransactionsContent } from './components/NoTransactionsContent'
 
 const { getUserId } = accountSelectors
 
@@ -48,7 +48,8 @@ const sortMethods: {
   [k in SalesTableSortMethod]: full.GetSalesSortMethodEnum
 } = {
   contentId: full.GetSalesSortMethodEnum.ContentTitle,
-  createdAt: full.GetSalesSortMethodEnum.Date
+  createdAt: full.GetSalesSortMethodEnum.Date,
+  buyerUserId: full.GetSalesSortMethodEnum.BuyerName
 }
 
 const sortDirections: {
@@ -67,7 +68,7 @@ const NoSales = () => {
     dispatch(pushRoute(UPLOAD_PAGE))
   }, [dispatch])
   return (
-    <NoPurchasesContent
+    <NoTransactionsContent
       headerText={messages.noSalesHeader}
       bodyText={messages.noSalesBody}
       ctaText={messages.upload}

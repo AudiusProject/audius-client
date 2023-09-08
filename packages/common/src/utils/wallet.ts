@@ -148,25 +148,56 @@ export const ceilingBNUSDCToNearestCent = (value: BNUSDC): BNUSDC => {
     .mul(BN_USDC_CENT_WEI) as BNUSDC
 }
 
+/** Round a USDC value as a BN down to the nearest cent and return as a BN */
+export const floorBNUSDCToNearestCent = (value: BNUSDC): BNUSDC => {
+  return value.div(BN_USDC_CENT_WEI).mul(BN_USDC_CENT_WEI) as BNUSDC
+}
+
 /** Formats a USDC wei string (full precision) to a fixed string suitable for
 display as a dollar amount. Note: will lose precision by rounding _up_ to nearest cent */
 export const formatUSDCWeiToUSDString = (amount: StringUSDC, precision = 2) => {
+  // remove negative sign if present.
+  const amountPos = amount.replace('-', '')
   // Since we only need two digits of precision, we will multiply up by 1000
   // with BN, divide by $1 Wei, ceiling up to the nearest cent,
   //  and then convert to JS number and divide back down before formatting to
   // two decimal places.
-  const cents = formatUSDCWeiToNumber(new BN(amount) as BNUSDC)
+  const cents = formatUSDCWeiToCeilingDollarNumber(new BN(amountPos) as BNUSDC)
   return formatNumberCommas(cents.toFixed(precision))
 }
 
 /**
- * Formats a USDC BN (full precision) to a number suitable for display as a dollar amount.
+ * Formats a USDC BN (full precision) to a number of dollars.
  * Note: will lose precision by rounding _up_ to nearest cent.
  */
-export const formatUSDCWeiToNumber = (amount: BNUSDC) => {
+export const formatUSDCWeiToCeilingDollarNumber = (amount: BNUSDC) => {
   return (
     ceilingBNUSDCToNearestCent(amount).div(BN_USDC_CENT_WEI).toNumber() / 100
   )
+}
+
+/**
+ * Formats a USDC BN (full precision) to a number of cents.
+ * Note: will lose precision by rounding _up_ to nearest cent.
+ */
+export const formatUSDCWeiToCeilingCentsNumber = (amount: BNUSDC) => {
+  return ceilingBNUSDCToNearestCent(amount).div(BN_USDC_CENT_WEI).toNumber()
+}
+
+/**
+ * Formats a USDC BN (full precision) to a number of dollars.
+ * Note: will lose precision by rounding _down_ to nearest cent.
+ */
+export const formatUSDCWeiToFloorDollarNumber = (amount: BNUSDC) => {
+  return floorBNUSDCToNearestCent(amount).div(BN_USDC_CENT_WEI).toNumber() / 100
+}
+
+/**
+ * Formats a USDC BN (full precision) to a number of cents.
+ * Note: will lose precision by rounding _down_ to nearest cent.
+ */
+export const formatUSDCWeiToFloorCentsNumber = (amount: BNUSDC) => {
+  return floorBNUSDCToNearestCent(amount).div(BN_USDC_CENT_WEI).toNumber()
 }
 
 /** General Wallet Utils */

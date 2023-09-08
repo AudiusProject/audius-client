@@ -16,6 +16,7 @@ import { FinishPageNew } from './components/FinishPageNew'
 import SelectPageNew from './components/SelectPageNew'
 import { EditPage } from './pages/EditPage'
 import { UploadFormState } from './types'
+import { UploadPreviewContextProvider } from './utils/uploadPreviewContext'
 
 const { uploadTracks, undoResetState } = uploadActions
 const { requestOpen: openUploadConfirmationModal } =
@@ -119,7 +120,7 @@ export const UploadPageNew = (props: UploadPageProps) => {
       )
       break
     case Phase.EDIT:
-      if (formState.uploadType) {
+      if (formState.uploadType !== undefined) {
         page = (
           <EditPage
             formState={formState}
@@ -136,7 +137,7 @@ export const UploadPageNew = (props: UploadPageProps) => {
       }
       break
     case Phase.FINISH:
-      if (formState.uploadType) {
+      if (formState.uploadType !== undefined) {
         page = (
           <FinishPageNew
             formState={formState}
@@ -217,9 +218,11 @@ export const UploadPageNew = (props: UploadPageProps) => {
         />
       }
     >
-      <UploadFormScrollContext.Provider value={scrollToTop}>
-        {page}
-      </UploadFormScrollContext.Provider>
+      <UploadPreviewContextProvider>
+        <UploadFormScrollContext.Provider value={scrollToTop}>
+          {page}
+        </UploadFormScrollContext.Provider>
+      </UploadPreviewContextProvider>
     </Page>
   )
 }

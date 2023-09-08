@@ -2,7 +2,7 @@ import {
   BNUSDC,
   WithdrawUSDCModalPages,
   formatCurrencyBalance,
-  formatUSDCWeiToNumber,
+  formatUSDCWeiToFloorCentsNumber,
   useWithdrawUSDCModal
 } from '@audius/common'
 import {
@@ -21,6 +21,8 @@ import BN from 'bn.js'
 
 import { Icon } from 'components/Icon'
 import { Text } from 'components/typography'
+import { useGoToRoute } from 'hooks/useGoToRoute'
+import { SALES_PAGE, WITHDRAWALS_PAGE } from 'utils/route'
 
 import styles from './USDCCard.module.css'
 
@@ -34,21 +36,21 @@ const messages = {
 }
 
 export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
+  const goToRoute = useGoToRoute()
   const { onOpen: openWithdrawUSDCModal } = useWithdrawUSDCModal()
 
-  const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
+  const balanceNumber =
+    formatUSDCWeiToFloorCentsNumber((balance ?? new BN(0)) as BNUSDC) / 100
   const balanceFormatted = formatCurrencyBalance(balanceNumber)
 
   const menuItems: PopupMenuItem[] = [
     {
       text: messages.salesSummary,
-      // TODO: link to sales page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
-      onClick: () => {}
+      onClick: () => goToRoute(SALES_PAGE)
     },
     {
       text: messages.withdrawalHistory,
-      // TODO: link to withdraw history page https://linear.app/audius/issue/PAY-1763/wire-up-salespurchases-pages-on-artist-dashboard
-      onClick: () => {}
+      onClick: () => goToRoute(WITHDRAWALS_PAGE)
     }
   ]
 
@@ -95,7 +97,7 @@ export const USDCCard = ({ balance }: { balance: BNUSDC }) => {
             variant={HarmonyButtonType.SECONDARY}
             text={messages.withdraw}
             fullWidth
-            iconLeft={() => <Icon icon={IconWithdraw} size='medium' />}
+            iconLeft={IconWithdraw}
             onClick={() =>
               openWithdrawUSDCModal({
                 page: WithdrawUSDCModalPages.ENTER_TRANSFER_DETAILS

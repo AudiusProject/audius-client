@@ -3,13 +3,13 @@ import { useCallback, useContext, useState } from 'react'
 import {
   FeatureFlags,
   Status,
-  USDCPurchaseDetails,
+  USDCTransactionDetails,
   accountSelectors,
   combineStatuses,
   statusIsNotFinalized,
   useAllPaginatedQuery,
-  useGetPurchases,
-  useGetPurchasesCount
+  useGetUSDCTransactions,
+  useGetUSDCTransactionsCount
 } from '@audius/common'
 import { full } from '@audius/sdk'
 import { push as pushRoute } from 'connected-react-router'
@@ -21,97 +21,101 @@ import { useFlag } from 'hooks/useRemoteConfig'
 import { MainContentContext } from 'pages/MainContentContext'
 import NotFoundPage from 'pages/not-found-page/NotFoundPage'
 import { useSelector } from 'utils/reducer'
-import { FEED_PAGE } from 'utils/route'
+import { DASHBOARD_PAGE } from 'utils/route'
 
-import styles from './PurchasesPage.module.css'
+import styles from './WithdrawalsPage.module.css'
 import {
-  PurchasesTable,
-  PurchasesTableSortDirection,
-  PurchasesTableSortMethod
-} from './PurchasesTable'
+  WithdrawalsTable,
+  WithdrawalsTableSortDirection,
+  WithdrawalsTableSortMethod
+} from './WithdrawalsTable'
 import { NoTransactionsContent } from './components/NoTransactionsContent'
 
 const { getUserId } = accountSelectors
 
 const messages = {
-  pageTitle: 'Purchase History',
-  pageDescription: 'View your purchase history',
-  noPurchasesHeader: `You haven't bought anything yet.`,
-  noPurchasesBody: 'Once you make a purchase, it will show up here.',
-  findSongs: 'Find Songs',
-  headerText: 'Your Purchases'
+  pageTitle: 'Withdrawal History',
+  pageDescription: 'View your withdrawal history',
+  noWithdrawalsHeader: `You haven't made any withdrawals yet.`,
+  noWithdrawalsBody: 'Once you complete a withdrawal, it will show up here.',
+  backToDashboard: 'Back To Your Dashboard',
+  headerText: 'Withdrawal History'
 }
 
 const TRANSACTIONS_BATCH_SIZE = 50
 
 const sortMethods: {
-  [k in PurchasesTableSortMethod]: full.GetPurchasesSortMethodEnum
+  [k in WithdrawalsTableSortMethod]: full.GetUSDCTransactionsSortMethodEnum
 } = {
-  contentId: full.GetPurchasesSortMethodEnum.ContentTitle,
-  createdAt: full.GetPurchasesSortMethodEnum.Date,
-  sellerUserId: full.GetPurchasesSortMethodEnum.ArtistName
+  date: full.GetUSDCTransactionsSortMethodEnum.Date
 }
 
 const sortDirections: {
-  [k in PurchasesTableSortDirection]: full.GetPurchasesSortDirectionEnum
+  [k in WithdrawalsTableSortDirection]: full.GetUSDCTransactionsSortDirectionEnum
 } = {
-  asc: full.GetPurchasesSortDirectionEnum.Asc,
-  desc: full.GetPurchasesSortDirectionEnum.Desc
+  asc: full.GetUSDCTransactionsSortDirectionEnum.Asc,
+  desc: full.GetUSDCTransactionsSortDirectionEnum.Desc
 }
 
-const DEFAULT_SORT_METHOD = full.GetPurchasesSortMethodEnum.Date
-const DEFAULT_SORT_DIRECTION = full.GetPurchasesSortDirectionEnum.Desc
+const DEFAULT_SORT_METHOD = full.GetUSDCTransactionsSortMethodEnum.Date
+const DEFAULT_SORT_DIRECTION = full.GetUSDCTransactionsSortDirectionEnum.Desc
 
-const NoPurchases = () => {
+const NoWithdrawals = () => {
   const dispatch = useDispatch()
-  const handleClickFindSongs = useCallback(() => {
-    dispatch(pushRoute(FEED_PAGE))
+  const handleClickBackToDashboard = useCallback(() => {
+    dispatch(pushRoute(DASHBOARD_PAGE))
   }, [dispatch])
 
   return (
     <NoTransactionsContent
-      headerText={messages.noPurchasesHeader}
-      bodyText={messages.noPurchasesBody}
-      ctaText={messages.findSongs}
-      onCTAClicked={handleClickFindSongs}
+      headerText={messages.noWithdrawalsHeader}
+      bodyText={messages.noWithdrawalsBody}
+      ctaText={messages.backToDashboard}
+      onCTAClicked={handleClickBackToDashboard}
     />
   )
 }
 
 /**
- * Fetches and renders a table of purchases for the currently logged in user
+ * Fetches and renders a table of withdrawals for the currently logged in user
  * */
-const RenderPurchasesPage = () => {
+const RenderWithdrawalsPage = () => {
   const userId = useSelector(getUserId)
   // Defaults: sort method = date, sort direction = desc
   const [sortMethod, setSortMethod] =
-    useState<full.GetPurchasesSortMethodEnum>(DEFAULT_SORT_METHOD)
+    useState<full.GetUSDCTransactionsSortMethodEnum>(DEFAULT_SORT_METHOD)
   const [sortDirection, setSortDirection] =
-    useState<full.GetPurchasesSortDirectionEnum>(DEFAULT_SORT_DIRECTION)
+    useState<full.GetUSDCTransactionsSortDirectionEnum>(DEFAULT_SORT_DIRECTION)
   const { mainContentRef } = useContext(MainContentContext)
 
   const {
     status: dataStatus,
-    data: purchases,
+    data: transactions,
     hasMore,
     loadMore
   } = useAllPaginatedQuery(
-    useGetPurchases,
-    { userId, sortMethod, sortDirection },
+    useGetUSDCTransactions,
+    {
+      userId,
+      sortMethod,
+      sortDirection,
+      type: full.GetUSDCTransactionsTypeEnum.Transfer,
+      method: full.GetUSDCTransactionsMethodEnum.Send
+    },
     { disabled: !userId, pageSize: TRANSACTIONS_BATCH_SIZE }
   )
-  const { status: countStatus, data: count } = useGetPurchasesCount({
-    userId
+  const { status: countStatus, data: count } = useGetUSDCTransactionsCount({
+    userId,
+    type: full.GetUSDCTransactionsTypeEnum.Transfer,
+    method: full.GetUSDCTransactionsMethodEnum.Send
   })
 
   const status = combineStatuses([dataStatus, countStatus])
 
-  // TODO: Should fetch users before rendering the table
-
   const onSort = useCallback(
     (
-      method: PurchasesTableSortMethod,
-      direction: PurchasesTableSortDirection
+      method: WithdrawalsTableSortMethod,
+      direction: WithdrawalsTableSortDirection
     ) => {
       setSortMethod(sortMethods[method] ?? DEFAULT_SORT_METHOD)
       setSortDirection(sortDirections[direction] ?? DEFAULT_SORT_DIRECTION)
@@ -125,12 +129,12 @@ const RenderPurchasesPage = () => {
     }
   }, [hasMore, loadMore])
 
-  const onClickRow = useCallback((txDetails: USDCPurchaseDetails) => {
+  const onClickRow = useCallback((txDetails: USDCTransactionDetails) => {
     // https://linear.app/audius/issue/PAY-1757/[web]-click-to-view-purchasesale-details-in-table
     // TODO: Show details modal on row click
   }, [])
 
-  const isEmpty = status === Status.SUCCESS && purchases.length === 0
+  const isEmpty = status === Status.SUCCESS && transactions.length === 0
   const isLoading = statusIsNotFinalized(status)
 
   return (
@@ -141,11 +145,11 @@ const RenderPurchasesPage = () => {
     >
       <div className={styles.container}>
         {isEmpty ? (
-          <NoPurchases />
+          <NoWithdrawals />
         ) : (
-          <PurchasesTable
-            key='purchases'
-            data={purchases}
+          <WithdrawalsTable
+            key='withdrawals'
+            data={transactions}
             loading={isLoading}
             onSort={onSort}
             onClickRow={onClickRow}
@@ -161,10 +165,10 @@ const RenderPurchasesPage = () => {
   )
 }
 
-export const PurchasesPage = () => {
+export const WithdrawalsPage = () => {
   const { isLoaded, isEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
 
   // Return null if flag isn't loaded yet to prevent flash of 404 page
   if (!isLoaded) return null
-  return isEnabled ? <RenderPurchasesPage /> : <NotFoundPage />
+  return isEnabled ? <RenderWithdrawalsPage /> : <NotFoundPage />
 }

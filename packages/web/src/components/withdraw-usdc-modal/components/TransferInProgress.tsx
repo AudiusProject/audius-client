@@ -1,14 +1,20 @@
 import {
   useUSDCBalance,
-  formatUSDCWeiToNumber,
   formatCurrencyBalance,
-  BNUSDC
+  BNUSDC,
+  formatUSDCWeiToFloorDollarNumber
 } from '@audius/common'
 import BN from 'bn.js'
+import { useField } from 'formik'
 
 import { Divider } from 'components/divider'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { Text } from 'components/typography'
+import {
+  ADDRESS,
+  AMOUNT
+} from 'components/withdraw-usdc-modal/WithdrawUSDCModal'
+import { toHumanReadable } from 'utils/tokenInput'
 
 import { TextRow } from './TextRow'
 import styles from './TransferInProgress.module.css'
@@ -21,10 +27,13 @@ const messages = {
 
 export const TransferInProgress = () => {
   const { data: balance } = useUSDCBalance()
-  const balanceNumber = formatUSDCWeiToNumber((balance ?? new BN(0)) as BNUSDC)
+  const balanceNumber = formatUSDCWeiToFloorDollarNumber(
+    (balance ?? new BN(0)) as BNUSDC
+  )
   const balanceFormatted = formatCurrencyBalance(balanceNumber)
-  const wallet = '72pepj'
-  const amount = '200'
+
+  const [{ value: amountValue }] = useField(AMOUNT)
+  const [{ value: addressValue }] = useField(ADDRESS)
 
   return (
     <div className={styles.root}>
@@ -34,13 +43,16 @@ export const TransferInProgress = () => {
           left={messages.currentBalance}
           right={`$${balanceFormatted}`}
         />
-        <TextRow left={messages.amountToWithdraw} right={`-$${amount}`} />
+        <TextRow
+          left={messages.amountToWithdraw}
+          right={`-$${toHumanReadable(amountValue)}`}
+        />
       </div>
       <Divider style={{ margin: 0 }} />
       <div className={styles.destination}>
         <TextRow left={messages.destinationAddress} />
         <Text variant='body' size='medium' strength='default'>
-          {wallet}
+          {addressValue}
         </Text>
       </div>
       <LoadingSpinner className={styles.spinner} />
