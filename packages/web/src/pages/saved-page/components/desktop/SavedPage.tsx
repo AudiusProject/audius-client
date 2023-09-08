@@ -121,7 +121,9 @@ const SavedPage = ({
   const { mainContentRef } = useContext(MainContentContext)
   const initFetch = useSelector(getInitialFetchStatus)
   const emptyTracksHeader = useSelector((state: CommonState) => {
-    const selectedCategory = getCategory(state, SavedPageTabs.TRACKS)
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.TRACKS
+    })
     if (selectedCategory === LibraryCategory.All) {
       return emptyStateMessages.emptyTrackAllHeader
     } else if (selectedCategory === LibraryCategory.Favorite) {
