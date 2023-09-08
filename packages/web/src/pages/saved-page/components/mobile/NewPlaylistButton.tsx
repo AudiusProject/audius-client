@@ -60,7 +60,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(
         createPlaylist(
           { playlist_name: 'New Playlist' },
-          CreatePlaylistSource.LIBRARY_PAGE
+          CreatePlaylistSource.FAVORITES_PAGE
         )
       )
   }
