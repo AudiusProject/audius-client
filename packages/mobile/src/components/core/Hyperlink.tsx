@@ -1,7 +1,11 @@
 import type { ComponentProps } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { isAudiusUrl, useLeavingAudiusModal } from '@audius/common'
+import {
+  isAllowedExternalLink,
+  isAudiusUrl,
+  useLeavingAudiusModal
+} from '@audius/common'
 import type { Match } from 'autolinker/dist/es2015'
 import type { LayoutRectangle, TextStyle } from 'react-native'
 import { Text, View } from 'react-native'
@@ -98,10 +102,10 @@ export const Hyperlink = (props: HyperlinkProps) => {
 
   const handlePress = useCallback(
     (url) => {
-      if (!isAudiusUrl(url)) {
-        openLeavingAudiusModal({ link: url })
-      } else {
+      if (isAudiusUrl(url) || isAllowedExternalLink(url)) {
         openLink(url)
+      } else {
+        openLeavingAudiusModal({ link: url })
       }
     },
     [openLink, openLeavingAudiusModal]
