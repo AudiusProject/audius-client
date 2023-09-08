@@ -213,9 +213,6 @@ mobile-release-saga-dapp-store:
       default: 'alpha'
       type: string
   steps:
-    - checkout
-    - attach_workspace:
-        at: ./
     - run:
         name: Add Java to PATH
         command: |
