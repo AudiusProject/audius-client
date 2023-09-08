@@ -80,7 +80,7 @@ const messages = {
   specialAccess: 'special access',
   usdcPurchase: 'premium track',
   generatedWithAi: 'generated with ai',
-  trackDeleted: 'track [deleted by artist]',
+  trackDeleted: 'track [deleted by artist]'
 }
 
 type TrackScreenDetailsTileProps = {
@@ -486,7 +486,12 @@ export const TrackScreenDetailsTile = ({
       return (
         <View style={styles.headerContainer}>
           <View style={styles.headerRow}>
-            <Text style={styles.headerText} weight='medium' fontSize='xs' color={getDownloadTextColor()}>
+            <Text
+              style={styles.headerText}
+              weight='medium'
+              fontSize='xs'
+              color={getDownloadTextColor()}
+            >
               {messages.trackDeleted}
             </Text>
           </View>

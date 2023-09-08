@@ -369,7 +369,10 @@ export const DetailsTile = ({
                 <DetailsProgressInfo track={track} />
               ) : null}
               <View style={styles.buttonSection}>
-                {!doesUserHaveAccess && !isOwner && premiumConditions && trackId ? (
+                {!doesUserHaveAccess &&
+                !isOwner &&
+                premiumConditions &&
+                trackId ? (
                   <DetailsTileNoAccess
                     trackId={trackId}
                     premiumConditions={premiumConditions}
@@ -446,9 +449,9 @@ export const DetailsTile = ({
                 style={[
                   styles.infoSection,
                   hideFavoriteCount &&
-                  hideListenCount &&
-                  hideRepostCount &&
-                  styles.noStats
+                    hideListenCount &&
+                    hideRepostCount &&
+                    styles.noStats
                 ]}
               >
                 {renderDetailLabels()}
