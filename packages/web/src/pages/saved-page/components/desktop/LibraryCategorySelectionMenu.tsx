@@ -9,12 +9,14 @@ import {
 import { HarmonySelectablePill } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useIsUSDCEnabled } from 'hooks/useIsUSDCEnabled'
+
 import styles from './LibraryCategorySelectionMenu.module.css'
 
 const { getCategory } = savedPageSelectors
 const { setSelectedCategory } = savedPageActions
 
-const TRACKS_CATEGORIES = [
+const ALL_CATEGORIES = [
   {
     label: 'All',
     value: LibraryCategory.All
@@ -33,7 +35,7 @@ const TRACKS_CATEGORIES = [
   }
 ]
 
-const COLLECTIONS_CATEGORIES = TRACKS_CATEGORIES.slice(0, -1)
+const CATEGORIES_WITHOUT_PURCHASED = ALL_CATEGORIES.slice(0, -1)
 
 type LibraryCategorySelectionMenuProps = { currentTab: SavedPageTabs }
 
@@ -48,10 +50,11 @@ export const LibraryCategorySelectionMenu = ({
     dispatch(setSelectedCategory({ currentTab, category: value }))
   }
 
+  const isUSDCPurchasesEnabled = useIsUSDCEnabled()
   const categories =
-    currentTab === SavedPageTabs.TRACKS
-      ? TRACKS_CATEGORIES
-      : COLLECTIONS_CATEGORIES
+    currentTab === SavedPageTabs.TRACKS && isUSDCPurchasesEnabled
+      ? ALL_CATEGORIES
+      : CATEGORIES_WITHOUT_PURCHASED
 
   return (
     <div role='radiogroup' className={styles.container}>
