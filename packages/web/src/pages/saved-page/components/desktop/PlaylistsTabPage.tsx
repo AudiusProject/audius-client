@@ -6,6 +6,7 @@ import {
   CreatePlaylistSource,
   LibraryCategory,
   savedPageSelectors,
+  SavedPageTabs,
   statusIsNotFinalized
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
@@ -23,7 +24,7 @@ import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
 const { createPlaylist } = cacheCollectionsActions
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 
 const messages = {
   emptyPlaylistsBody: 'Once you have, this is where you’ll find them!',
@@ -36,7 +37,9 @@ export const PlaylistsTabPage = () => {
   const { status, hasMore, fetchMore, collections } =
     useCollectionsData('playlist')
   const emptyPlaylistsHeader = useSelector((state: CommonState) => {
-    const selectedCategory = getSelectedCategory(state)
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.PLAYLISTS
+    })
     if (selectedCategory === LibraryCategory.All) {
       return emptyStateMessages.emptyPlaylistAllHeader
     } else if (selectedCategory === LibraryCategory.Favorite) {

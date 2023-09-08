@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import type { CommonState } from '@audius/common'
 import {
+  SavedPageTabs,
   CreatePlaylistSource,
   FeatureFlags,
   LibraryCategory,
@@ -28,7 +29,7 @@ import { OfflineContentBanner } from './OfflineContentBanner'
 import { useCollectionsScreenData } from './useCollectionsScreenData'
 
 const { getIsReachable } = reachabilitySelectors
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 
 const messages = {
   emptyPlaylistFavoritesText: "You haven't favorited any playlists yet.",
@@ -69,7 +70,9 @@ export const PlaylistsTab = () => {
     !statusIsNotFinalized(status) && !userPlaylists?.length && !filterValue
 
   const emptyTabText = useSelector((state: CommonState) => {
-    const selectedCategory = getSelectedCategory(state)
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.PLAYLISTS
+    })
     if (selectedCategory === LibraryCategory.All) {
       return messages.emptyPlaylistAllText
     } else if (selectedCategory === LibraryCategory.Favorite) {

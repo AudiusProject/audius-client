@@ -37,7 +37,7 @@ import { LibraryCategorySelectionMenu } from './LibraryCategorySelectionMenu'
 import { PlaylistsTabPage } from './PlaylistsTabPage'
 import styles from './SavedPage.module.css'
 
-const { getInitialFetchStatus, getSelectedCategory } = savedPageSelectors
+const { getInitialFetchStatus, getCategory } = savedPageSelectors
 
 const messages = {
   libraryHeader: 'Library',
@@ -121,7 +121,7 @@ const SavedPage = ({
   const { mainContentRef } = useContext(MainContentContext)
   const initFetch = useSelector(getInitialFetchStatus)
   const emptyTracksHeader = useSelector((state: CommonState) => {
-    const selectedCategory = getSelectedCategory(state)
+    const selectedCategory = getCategory(state, SavedPageTabs.TRACKS)
     if (selectedCategory === LibraryCategory.All) {
       return emptyStateMessages.emptyTrackAllHeader
     } else if (selectedCategory === LibraryCategory.Favorite) {

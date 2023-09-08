@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import type { CommonState } from '@audius/common'
 import {
+  SavedPageTabs,
   reachabilitySelectors,
   statusIsNotFinalized,
   savedPageSelectors,
@@ -19,7 +20,7 @@ import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
 import { useCollectionsScreenData } from './useCollectionsScreenData'
 
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
@@ -51,7 +52,9 @@ export const AlbumsTab = () => {
   }, [isReachable, hasMore, fetchMore])
 
   const emptyTabText = useSelector((state: CommonState) => {
-    const selectedCategory = getSelectedCategory(state)
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.ALBUMS
+    })
     if (selectedCategory === LibraryCategory.All) {
       return messages.emptyAlbumAllText
     } else if (selectedCategory === LibraryCategory.Favorite) {
