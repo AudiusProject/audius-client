@@ -4,7 +4,8 @@ import {
   LibraryCategory,
   statusIsNotFinalized,
   savedPageSelectors,
-  CommonState
+  CommonState,
+  SavedPageTabs
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -19,7 +20,7 @@ import { emptyStateMessages } from '../emptyStateMessages'
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 
 const messages = {
   emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
@@ -35,7 +36,9 @@ export const AlbumsTabPage = () => {
     collections: albums
   } = useCollectionsData('album')
   const emptyAlbumsHeader = useSelector((state: CommonState) => {
-    const selectedCategory = getSelectedCategory(state)
+    const selectedCategory = getCategory(state, {
+      currentTab: SavedPageTabs.ALBUMS
+    })
     if (selectedCategory === LibraryCategory.All) {
       return emptyStateMessages.emptyAlbumAllHeader
     } else if (selectedCategory === LibraryCategory.Favorite) {

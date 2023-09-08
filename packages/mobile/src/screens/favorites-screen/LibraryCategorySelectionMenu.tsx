@@ -1,16 +1,18 @@
 import type { LibraryCategoryType } from '@audius/common'
 import {
+  LibraryCategory,
   savedPageActions,
   savedPageSelectors,
-  LibraryCategory
+  SavedPageTabs
 } from '@audius/common'
+import { useNavigationState } from '@react-navigation/native'
 import { ScrollView, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { HarmonySelectablePill } from 'app/components/core/HarmonySelectablePill'
 import { makeStyles } from 'app/styles'
 
-const { getSelectedCategory } = savedPageSelectors
+const { getCategory } = savedPageSelectors
 const { setSelectedCategory } = savedPageActions
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -24,7 +26,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-const CATEGORIES = [
+const TRACKS_CATEGORIES = [
   {
     label: 'All',
     value: LibraryCategory.All
@@ -43,13 +45,59 @@ const CATEGORIES = [
   }
 ]
 
+const COLLECTIONS_CATEGORIES = TRACKS_CATEGORIES.slice(0, -1)
+
+type LibraryTabRouteName = 'albums' | 'tracks' | 'playlists'
+const ROUTE_NAME_TO_TAB = {
+  albums: SavedPageTabs.ALBUMS,
+  tracks: SavedPageTabs.TRACKS,
+  playlists: SavedPageTabs.PLAYLISTS
+} as Record<LibraryTabRouteName, SavedPageTabs>
+
 export const LibraryCategorySelectionMenu = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const selectedCategory = useSelector(getSelectedCategory)
+
+  const currentTab = useNavigationState((state) => {
+    if (state.routes?.[0].name !== 'Library') {
+      return SavedPageTabs.TRACKS
+    }
+    const tabRouteNames = state.routes[0].state?.routeNames
+    if (!tabRouteNames) {
+      return SavedPageTabs.TRACKS
+    }
+
+    const index = state.routes[0].state?.index
+    if (index === undefined) {
+      return SavedPageTabs.TRACKS
+    }
+
+    const routeName = tabRouteNames[index]
+    if (!routeName) {
+      return SavedPageTabs.TRACKS
+    }
+
+    return ROUTE_NAME_TO_TAB[routeName] || SavedPageTabs.TRACKS
+  }) as SavedPageTabs
+
+  const selectedCategory = useSelector((state) =>
+    getCategory(state, {
+      currentTab
+    })
+  )
+
   const handleClick = (value: LibraryCategoryType) => {
-    dispatch(setSelectedCategory(value))
+    if (currentTab) {
+      dispatch(setSelectedCategory({ currentTab, category: value }))
+    }
   }
+
+  const categories =
+    currentTab === SavedPageTabs.ALBUMS ||
+    currentTab === SavedPageTabs.PLAYLISTS
+      ? COLLECTIONS_CATEGORIES
+      : TRACKS_CATEGORIES
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -59,7 +107,7 @@ export const LibraryCategorySelectionMenu = () => {
         contentContainerStyle={styles.scrollContainer}
         alwaysBounceHorizontal={false}
       >
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <HarmonySelectablePill
             key={c.value}
             accessibilityRole='radio'

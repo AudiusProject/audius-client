@@ -13,10 +13,12 @@ import {
   User,
   UserTrackMetadata,
   waitForValue,
-  LIBRARY_SELECTED_CATEGORY_LS_KEY,
+  LIBRARY_TRACKS_CATEGORY_LS_KEY,
+  LIBRARY_COLLECTIONS_CATEGORY_LS_KEY,
   isLibraryCategory,
   LibraryCategoryType,
-  Nullable
+  Nullable,
+  calculateNewLibraryCategories
 } from '@audius/common'
 import { call, fork, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -206,40 +208,70 @@ function* watchFetchMoreSaves() {
 function* setInitialSelectedCategory() {
   const getLocalStorageItem = yield* getContext('getLocalStorageItem')
 
-  const categoryFromLocalStorage = yield* call(
+  const tracksCategoryFromLocalStorage = yield* call(
     getLocalStorageItem,
-    LIBRARY_SELECTED_CATEGORY_LS_KEY
+    LIBRARY_TRACKS_CATEGORY_LS_KEY
+  )
+  if (
+    tracksCategoryFromLocalStorage != null &&
+    isLibraryCategory(tracksCategoryFromLocalStorage)
+  ) {
+    yield* put(
+      actions.initializeTracksCategoryFromLocalStorage(
+        tracksCategoryFromLocalStorage
+      )
+    )
+  }
+
+  const collectionsCategoryFromLocalStorage = yield* call(
+    getLocalStorageItem,
+    LIBRARY_COLLECTIONS_CATEGORY_LS_KEY
   )
 
   if (
-    categoryFromLocalStorage != null &&
-    isLibraryCategory(categoryFromLocalStorage)
+    collectionsCategoryFromLocalStorage != null &&
+    isLibraryCategory(collectionsCategoryFromLocalStorage)
   ) {
-    yield* put(actions.setSelectedCategory(categoryFromLocalStorage))
+    yield* put(
+      actions.initializeCollectionsCategoryFromLocalStorage(
+        collectionsCategoryFromLocalStorage
+      )
+    )
   }
 }
 
-function* setLocalStorageSelectedCategory(
+function* setLocalStorageCategory(
   rawParams: ReturnType<typeof actions.setSelectedCategory>
 ) {
   const setLocalStorageItem = yield* getContext('setLocalStorageItem')
-  setLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY, rawParams.category)
+  const getLocalStorageItem = yield* getContext('getLocalStorageItem')
+  const tracksCategoryFromLocalStorage = yield* call(
+    getLocalStorageItem,
+    LIBRARY_TRACKS_CATEGORY_LS_KEY
+  )
+  const { collectionsCategory, tracksCategory } = calculateNewLibraryCategories(
+    {
+      currentTab: rawParams.currentTab,
+      chosenCategory: rawParams.category,
+      prevTracksCategory: tracksCategoryFromLocalStorage
+    }
+  )
+  setLocalStorageItem(LIBRARY_TRACKS_CATEGORY_LS_KEY, tracksCategory)
+  setLocalStorageItem(LIBRARY_COLLECTIONS_CATEGORY_LS_KEY, collectionsCategory)
 }
 
 function* watchSetSelectedCategory() {
-  yield* takeLatest(
-    actions.SET_SELECTED_CATEGORY,
-    setLocalStorageSelectedCategory
-  )
+  yield* takeLatest(actions.SET_SELECTED_CATEGORY, setLocalStorageCategory)
 }
 
-function* clearLocalStorageSelectedCategory() {
+function* clearLocalStorageLibraryCategories() {
   const removeLocalStorageItem = yield* getContext('removeLocalStorageItem')
-  removeLocalStorageItem(LIBRARY_SELECTED_CATEGORY_LS_KEY)
+  removeLocalStorageItem(LIBRARY_COLLECTIONS_CATEGORY_LS_KEY)
+  removeLocalStorageItem(LIBRARY_TRACKS_CATEGORY_LS_KEY)
 }
 
 function* watchSignOut() {
-  yield* takeLatest(signOutAction.type, clearLocalStorageSelectedCategory)
+  yield* takeLatest(signOutAction.type, clearLocalStorageLibraryCategories)
 }
 
 export default function sagas() {

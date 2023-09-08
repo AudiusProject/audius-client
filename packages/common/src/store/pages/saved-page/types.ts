@@ -12,7 +12,9 @@ import {
   LineupTrack
 } from '../../../models'
 
-export const LIBRARY_SELECTED_CATEGORY_LS_KEY = 'librarySelectedCategory'
+export const LIBRARY_TRACKS_CATEGORY_LS_KEY = 'libraryTracksCategory'
+
+export const LIBRARY_COLLECTIONS_CATEGORY_LS_KEY = 'libraryCollectionsCategory'
 
 export const LibraryCategory = full.GetUserLibraryTracksTypeEnum
 export type LibraryCategoryType = ValueOf<typeof LibraryCategory>
@@ -42,7 +44,9 @@ export interface SavedPageState {
   hasReachedEnd: boolean
   initialFetch: boolean
   fetchingMore: boolean
-  selectedCategory: LibraryCategoryType
+
+  tracksCategory: LibraryCategoryType
+  collectionsCategory: LibraryCategoryType
 }
 
 export enum SavedPageTabs {

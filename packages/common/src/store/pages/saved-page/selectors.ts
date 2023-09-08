@@ -2,13 +2,30 @@ import { CommonState } from 'store/commonStore'
 
 import { ID } from '../../../models/Identifiers'
 
-import { LibraryCategory } from './types'
+import { LibraryCategory, SavedPageTabs } from './types'
 
 export const getSaved = (state: CommonState) => state.pages.savedPage
 export const getTrackSaves = (state: CommonState) =>
   state.pages.savedPage.trackSaves
-export const getSelectedCategory = (state: CommonState) =>
-  state.pages.savedPage.selectedCategory
+
+export const getCollectionsCategory = (state: CommonState) => {
+  return state.pages.savedPage.collectionsCategory
+}
+
+export const getTracksCategory = (state: CommonState) => {
+  return state.pages.savedPage.tracksCategory
+}
+
+export const getCategory = (
+  state: CommonState,
+  props: { currentTab: SavedPageTabs }
+) => {
+  if (props.currentTab === SavedPageTabs.TRACKS) {
+    return getTracksCategory(state)
+  } else {
+    return getCollectionsCategory(state)
+  }
+}
 
 export const getLocalTrackFavorites = (state: CommonState) =>
   state.pages.savedPage.localTrackFavorites
@@ -45,7 +62,9 @@ export const getLocalRemovedPlaylistReposts = (state: CommonState) =>
 
 /** Get the tracks in currently selected category that have been added to the library in current session */
 export const getSelectedCategoryLocalAdds = (state: CommonState) => {
-  const selectedCategory = getSelectedCategory(state)
+  const selectedCategory = getCategory(state, {
+    currentTab: SavedPageTabs.TRACKS
+  })
   const localFavorites = getLocalTrackFavorites(state)
   const localPurchases = getLocalTrackPurchases(state)
   const localReposts = getLocalTrackReposts(state)
@@ -73,7 +92,9 @@ const getSelectedCategoryLocalCollectionUpdates = (
   props: { collectionType: 'album' | 'playlist'; updateType: 'add' | 'remove' }
 ) => {
   const { collectionType, updateType } = props
-  const selectedCategory = getSelectedCategory(state)
+  const currentTab =
+    collectionType === 'album' ? SavedPageTabs.ALBUMS : SavedPageTabs.PLAYLISTS
+  const selectedCategory = getCategory(state, { currentTab })
   let localFavorites: ID[], localPurchases: ID[], localReposts: ID[]
   if (updateType === 'add') {
     localFavorites =
