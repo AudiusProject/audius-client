@@ -1,9 +1,9 @@
-export const AUDIUS_PRESS_LINK = 'https://brand.audius.co'
-export const AUDIUS_MERCH_LINK = 'https://merch.audius.co/'
-export const AUDIUS_REMIX_CONTESTS_LINK = 'https://remix.audius.co/'
-export const AUDIUS_BLOG_LINK = 'https://blog.audius.co/'
+const AUDIUS_PRESS_LINK = 'https://brand.audius.co'
+const AUDIUS_MERCH_LINK = 'https://merch.audius.co/'
+const AUDIUS_REMIX_CONTESTS_LINK = 'https://remix.audius.co/'
+const AUDIUS_BLOG_LINK = 'https://blog.audius.co/'
 
-export const externalInternalLinks = [
+export const externalAudiusLinks = [
   AUDIUS_PRESS_LINK,
   AUDIUS_MERCH_LINK,
   AUDIUS_REMIX_CONTESTS_LINK,
@@ -17,7 +17,7 @@ const audiusUrlRegex =
 export const isAudiusUrl = (url: string) => new RegExp(audiusUrlRegex).test(url)
 export const isInteralAudiusUrl = (url: string) =>
   isAudiusUrl(url) &&
-  !externalInternalLinks.some((externalLink) => externalLink.includes(url))
+  !externalAudiusLinks.some((externalLink) => externalLink.includes(url))
 export const isExternalAudiusUrl = (url: string) =>
   new RegExp(audiusUrlRegex).test(url)
 export const getPathFromAudiusUrl = (url: string) =>
