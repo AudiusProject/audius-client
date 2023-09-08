@@ -10,6 +10,7 @@ import { ScrollView, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { HarmonySelectablePill } from 'app/components/core/HarmonySelectablePill'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { makeStyles } from 'app/styles'
 
 const { getCategory } = savedPageSelectors
@@ -26,7 +27,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-const TRACKS_CATEGORIES = [
+const ALL_CATEGORIES = [
   {
     label: 'All',
     value: LibraryCategory.All
@@ -45,7 +46,7 @@ const TRACKS_CATEGORIES = [
   }
 ]
 
-const COLLECTIONS_CATEGORIES = TRACKS_CATEGORIES.slice(0, -1)
+const CATEGORIES_WITHOUT_PURCHASED = ALL_CATEGORIES.slice(0, -1)
 
 type LibraryTabRouteName = 'albums' | 'tracks' | 'playlists'
 const ROUTE_NAME_TO_TAB = {
@@ -92,11 +93,11 @@ export const LibraryCategorySelectionMenu = () => {
     }
   }
 
+  const isUSDCPurchasesEnabled = useIsUSDCEnabled()
   const categories =
-    currentTab === SavedPageTabs.ALBUMS ||
-    currentTab === SavedPageTabs.PLAYLISTS
-      ? COLLECTIONS_CATEGORIES
-      : TRACKS_CATEGORIES
+    currentTab === SavedPageTabs.TRACKS && isUSDCPurchasesEnabled
+      ? ALL_CATEGORIES
+      : CATEGORIES_WITHOUT_PURCHASED
 
   return (
     <View style={styles.container}>
