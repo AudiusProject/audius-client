@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   SolanaWalletAddress,
@@ -8,13 +8,14 @@ import {
   withdrawUSDCActions,
   BNUSDC,
   formatUSDCWeiToFloorCentsNumber,
-  Nullable
+  Nullable,
+  withdrawUSDCSelectors,
+  Status
 } from '@audius/common'
 import { Modal, ModalContent, ModalHeader } from '@audius/stems'
 import BN from 'bn.js'
 import { Formik } from 'formik'
-import { useDispatch } from 'react-redux'
-import { useEffectOnce } from 'react-use'
+import { useDispatch, useSelector } from 'react-redux'
 import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 
@@ -26,10 +27,12 @@ import { isValidSolAddress } from 'services/solana/solana'
 import styles from './WithdrawUSDCModal.module.css'
 import { ConfirmTransferDetails } from './components/ConfirmTransferDetails'
 import { EnterTransferDetails } from './components/EnterTransferDetails'
+import { Error } from './components/Error'
 import { TransferInProgress } from './components/TransferInProgress'
 import { TransferSuccessful } from './components/TransferSuccessful'
 
 const { beginWithdrawUSDC } = withdrawUSDCActions
+const { getWithdrawStatus } = withdrawUSDCSelectors
 
 const messages = {
   title: 'Withdraw Funds',
@@ -73,14 +76,16 @@ export const WithdrawUSDCModal = () => {
   const balanceNumberCents = formatUSDCWeiToFloorCentsNumber(
     (balance ?? new BN(0)) as BNUSDC
   )
+  const withdrawalStatus = useSelector(getWithdrawStatus)
 
   const [priorBalanceCents, setPriorBalanceCents] =
     useState<Nullable<number>>(null)
-  useEffectOnce(() => {
-    if (balanceNumberCents && balanceNumberCents > 0) {
+
+  useEffect(() => {
+    if (balanceNumberCents && priorBalanceCents === null) {
       setPriorBalanceCents(balanceNumberCents)
     }
-  }, [balanceNumberCents, setPriorBalanceCents])
+  }, [balanceNumberCents, priorBalanceCents, setPriorBalanceCents])
 
   const onSuccess = useCallback(
     (signature: string) => {
@@ -91,6 +96,14 @@ export const WithdrawUSDCModal = () => {
     },
     [setData]
   )
+
+  useEffect(() => {
+    if (withdrawalStatus === Status.ERROR) {
+      setData({
+        page: WithdrawUSDCModalPages.ERROR
+      })
+    }
+  }, [withdrawalStatus, setData])
 
   const handleSubmit = useCallback(
     ({ amount, address }: { amount: number; address: string }) => {
@@ -117,7 +130,12 @@ export const WithdrawUSDCModal = () => {
       formPage = <TransferInProgress />
       break
     case WithdrawUSDCModalPages.TRANSFER_SUCCESSFUL:
-      formPage = <TransferSuccessful priorBalanceCents={priorBalanceCents} />
+      formPage = (
+        <TransferSuccessful priorBalanceCents={priorBalanceCents || 0} />
+      )
+      break
+    case WithdrawUSDCModalPages.ERROR:
+      formPage = <Error />
       break
   }
 
