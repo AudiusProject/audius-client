@@ -34,6 +34,7 @@ const messages = {
   errors: {
     insufficientBalance:
       'Your USDC wallet does not have enough funds to cover this transaction.',
+    amountTooLow: 'Please withdraw at least $0.01.',
     invalidAddress: 'A valid Solana USDC wallet address is required.',
     pleaseConfirm:
       'Please confirm you have reviewed the details and accept responsibility for any errors resulting in lost funds.'
@@ -46,7 +47,10 @@ export const CONFIRM = 'confirm'
 
 const WithdrawUSDCFormSchema = (userBalance: number) => {
   return z.object({
-    [AMOUNT]: z.number().lte(userBalance, messages.errors.insufficientBalance),
+    [AMOUNT]: z
+      .number()
+      .lte(userBalance, messages.errors.insufficientBalance)
+      .gte(1, messages.errors.amountTooLow),
     [ADDRESS]: z
       .string()
       .refine(
