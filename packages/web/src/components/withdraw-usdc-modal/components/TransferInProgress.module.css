@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--unit-2);
-  margin-bottom: var(--unit-12);
+  margin-bottom: var(--unit-6);
 }
 
 .spinner {

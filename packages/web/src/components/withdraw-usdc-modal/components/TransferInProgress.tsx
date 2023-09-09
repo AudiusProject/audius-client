@@ -37,17 +37,12 @@ export const TransferInProgress = () => {
 
   return (
     <div className={styles.root}>
+      <TextRow left={messages.currentBalance} right={`$${balanceFormatted}`} />
       <Divider style={{ margin: 0 }} />
-      <div>
-        <TextRow
-          left={messages.currentBalance}
-          right={`$${balanceFormatted}`}
-        />
-        <TextRow
-          left={messages.amountToWithdraw}
-          right={`-$${toHumanReadable(amountValue)}`}
-        />
-      </div>
+      <TextRow
+        left={messages.amountToWithdraw}
+        right={`-$${toHumanReadable(amountValue)}`}
+      />
       <Divider style={{ margin: 0 }} />
       <div className={styles.destination}>
         <TextRow left={messages.destinationAddress} />

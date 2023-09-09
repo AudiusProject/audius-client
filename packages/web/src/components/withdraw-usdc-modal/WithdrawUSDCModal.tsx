@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import {
   SolanaWalletAddress,
@@ -7,12 +7,14 @@ import {
   WithdrawUSDCModalPages,
   withdrawUSDCActions,
   BNUSDC,
-  formatUSDCWeiToFloorCentsNumber
+  formatUSDCWeiToFloorCentsNumber,
+  Nullable
 } from '@audius/common'
 import { Modal, ModalContent, ModalHeader } from '@audius/stems'
 import BN from 'bn.js'
 import { Formik } from 'formik'
 import { useDispatch } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 
@@ -57,7 +59,9 @@ const WithdrawUSDCFormSchema = (userBalance: number) => {
         (value) => isValidSolAddress(value as SolanaWalletAddress),
         messages.errors.invalidAddress
       ),
-    [CONFIRM]: z.literal(true)
+    [CONFIRM]: z.literal(true, {
+      errorMap: () => ({ message: messages.errors.pleaseConfirm })
+    })
   })
 }
 
@@ -69,6 +73,14 @@ export const WithdrawUSDCModal = () => {
   const balanceNumberCents = formatUSDCWeiToFloorCentsNumber(
     (balance ?? new BN(0)) as BNUSDC
   )
+
+  const [priorBalanceCents, setPriorBalanceCents] =
+    useState<Nullable<number>>(null)
+  useEffectOnce(() => {
+    if (balanceNumberCents && balanceNumberCents > 0) {
+      setPriorBalanceCents(balanceNumberCents)
+    }
+  }, [balanceNumberCents, setPriorBalanceCents])
 
   const onSuccess = useCallback(
     (signature: string) => {
@@ -105,7 +117,7 @@ export const WithdrawUSDCModal = () => {
       formPage = <TransferInProgress />
       break
     case WithdrawUSDCModalPages.TRANSFER_SUCCESSFUL:
-      formPage = <TransferSuccessful />
+      formPage = <TransferSuccessful priorBalanceCents={priorBalanceCents} />
       break
   }
 
