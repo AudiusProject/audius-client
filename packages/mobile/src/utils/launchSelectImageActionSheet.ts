@@ -17,7 +17,10 @@ export const launchSelectImageActionSheet = (
   const theme = selectSystemTheme(store.getState())
   const { primary, secondary } = theme
 
-  const themeOptions: Options = {
+  const baseOptions: Options = {
+    cropping: true,
+    mediaType: 'photo',
+    includeBase64: true,
     cropperActiveWidgetColor: secondary,
     cropperStatusBarColor: secondary,
     cropperToolbarColor: secondary,
@@ -26,28 +29,25 @@ export const launchSelectImageActionSheet = (
   }
 
   const handleSelectImage = (image: CropPickerImage) => {
-    const { path, filename, mime } = image
+    const { filename, mime, data } = image
+    const url = `data:${mime};base64,${data}`
     return onSelectImage({
-      url: path,
-      file: { uri: path, name: filename ?? '', type: mime }
+      url,
+      file: { uri: url, name: filename ?? '', type: 'base64' }
     })
   }
 
   const selectPhotoFromLibrary = () => {
     openPicker({
-      ...options,
-      ...themeOptions,
-      cropping: true,
-      mediaType: 'photo'
+      ...baseOptions,
+      ...options
     }).then(handleSelectImage)
   }
 
   const takePhoto = () => {
     openCamera({
-      ...options,
-      ...themeOptions,
-      cropping: true,
-      mediaType: 'photo'
+      ...baseOptions,
+      ...options
     }).then(handleSelectImage)
   }
 
