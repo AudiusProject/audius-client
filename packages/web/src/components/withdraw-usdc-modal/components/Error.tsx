@@ -62,7 +62,7 @@ export const Error = () => {
           {addressValue}
         </Text>
       </div>
-      <div className={styles.error} t>
+      <div className={styles.error}>
         <Text size='xSmall' strength='default' color='accentRed'>
           {messages.error}
         </Text>
