@@ -67,6 +67,7 @@ export const Error = () => {
           {messages.error}
         </Text>
         <Text
+          as='a'
           className={styles.tryAgain}
           size='xSmall'
           strength='default'

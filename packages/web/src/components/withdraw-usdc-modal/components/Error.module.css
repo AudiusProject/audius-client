@@ -24,3 +24,7 @@
 .tryAgain {
   cursor: pointer;
 }
+
+.tryAgain:hover {
+  color: var(--secondary);
+}

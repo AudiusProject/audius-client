@@ -141,6 +141,7 @@ export const WithdrawUSDCModal = () => {
 
   return (
     <Modal
+      size='medium'
       isOpen={isOpen}
       onClose={onClose}
       onClosed={onClosed}
