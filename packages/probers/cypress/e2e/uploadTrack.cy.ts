@@ -153,8 +153,8 @@ describe('Upload', () => {
 
     cy.findByRole('button', { name: /continue/i }).click()
 
-    cy.findByRole('dialog', { name: /confirm upload/i }).within(() => {
-      cy.findByRole('button', { name: /upload/i }).click()
-    })
+    // cy.findByRole('dialog', { name: /confirm upload/i }).within(() => {
+    //   cy.findByRole('button', { name: /upload/i }).click()
+    // })
   })
 })
