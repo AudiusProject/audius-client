@@ -109,7 +109,9 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   ProfileActions: ProfileActionsDrawer,
   PlaybackRate: PlaybackRateDrawer,
   PublishPlaylistConfirmation: PublishPlaylistDrawer,
-  StripeOnRamp: StripeOnrampDrawer
+  StripeOnRamp: StripeOnrampDrawer,
+  LeavingAudiusModal: LeavingAudiusDrawer,
+  InboxUnavailableModal: InboxUnavailableDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
@@ -158,8 +160,6 @@ export const Drawers = () => {
           drawer={Drawer}
         />
       ))}
-      <LeavingAudiusDrawer />
-      <InboxUnavailableDrawer />
     </>
   )
 }
