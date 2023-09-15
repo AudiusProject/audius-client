@@ -45,7 +45,8 @@ import {
   RemoveDownloadedCollectionDrawer,
   RemoveDownloadedFavoritesDrawer,
   UnfavoriteDownloadedCollectionDrawer,
-  DeleteTrackConfirmationDrawer
+  DeleteTrackConfirmationDrawer,
+  OfflineListeningDrawer
 } from '../components/drawers'
 import { ShareToStoryProgressDrawer } from '../components/share-drawer/useShareToStory'
 import { VipDiscordDrawer } from '../components/vip-discord-drawer'
@@ -116,6 +117,7 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
+  OfflineListening: OfflineListeningDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
   DeleteTrackConfirmation: DeleteTrackConfirmationDrawer,
