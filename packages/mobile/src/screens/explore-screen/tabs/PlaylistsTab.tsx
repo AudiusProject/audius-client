@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { CollectionList } from 'app/components/collection-list'
 
 import { TabInfo } from '../components/TabInfo'
+import { track } from 'app/services/analytics'
 const { getExplorePlaylists, getExploreStatus, getPlaylistsStatus } =
   explorePageSelectors
 const { fetchPlaylists } = explorePageActions
@@ -28,6 +29,10 @@ export const PlaylistsTab = () => {
   useEffect(() => {
     if (exploreStatus === Status.SUCCESS) {
       dispatch(fetchPlaylists())
+    }
+
+    if(track){
+      setFeaturedPlaylists(track.featured_playlists || [])
     }
   }, [exploreStatus, dispatch])
 
